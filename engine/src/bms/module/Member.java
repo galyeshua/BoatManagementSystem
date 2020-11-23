@@ -3,6 +3,10 @@ package bms.module;
 import java.time.LocalDateTime;
 
 public class Member {
+
+
+
+
     public enum Level { BEGINNER, MODERATE, PROFESIONAL }
 
     private Integer serialNumber;
@@ -18,6 +22,7 @@ public class Member {
     private String email;
     private String password;
     private Boolean isManager;
+
 
 
     public Member(Integer serialNumber, String name, Integer age, String notes, Level level,
@@ -56,4 +61,66 @@ public class Member {
                 ", isManager=" + isManager +
                 '}';
     }
+
+    public Integer getSerialNumber() {
+        return serialNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setSerialNumber(Integer serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+
+    public void setJoinDate(LocalDateTime joinDate) {
+        this.joinDate = joinDate;
+    }
+
+    public void setExpireDate(LocalDateTime expireDate) {
+        this.expireDate = expireDate;
+    }
+
+    public void setHasPrivateBoat(Boolean hasPrivateBoat) {
+        this.hasPrivateBoat = hasPrivateBoat;
+    }
+
+    public void setBoatSerialNumber(Integer boatSerialNumber) {
+        this.boatSerialNumber = boatSerialNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setManager(Boolean manager) {
+        isManager = manager;
+    }
+
+
 }

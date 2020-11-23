@@ -6,13 +6,14 @@ import bms.engine.Engine;
 
 import bms.menu.BoatCommands;
 import bms.menu.Menu;
+import bms.module.Activity;
+import bms.module.Boat;
+import bms.module.Member;
 
-import static bms.utils.ConsoleUtils.getStringFromUser;
+import java.time.LocalDateTime;
 
 
 public class BMSMain {
-
-
 
     public static void main(String[] args) {
         new BMSMain().start();
@@ -23,6 +24,7 @@ public class BMSMain {
 
         // currentUser
         // menu class
+
 
         Menu mainMenu = new Menu("Boat House Main Menu");
 
@@ -42,34 +44,44 @@ public class BMSMain {
 //
 //        System.out.println(engine.getBoat(1).print());
 //
-//        for (Boat boat : engine.getBoats())
-//            System.out.println(boat);
-//
-//        engine.deleteBoat(1);
-//        engine.deleteBoat(2);
-//        engine.deleteBoat(3);
-//
-//        for (Boat boat : engine.getBoats())
-//            System.out.println(boat);
 
 //
+//        Menu m = new Menu();
 //
-//        engine.addMember(1);
-//        engine.addMember(2);
-//        engine.addMember(3);
+//        while(true) { // while not exit
+//            m.show();
 //
-//        System.out.println(engine.getMember(1));
-//
-//        for (Member member : engine.getMembers())
-//            System.out.println(member);
-//
-//        engine.deleteMember(1);
-//        engine.deleteMember(2);
-//        engine.deleteMember(3);
-//
-//        for (Member member : engine.getMembers())
-//            System.out.println(member);
+//            m.execute(getNumber());
+//        }
 
+
+        engine.addBoat( "Gal", "2X", true, false, true, false);
+        System.out.println(engine.getBoat(0).print());
+
+
+        engine.updateBoat(0,"iris",null,null,null,null,null,null);
+        System.out.println(engine.getBoat(0).print());
+
+       engine.addMember("meshi", 22,null, Member.Level.PROFESIONAL, LocalDateTime.now(),LocalDateTime.now(),true,1,"054-9999999",
+                null,"nee",true);
+
+       System.out.println(engine.getMember(0));
+
+//        for (Member member : engine.getMembers())
+//            System.out.println(member);
+//       engine.deleteMember(0);
+//       for (Member member : engine.getMembers())
+//           System.out.println(member);
+
+        engine.updateMember(0,"maya",null,null,null,null,null,null,null,null,null,null);
+        System.out.println(engine.getMember(0));
+
+
+        engine.addActivity("diving",LocalDateTime.now(),LocalDateTime.now(),"wide");
+        System.out.println(engine.getActivity(0));
+
+        engine.updateActivity(0,"runing",null,null,null);
+        System.out.println(engine.getActivity(0));
 
     }
 

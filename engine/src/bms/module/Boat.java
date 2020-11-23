@@ -11,6 +11,8 @@ public class Boat {
     private Boolean isDisabled;
 
 
+
+
     public Boat(Integer serialNumber, String name, String type, Boolean isPrivate, Boolean isWide,
                 Boolean hasCoxswain, Boolean isMarine, Boolean isDisabled) {
         this.serialNumber = serialNumber;
@@ -60,6 +62,39 @@ public class Boat {
                 ", isMarine=" + isMarine +
                 ", isDisabled=" + isDisabled +
                 '}';
+    }
+
+
+    public void setSerialNumber(Integer serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setPrivate(Boolean aPrivate) {
+        isPrivate = aPrivate;
+    }
+
+    public void setWide(Boolean wide) {
+        isWide = wide;
+    }
+
+    public void setHasCoxswain(Boolean hasCoxswain) {
+        this.hasCoxswain = hasCoxswain;
+    }
+
+    public void setMarine(Boolean marine) {
+        isMarine = marine;
+    }
+
+    public void setDisabled(Boolean disabled) {
+        isDisabled = disabled;
     }
 
 }
