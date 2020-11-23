@@ -10,25 +10,26 @@ import bms.module.Boat;
 
 public class BoatManager {
 
-    private Map<Integer, Boat> boats = new HashMap<Integer, Boat>();
+    public Map<Integer, Boat> boats = new HashMap<Integer, Boat>();
 
-    public void add(Boat obj) {
-
+    public void add(Boat boat) {
+        boats.put(boat.getSerialNumber(), boat);
     }
 
     public void delete(Integer serialNumber) {
-
+       boats.remove(serialNumber);
     }
 
     public Collection<Boat> getAll() {
-        return null;
+        return boats.values();
     }
 
-    public Boat get() {
-        return null;
+    public Boat get(Integer serialNumber) {
+        return boats.get(serialNumber);
     }
 
     public void update(Boat obj) {
+        boats.replace(obj.getSerialNumber(), obj);
 
     }
 }
