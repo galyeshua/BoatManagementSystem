@@ -4,9 +4,11 @@ import bms.engine.BMSEngine;
 import bms.engine.Engine;
 
 
+import bms.menu.BoatCommands;
 import bms.menu.Menu;
 
-import static bms.utils.ConsoleUtils.getNumber;
+import static bms.utils.ConsoleUtils.getStringFromUser;
+
 
 public class BMSMain {
 
@@ -19,26 +21,21 @@ public class BMSMain {
     private void start(){
         BMSEngine engine = new Engine();
 
-
         // currentUser
         // menu class
 
-        Menu m = new Menu();
+        Menu mainMenu = new Menu("Boat House Main Menu");
 
-        while(true){ // while not exit
-            m.show();
+        mainMenu.addOption("New reservation", new BoatCommands.PrintBoats());
+        mainMenu.addOption("Show reservations", new BoatCommands.PrintBoats());
+        mainMenu.addOption("Reservation history", new BoatCommands.PrintBoats());
+        mainMenu.addOption("Edit my profile", new BoatCommands.PrintBoats());
+        mainMenu.addOption("Manage", new BoatCommands.openSubMenu());
+        mainMenu.addOption("Exit", new BoatCommands.exitApp());
 
-            m.execute(getNumber());
-        }
-        // exit app
+        mainMenu.startLoop();
 
-//
-//        // while loop (until choose exit)
-//        //    menu.show()
-//        //    ans <- what do you choose
-//        //    menu.doAction(ans)
-//
-//
+
 //        engine.addBoat(1);
 //        engine.addBoat(2);
 //        engine.addBoat(3);
@@ -54,9 +51,7 @@ public class BMSMain {
 //
 //        for (Boat boat : engine.getBoats())
 //            System.out.println(boat);
-//
-//
-//
+
 //
 //
 //        engine.addMember(1);
