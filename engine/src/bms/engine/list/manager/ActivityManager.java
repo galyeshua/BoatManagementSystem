@@ -25,9 +25,5 @@ public class ActivityManager {
         return activities.get(serialNumber);
     }
 
-    public void update(Activity obj) {
-        activities.replace(obj.getSerialNumber(), obj);
-    }
-
 
 }

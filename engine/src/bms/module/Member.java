@@ -4,30 +4,25 @@ import java.time.LocalDateTime;
 
 public class Member {
 
+    public enum Level { BEGINNER, MODERATE, PROFESSIONAL }
 
-
-
-    public enum Level { BEGINNER, MODERATE, PROFESIONAL }
-
-    private Integer serialNumber;
+    private int serialNumber;
     private String name;
-    private Integer age;
+    private int age;
     private String notes;
     private Level level;
-    private LocalDateTime joinDate; // need to change to Date
-    private LocalDateTime expireDate; // need to change to Date
-    private Boolean hasPrivateBoat;
-    private Integer boatSerialNumber;
+    private LocalDateTime joinDate;
+    private LocalDateTime expireDate;
+    private boolean hasPrivateBoat;
+    private int boatSerialNumber;
     private String phoneNumber;
     private String email;
     private String password;
-    private Boolean isManager;
+    private boolean isManager;
 
-
-
-    public Member(Integer serialNumber, String name, Integer age, String notes, Level level,
-                  LocalDateTime joinDate, LocalDateTime expireDate, Boolean hasPrivateBoat, Integer boatSerialNumber,
-                  String phoneNumber, String email, String password, Boolean isManager) {
+    public Member(int serialNumber, String name, int age, String notes, Level level, LocalDateTime joinDate,
+                  LocalDateTime expireDate, boolean hasPrivateBoat, int boatSerialNumber, String phoneNumber,
+                  String email, String password, boolean isManager) {
         this.serialNumber = serialNumber;
         this.name = name;
         this.age = age;
@@ -62,65 +57,86 @@ public class Member {
                 '}';
     }
 
-    public Integer getSerialNumber() {
+
+    public int getSerialNumber() {
         return serialNumber;
     }
-
+    public String getName() {
+        return name;
+    }
+    public int getAge() {
+        return age;
+    }
+    public String getNotes() {
+        return notes;
+    }
+    public Level getLevel() {
+        return level;
+    }
+    public LocalDateTime getJoinDate() {
+        return joinDate;
+    }
+    public LocalDateTime getExpireDate() {
+        return expireDate;
+    }
+    public boolean isHasPrivateBoat() {
+        return hasPrivateBoat;
+    }
+    public int getBoatSerialNumber() {
+        return boatSerialNumber;
+    }
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
     public String getEmail() {
         return email;
     }
-
-    public void setSerialNumber(Integer serialNumber) {
-        this.serialNumber = serialNumber;
+    public String getPassword() {
+        return password;
+    }
+    public boolean isManager() {
+        return isManager;
     }
 
+
+
+    public void setSerialNumber(int serialNumber) {
+        this.serialNumber = serialNumber;
+    }
     public void setName(String name) {
         this.name = name;
     }
-
-    public void setAge(Integer age) {
+    public void setAge(int age) {
         this.age = age;
     }
-
     public void setNotes(String notes) {
         this.notes = notes;
     }
-
     public void setLevel(Level level) {
         this.level = level;
     }
-
     public void setJoinDate(LocalDateTime joinDate) {
         this.joinDate = joinDate;
     }
-
     public void setExpireDate(LocalDateTime expireDate) {
         this.expireDate = expireDate;
     }
-
-    public void setHasPrivateBoat(Boolean hasPrivateBoat) {
+    public void setHasPrivateBoat(boolean hasPrivateBoat) {
         this.hasPrivateBoat = hasPrivateBoat;
     }
-
-    public void setBoatSerialNumber(Integer boatSerialNumber) {
+    public void setBoatSerialNumber(int boatSerialNumber) {
         this.boatSerialNumber = boatSerialNumber;
     }
-
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-
     public void setPassword(String password) {
         this.password = password;
     }
-
-    public void setManager(Boolean manager) {
+    public void setManager(boolean manager) {
         isManager = manager;
     }
-
-
 }

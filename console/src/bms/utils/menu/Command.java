@@ -1,4 +1,4 @@
-package bms.menu;
+package bms.utils.menu;
 
 public interface Command {
     public void execute();

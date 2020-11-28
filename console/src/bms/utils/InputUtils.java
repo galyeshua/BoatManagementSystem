@@ -3,8 +3,7 @@ package bms.utils;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class ConsoleUtils {
-
+public class InputUtils {
 
     public static int getNumberFromUser(){
         Scanner scanner = new Scanner(System.in);
@@ -41,6 +40,7 @@ public class ConsoleUtils {
         return inputNumber;
     }
 
+
     public static String getStringFromUser() {
         Scanner scanner = new Scanner(System.in);
         String inputString = "";
@@ -58,4 +58,44 @@ public class ConsoleUtils {
 
         return inputString;
     }
+
+    public static boolean getBoolFromUser() {
+        Scanner scanner = new Scanner(System.in);
+        String inputString = "";
+        boolean inputBool = true;
+        boolean validInput = false;
+        do {
+            inputString = getStringFromUser();
+            validInput = true;
+            if(inputString.equals("Y")){
+                inputBool = true;
+            } else if (inputString.equals("N")){
+                inputBool = false;
+            } else {
+                validInput = false;
+            }
+        } while (validInput == false);
+
+        return inputBool;
+    }
+
+    public static boolean isTrue(String question){
+        System.out.println(question);
+        return getBoolFromUser();
+    }
+
+    public static Object chooseFromOptins(Object[] options) {
+        System.out.println("Choose from the options:");
+        int res = 0;
+        int i = 0;
+        for (Object obj :options) {
+            System.out.println("[" + i++ + "] " + obj);
+        }
+        System.out.println("choose");
+        res = getNumberFromUser(0, options.length - 1);
+        return options[res];
+    }
+
+
+
 }

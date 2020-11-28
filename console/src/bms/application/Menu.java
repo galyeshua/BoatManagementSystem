@@ -1,14 +1,34 @@
-package bms.menu;
+package bms.application;
+
+import bms.utils.menu.Command;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static bms.utils.ConsoleUtils.getNumberFromUser;
+import static bms.utils.InputUtils.getNumberFromUser;
 
 public class Menu {
+
+    class Option {
+        private String description;
+        private Command func;
+
+        public Option(String description, Command func) {
+            this.description = description;
+            this.func = func;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+        public Command getCommand(){
+            return func;
+        }
+    }
+
     private String title;
     private List<Option> options;
-    boolean exitMenu;
+    public boolean exitMenu;
 
 
     public Menu(String title) {
@@ -17,23 +37,17 @@ public class Menu {
         this.exitMenu = false;
     }
 
-
     public void startLoop(){
         int choice = 0;
 
         while(exitMenu == false) {
             this.displayOptions();
             System.out.println("Choose number from the menu: ");
-            choice = getNumberFromUser(0, options.size());
+            choice = getNumberFromUser(0, options.size() - 1);
             this.execute(choice);
             System.out.println("");
         }
     }
-
-    public void stopLoop(){
-        exitMenu = true;
-    }
-
 
     private void displayOptions(){
         System.out.println("    " + this.title);
@@ -44,6 +58,25 @@ public class Menu {
     private void execute(int optionIndex){
         Command commandOfOption = options.get(optionIndex).getCommand();
         commandOfOption.execute();
+    }
+
+    public Command stopLoop(){
+        return new Command() {
+            @Override
+            public void execute() {
+                exitMenu = true;
+            }
+        };
+    }
+
+    public Command ExitApp(){
+        return new Command() {
+            @Override
+            public void execute() {
+                System.out.println("BYE");
+                System.exit(0);
+            }
+        };
     }
 
     public void addOption(String description, Command command){

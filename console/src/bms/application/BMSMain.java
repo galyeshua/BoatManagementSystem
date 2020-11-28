@@ -2,15 +2,13 @@ package bms.application;
 
 import bms.engine.BMSEngine;
 import bms.engine.Engine;
-
-
-import bms.menu.BoatCommands;
-import bms.menu.Menu;
-import bms.module.Activity;
+import bms.engine.list.manager.Exceptions;
 import bms.module.Boat;
 import bms.module.Member;
 
 import java.time.LocalDateTime;
+
+import static bms.utils.menu.MenuUtils.getMainMenuForUser;
 
 
 public class BMSMain {
@@ -19,69 +17,57 @@ public class BMSMain {
         new BMSMain().start();
     }
 
-    private void start(){
+    private void start() {
         BMSEngine engine = new Engine();
 
-        // currentUser
-        // menu class
+        //System.out.println(test.values()[1]);;
 
+        // load user
 
-        Menu mainMenu = new Menu("Boat House Main Menu");
+        for (Member member : engine.getMembers())
+            System.out.println(member);
 
-        mainMenu.addOption("New reservation", new BoatCommands.PrintBoats());
-        mainMenu.addOption("Show reservations", new BoatCommands.PrintBoats());
-        mainMenu.addOption("Reservation history", new BoatCommands.PrintBoats());
-        mainMenu.addOption("Edit my profile", new BoatCommands.PrintBoats());
-        mainMenu.addOption("Manage", new BoatCommands.openSubMenu());
-        mainMenu.addOption("Exit", new BoatCommands.exitApp());
-
+        Menu mainMenu = getMainMenuForUser(true, engine);
         mainMenu.startLoop();
 
-
-//        engine.addBoat(1);
-//        engine.addBoat(2);
-//        engine.addBoat(3);
+//        System.out.println(Boat.getCounter());
 //
-//        System.out.println(engine.getBoat(1).print());
+//        engine.addBoat( "Gal", "2X", true, false, true, false);
+//        engine.addBoat( "Gal", "2X", true, false, true, false);
+//        //System.out.println(engine.getBoat(0).print());
+//
+//        System.out.println(Boat.getCounter());
+//
+//        Boat.setCounter(10);
 //
 
 //
-//        Menu m = new Menu();
 //
-//        while(true) { // while not exit
-//            m.show();
-//
-//            m.execute(getNumber());
-//        }
-
-
-        engine.addBoat( "Gal", "2X", true, false, true, false);
-        System.out.println(engine.getBoat(0).print());
-
-
-        engine.updateBoat(0,"iris",null,null,null,null,null,null);
-        System.out.println(engine.getBoat(0).print());
-
-       engine.addMember("meshi", 22,null, Member.Level.PROFESIONAL, LocalDateTime.now(),LocalDateTime.now(),true,1,"054-9999999",
-                null,"nee",true);
-
-       System.out.println(engine.getMember(0));
-
-//        for (Member member : engine.getMembers())
-//            System.out.println(member);
-//       engine.deleteMember(0);
-//       for (Member member : engine.getMembers())
-//           System.out.println(member);
-
-        engine.updateMember(0,"maya",null,null,null,null,null,null,null,null,null,null);
-        System.out.println(engine.getMember(0));
-
-
-        engine.addActivity("diving",LocalDateTime.now(),LocalDateTime.now(),"wide");
-        System.out.println(engine.getActivity(0));
-
-        engine.updateActivity(0,"runing",null,null,null);
-        System.out.println(engine.getActivity(0));
+//        System.out.println(Boat.getCounter());
+////
+////        engine.updateBoat(0,"iris",null,null,null,null,null,null);
+////        System.out.println(engine.getBoat(0).print());
+////
+////       engine.addMember("meshi", 22,null, Member.Level.PROFESIONAL, LocalDateTime.now(),LocalDateTime.now(),true,1,"054-9999999",
+////                null,"nee",true);
+////
+////       System.out.println(engine.getMember(0));
+////
+//////        for (Member member : engine.getMembers())
+//////            System.out.println(member);
+//////       engine.deleteMember(0);
+//////       for (Member member : engine.getMembers())
+//////           System.out.println(member);
+////
+////        engine.updateMember(0,"maya",null,null,null,null,null,null,null,null,null,null);
+////        System.out.println(engine.getMember(0));
+////
+////
+////        engine.addActivity("diving",LocalDateTime.now(),LocalDateTime.now(),"wide");
+////        System.out.println(engine.getActivity(0));
+////
+////        engine.updateActivity(0,"runing",null,null,null);
+////        System.out.println(engine.getActivity(0));
 
     }
 

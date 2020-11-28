@@ -1,40 +1,63 @@
 package bms.module;
 
+import bms.engine.list.manager.Exceptions;
+
 public class Boat {
-    private Integer serialNumber;
+    private static Integer counter = 1;
+
+    public enum Rowers {
+        ONE("1"), TWO("2"), FOUR("4"), EIGHT("8") ;
+        private String num;
+
+        Rowers(String num) {
+            this.num = num;
+        }
+        private String getNum(){
+            return this.num;
+        }
+    }
+    public enum Paddles { SINGLE, DOUBLE }
+
+
+    private int serialNumber;
     private String name;
-    private String type;
-    private Boolean isPrivate;
-    private Boolean isWide;
-    private Boolean hasCoxswain;
-    private Boolean isMarine;
-    private Boolean isDisabled;
+    private Rowers numOfRowers;
+    private Paddles numOfPaddles;
+    private boolean isPrivate;
+    private boolean isWide;
+    private boolean hasCoxswain;
+    private boolean isMarine;
+    private boolean isDisabled;
 
 
+    public Boat(String name, Rowers numOfRowers, Paddles numOfPaddles, Boolean isPrivate,
+                Boolean isWide, Boolean hasCoxswain, Boolean isMarine, Boolean isDisabled)
+            throws Exceptions.IllegalBoatValueException {
 
-
-    public Boat(Integer serialNumber, String name, String type, Boolean isPrivate, Boolean isWide,
-                Boolean hasCoxswain, Boolean isMarine, Boolean isDisabled) {
-        this.serialNumber = serialNumber;
-        this.name = name;
-        this.type = type;
-        this.isPrivate = isPrivate;
-        this.isWide = isWide;
-        this.hasCoxswain = hasCoxswain;
-        this.isMarine = isMarine;
-        this.isDisabled = isDisabled;
+        this.setSerialNumber(Boat.counter++);
+        this.setName(name);
+        this.setNumOfRowers(numOfRowers);
+        this.setNumOfPaddles(numOfPaddles);
+        this.setPrivate(isPrivate);
+        this.setWide(isWide);
+        this.setHasCoxswain(hasCoxswain);
+        this.setMarine(isMarine);
+        this.setDisabled(isDisabled);
     }
 
-    public void disable() {
-        isDisabled = true;
-    }
+    public Boat(int serialNumber, String name, Rowers numOfRowers, Paddles numOfPaddles,
+                Boolean isPrivate, Boolean isWide, Boolean hasCoxswain, Boolean isMarine,
+                Boolean isDisabled) throws Exceptions.IllegalBoatValueException{
 
-    public void enable() {
-        isDisabled = false;
-    }
-
-    public int getSerialNumber() {
-        return serialNumber;
+        this.setSerialNumber(serialNumber);
+        this.setName(name);
+        this.setNumOfRowers(numOfRowers);
+        this.setNumOfPaddles(numOfPaddles);
+        this.setPrivate(isPrivate);
+        this.setWide(isWide);
+        this.setHasCoxswain(hasCoxswain);
+        this.setMarine(isMarine);
+        this.setDisabled(isDisabled);
     }
 
     @Override
@@ -42,20 +65,8 @@ public class Boat {
         return "Boat{" +
                 "serialNumber=" + serialNumber +
                 ", name='" + name + '\'' +
-                ", type='" + type + '\'' +
-                ", isPrivate=" + isPrivate +
-                ", isWide=" + isWide +
-                ", hasCoxswain=" + hasCoxswain +
-                ", isMarine=" + isMarine +
-                ", isDisabled=" + isDisabled +
-                '}';
-    }
-
-    public String print() {
-        return "Boat{" +
-                "serialNumber=" + serialNumber +
-                ", name='" + name + '\'' +
-                ", type='" + type + '\'' +
+                ", numOfRowers=" + numOfRowers +
+                ", numOfPaddles=" + numOfPaddles +
                 ", isPrivate=" + isPrivate +
                 ", isWide=" + isWide +
                 ", hasCoxswain=" + hasCoxswain +
@@ -65,35 +76,76 @@ public class Boat {
     }
 
 
-    public void setSerialNumber(Integer serialNumber) {
+    public static int getCounter() {
+        return Boat.counter;
+    }
+    public int getSerialNumber() {
+        return serialNumber;
+    }
+    public String getName() {
+        return name;
+    }
+    public Rowers getNumOfRowers() {
+        return numOfRowers;
+    }
+    public Paddles getNumOfPaddles() {
+        return numOfPaddles;
+    }
+    public boolean getPrivate() {
+        return isPrivate;
+    }
+    public boolean getWide() {
+        return isWide;
+    }
+    public boolean getHasCoxswain() {
+        return hasCoxswain;
+    }
+    public boolean getMarine() {
+        return isMarine;
+    }
+    public boolean getDisabled() {
+        return isDisabled;
+    }
+
+
+
+    public static void setCounter(int counter) {
+        Boat.counter = counter;
+    }
+    public void setSerialNumber(int serialNumber) {
         this.serialNumber = serialNumber;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setNumOfRowers(Rowers numOfRowers) {
+        this.numOfRowers = numOfRowers;
     }
-
-    public void setPrivate(Boolean aPrivate) {
+    public void setNumOfPaddles(Paddles numOfPaddles) {
+        this.numOfPaddles = numOfPaddles;
+    }
+    public void setPrivate(boolean aPrivate) {
         isPrivate = aPrivate;
     }
-
-    public void setWide(Boolean wide) {
+    public void setWide(boolean wide) {
         isWide = wide;
     }
 
-    public void setHasCoxswain(Boolean hasCoxswain) {
+    public void setHasCoxswain(boolean hasCoxswain) throws Exceptions.IllegalBoatValueException{
+        if (this.numOfRowers.equals(Rowers.ONE))
+            if (hasCoxswain)
+                throw new Exceptions.IllegalBoatValueException("Boat with size ONE cannot have coxswain");
+
+        if (this.numOfRowers.equals(Rowers.EIGHT))
+            if (!hasCoxswain)
+                throw new Exceptions.IllegalBoatValueException("Boat with size EIGHT must have coxswain");
+
         this.hasCoxswain = hasCoxswain;
     }
-
-    public void setMarine(Boolean marine) {
+    public void setMarine(boolean marine) {
         isMarine = marine;
     }
-
-    public void setDisabled(Boolean disabled) {
+    public void setDisabled(boolean disabled) {
         isDisabled = disabled;
     }
 
