@@ -1,15 +1,22 @@
 package bms.module;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class Activity {
 
     private String name;
-    private LocalDateTime startTime;
-    private LocalDateTime finishTime;
+    private LocalTime startTime;
+    private LocalTime finishTime;
     private String boatType;
 
-    public Activity(String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType) {
+    public Activity(String name, LocalTime startTime, LocalTime finishTime) {
+        this.setName(name);
+        this.setStartTime(startTime);
+        this.setFinishTime(finishTime);
+        this.setBoatType("");
+    }
+
+    public Activity(String name, LocalTime startTime, LocalTime finishTime, String boatType) {
         this.setName(name);
         this.setStartTime(startTime);
         this.setFinishTime(finishTime);
@@ -30,10 +37,10 @@ public class Activity {
     public String getName() {
         return name;
     }
-    public LocalDateTime getStartTime() {
+    public LocalTime getStartTime() {
         return startTime;
     }
-    public LocalDateTime getFinishTime() {
+    public LocalTime getFinishTime() {
         return finishTime;
     }
     public String getBoatType() {
@@ -44,10 +51,10 @@ public class Activity {
     public void setName(String name) {
         this.name = name;
     }
-    public void setStartTime(LocalDateTime startTime) {
+    public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
     }
-    public void setFinishTime(LocalDateTime finishTime) {
+    public void setFinishTime(LocalTime finishTime) {
         this.finishTime = finishTime;
     }
     public void setBoatType(String boatType) {

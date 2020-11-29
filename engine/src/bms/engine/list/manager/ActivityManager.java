@@ -2,28 +2,40 @@ package bms.engine.list.manager;
 
 import bms.module.Activity;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 public class ActivityManager {
-      private List activities =new ArrayList<Activity>();
+    private List<Activity> activities = new ArrayList<Activity>();
 
-    public void add(Activity activity) {
+    public void addActivity(Activity activity) {
         activities.add(activity);
+        //activities.sort();
     }
 
-    public void delete(String name, LocalDateTime startTime, LocalDateTime finishTime) {
-
-        activities.remove(name,startTime,finishTime);
+    public void deleteActivity(String name, LocalTime startTime, LocalTime finishTime) {
+        Activity activity = getActivity(name, startTime, finishTime);
+        activities.remove(activity);
     }
 
-    public Collection<Activity> getAll() {
+    public Collection<Activity> getActivities() {
         return activities;
     }
 
-    public Activity get(String name, LocalDateTime startTime, LocalDateTime finishTime) {
+    public Activity getActivity(String name, LocalTime startTime, LocalTime finishTime) {
+        boolean isNameEquals;
+        boolean isStartTimeEquals;
+        boolean isFinishTimeEquals;
 
-        return activities.get(name,startTime,finishTime);
+        for (Activity activity : activities) {
+            isNameEquals = activity.getName().equals(name);
+            isStartTimeEquals = activity.getStartTime().equals(startTime);
+            isFinishTimeEquals = activity.getFinishTime().equals(finishTime);
+
+            if(isNameEquals && isStartTimeEquals && isFinishTimeEquals)
+                return activity;
+        }
+        return null;
     }
 
 

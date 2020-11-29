@@ -3,10 +3,14 @@ package bms.application;
 import bms.engine.BMSEngine;
 import bms.engine.Engine;
 import bms.engine.list.manager.Exceptions;
+import bms.module.Activity;
 import bms.module.Boat;
 import bms.module.Member;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static bms.utils.menu.MenuUtils.getMainMenuForUser;
 
@@ -24,11 +28,8 @@ public class BMSMain {
 
         // load user
 
-        for (Member member : engine.getMembers())
-            System.out.println(member);
-
         Menu mainMenu = getMainMenuForUser(true, engine);
-        mainMenu.startLoop();
+        //mainMenu.startLoop();
 
 //        System.out.println(Boat.getCounter());
 //

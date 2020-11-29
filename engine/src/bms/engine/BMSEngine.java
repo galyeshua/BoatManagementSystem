@@ -1,6 +1,7 @@
 package bms.engine;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
 
 import bms.engine.list.manager.Exceptions;
@@ -19,10 +20,6 @@ public interface BMSEngine {
     Boat getBoat(int serialNumber);
     Boat getBoat(String name);
 
-//    void updateBoat(int serialNumber,String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles,
-//                    boolean isPrivate, boolean isWide, boolean hasCoxswain, boolean isMarine, boolean isDisabled)
-//            throws Exceptions.BoatNotFoundException, Exceptions.IllegalBoatValueExeption;
-
     void updateBoatName(int serialNumber, String name) throws Exceptions.BoatNotFoundException;
     void updateBoatNumOfRowers(int serialNumber, Boat.Rowers numOfRowers) throws Exceptions.BoatNotFoundException;
     void updateBoatNumOfPaddles(int serialNumber, Boat.Paddles numOfPaddles) throws Exceptions.BoatNotFoundException;
@@ -32,19 +29,6 @@ public interface BMSEngine {
             throws Exceptions.BoatNotFoundException,Exceptions.IllegalBoatValueException;
     void updateBoatMarine(int serialNumber, boolean isMarine) throws Exceptions.BoatNotFoundException;
     void updateBoatDisabled(int serialNumber, boolean isDisabled) throws Exceptions.BoatNotFoundException;
-
-
-    void updateMemberName(int serialNumber, String name) throws Exceptions.MemberNotFoundException;
-    void updateMemberAge(int serialNumber, int age) throws Exceptions.MemberNotFoundException;
-    void updateMemberNotes(int serialNumber, String notes) throws Exceptions.MemberNotFoundException;
-    void updateMemberLevel(int serialNumber, Member.Level level) throws Exceptions.MemberNotFoundException;
-    void updateMemberPrivateBoat(int serialNumber, boolean hasBoat) throws Exceptions.MemberNotFoundException;
-    void updateBoatSerialNumber(int serialNumber,int boatSerialNumber);
-    void updateMemberPhone(int serialNumber, String phone) throws Exceptions.MemberNotFoundException;
-    void updateMemberEmail(int serialNumber, String email) throws Exceptions.MemberNotFoundException;
-    void updateMemberPassword(int serialNumber, String password) throws Exceptions.MemberNotFoundException;
-    void updateMemberRole(int serialNumber, boolean isManager) throws Exceptions.MemberNotFoundException;
-
 
 
 
@@ -58,21 +42,27 @@ public interface BMSEngine {
     Member getMember(int serialNumber);
     Member getMember(String email);
 
+    void updateMemberName(int serialNumber, String name) throws Exceptions.MemberNotFoundException;
+    void updateMemberAge(int serialNumber, int age) throws Exceptions.MemberNotFoundException;
+    void updateMemberNotes(int serialNumber, String notes) throws Exceptions.MemberNotFoundException;
+    void updateMemberLevel(int serialNumber, Member.Level level) throws Exceptions.MemberNotFoundException;
+    void updateMemberPrivateBoat(int serialNumber, boolean hasBoat) throws Exceptions.MemberNotFoundException;
+    void updateBoatSerialNumber(int serialNumber,int boatSerialNumber);
+    void updateMemberPhone(int serialNumber, String phone) throws Exceptions.MemberNotFoundException;
+    void updateMemberEmail(int serialNumber, String email) throws Exceptions.MemberNotFoundException;
+    void updateMemberPassword(int serialNumber, String password) throws Exceptions.MemberNotFoundException;
+    void updateMemberRole(int serialNumber, boolean isManager) throws Exceptions.MemberNotFoundException;
 
 
+    void addActivity(String name, LocalTime startTime, LocalTime finishTime, String boatType)
+            throws Exceptions.ActivityAlreadyExistsException;
+    void addActivity(String name, LocalTime startTime, LocalTime finishTime)
+            throws Exceptions.ActivityAlreadyExistsException;
+    void deleteActivity(String name, LocalTime startTime, LocalTime finishTime)
+            throws Exceptions.ActivityNotFoundException;
+    Collection<Activity> getActivities();
+    Activity getActivity(String name, LocalTime startTime, LocalTime finishTime);
 
-
-
-
-
-
-    public void addActivity(String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType);
-    public void deleteActivity(Integer serialNumber);
-    public void updateActivity(Integer serialNumber,String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType);
-    public Collection<Activity> getActivities();
-    public Activity getActivity(Integer serialNumber);
-
-
-
+    //void updateActivity(Integer serialNumber,String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType);
 
 }

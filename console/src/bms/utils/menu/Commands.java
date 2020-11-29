@@ -8,6 +8,7 @@ import bms.module.Member;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static bms.utils.InputUtils.*;
 
@@ -531,12 +532,12 @@ public class Commands {
 
             private void chooseActivityToUpdate() throws Exceptions.ActivityNotFoundException {
                 System.out.println("All the activities:");
-                printActivity().execute();
+                //printActivity().execute();
                 System.out.println("choose activity to edit");
                 serialNumber = getNumberFromUser();
-                member = engine.getMember(serialNumber);
-                if (member == null)
-                    throw new Exceptions.MemberNotFoundException();
+                //member = engine.getMember(serialNumber);
+                //if (member == null)
+                //    throw new Exceptions.MemberNotFoundException();
             }
 
             @Override
@@ -554,8 +555,8 @@ public class Commands {
     public static Command addActivity() {
         return new Command() {
             private String name;
-            private LocalDateTime startTime;
-            private LocalDateTime finishTime;
+            private LocalTime startTime;
+            private LocalTime finishTime;
             private String boatType;
 
 
@@ -563,29 +564,17 @@ public class Commands {
                 System.out.println("Enter Name:");
                 name = getStringFromUser();
                 System.out.println("Enter startTime:");
-                System.out.println("Enter Day:");
-                int day = getNumberFromUser(1, 31);
-                System.out.println("Enter Month:");
-                int month = getNumberFromUser(1, 12);
-                System.out.println("Enter Year:");
-                int year = getNumberFromUser(2020, 3000);
                 System.out.println("Enter hour:");
                 int hour = getNumberFromUser(5,24 );
                 System.out.println("Enter minute:");
                 int minute = getNumberFromUser(0,59);
-                startTime = LocalDateTime.of(year,month,day,hour,minute);
-                System.out.println("Enter startTime:");
-                System.out.println("Enter Day:");
-                day = getNumberFromUser(1, 31);
-                System.out.println("Enter Month:");
-                month = getNumberFromUser(1, 12);
-                System.out.println("Enter Year:");
-                year = getNumberFromUser(2020, 3000);
+                startTime = LocalTime.of(hour,minute);
+                System.out.println("Enter finishTime:");
                 System.out.println("Enter hour:");
                 hour = getNumberFromUser(5,24 );
                 System.out.println("Enter minute:");
                 minute = getNumberFromUser(0,59);
-                finishTime = LocalDateTime.of(year,month,day,hour,minute);
+                finishTime = LocalTime.of(hour,minute);
                 System.out.println("Enter Boat Type:");
                 boatType = getStringFromUser();
             }
@@ -594,7 +583,7 @@ public class Commands {
             public void execute() {
                 try{
                     askForValues();
-                    engine.addActivity(name,startTime,finishTime,boatType);
+                    //engine.addActivity(name,startTime,finishTime,boatType);
                 } catch (Exceptions.ActivityAlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
                 }
@@ -690,7 +679,7 @@ public class Commands {
             public void execute() {
                 try{
                     boatType = getStringFromUser();
-                    engine.updateMemberNotes(serialNumber, MemberNotes);
+                    //engine.updateMemberNotes(serialNumber, MemberNotes);
 
                 } catch (Exceptions.MemberNotFoundException e){
                     System.out.println("Member not found");
