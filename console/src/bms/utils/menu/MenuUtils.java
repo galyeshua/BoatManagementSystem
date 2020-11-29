@@ -66,16 +66,16 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Edit Member " + memberSerialNumber);
 
-            subMenu.addOption("Edit Member Name", Commands.editBoatName(memberSerialNumber));
-            subMenu.addOption("Edit Member Age", Commands.editBoatNumOfPaddles(memberSerialNumber));
-            subMenu.addOption("Edit Member Notes", Commands.editBoatPrivate(memberSerialNumber));
-            subMenu.addOption("Edit Member Level", Commands.editBoatCoxswain(memberSerialNumber));
-            subMenu.addOption("Edit Member expire Date", Commands.editBoatMarine(memberSerialNumber));
-            subMenu.addOption("Edit Member Private Boat", Commands.editBoatMarine(memberSerialNumber));
-            subMenu.addOption("Edit Member Phone number", Commands.editBoatMarine(memberSerialNumber));
-            subMenu.addOption("Edit Member Email", Commands.editBoatDisabled(memberSerialNumber));
-            subMenu.addOption("Edit Member Password", Commands.editBoatDisabled(memberSerialNumber));
-            subMenu.addOption("Edit Member Role", Commands.editBoatDisabled(memberSerialNumber));
+            subMenu.addOption("Edit Member Name", Commands.editMemberName(memberSerialNumber));
+            subMenu.addOption("Edit Member Age", Commands.editMemberAge(memberSerialNumber));
+            subMenu.addOption("Edit Member Notes", Commands.editMemberNotes(memberSerialNumber));
+            subMenu.addOption("Edit Member Level", Commands.editMemberLevel(memberSerialNumber));
+            //subMenu.addOption("Edit Member expire Date", Commands.editBoatMarine(memberSerialNumber));
+            subMenu.addOption("Edit Member Private Boat", Commands.editMemberPrivateBoat(memberSerialNumber));
+            subMenu.addOption("Edit Member Phone number", Commands.editMemberPhone(memberSerialNumber));
+            subMenu.addOption("Edit Member Email", Commands.editMemberEmail(memberSerialNumber));
+            subMenu.addOption("Edit Member Password", Commands.editMemberPassword(memberSerialNumber));
+            subMenu.addOption("Edit Member Role", Commands.editMemberRole(memberSerialNumber));
 
             subMenu.addOption("Back", subMenu.stopLoop());
 
@@ -122,6 +122,47 @@ public class MenuUtils {
             subMenu.startLoop();
         }
     }
+
+    public static class openManageActivitiesMenu implements Command
+    {
+        @Override
+        public void execute() {
+            Menu subMenu = new Menu("Manage Boats");
+
+            subMenu.addOption("Add Activity", Commands.addBoat());
+            subMenu.addOption("Show Activities", Commands.printBoats());
+            subMenu.addOption("Edit Activity", Commands.chooseAndEditBoat());
+            subMenu.addOption("Delete Activity", Commands.deleteBoat());
+            subMenu.addOption("Back", subMenu.stopLoop());
+
+            subMenu.startLoop();
+        }
+    }
+
+    public static class openEditActivityMenu implements Command
+    {
+        int boatSerialNumber;
+        public openEditActivityMenu(int boatSerialNumber) {
+            this.boatSerialNumber = boatSerialNumber;
+        }
+
+        @Override
+        public void execute() {
+            Menu subMenu = new Menu("Edit Boat " + boatSerialNumber);
+
+            subMenu.addOption("Edit Activity Name", Commands.editActivityName(boatSerialNumber));
+            subMenu.addOption("Edit Activity Start Time", Commands.editActivityStartTime(boatSerialNumber));
+            subMenu.addOption("Edit Activity Finish Time", Commands.editActivityFinishTime(boatSerialNumber));
+            subMenu.addOption("Edit Activity Boat Type", Commands.editActivityBoatType(boatSerialNumber));
+
+
+            subMenu.addOption("Back", subMenu.stopLoop());
+
+            subMenu.startLoop();
+        }
+    }
+
+
 
 //    public static class openManageTimesMenu implements Command
 //    {

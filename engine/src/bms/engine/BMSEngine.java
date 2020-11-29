@@ -8,6 +8,7 @@ import bms.module.Activity;
 import bms.module.Boat;
 import bms.module.Member;
 
+
 public interface BMSEngine {
 
     void addBoat(String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles, boolean isPrivate,
@@ -31,6 +32,18 @@ public interface BMSEngine {
             throws Exceptions.BoatNotFoundException,Exceptions.IllegalBoatValueException;
     void updateBoatMarine(int serialNumber, boolean isMarine) throws Exceptions.BoatNotFoundException;
     void updateBoatDisabled(int serialNumber, boolean isDisabled) throws Exceptions.BoatNotFoundException;
+
+
+    void updateMemberName(int serialNumber, String name) throws Exceptions.MemberNotFoundException;
+    void updateMemberAge(int serialNumber, int age) throws Exceptions.MemberNotFoundException;
+    void updateMemberNotes(int serialNumber, String notes) throws Exceptions.MemberNotFoundException;
+    void updateMemberLevel(int serialNumber, Member.Level level) throws Exceptions.MemberNotFoundException;
+    void updateMemberPrivateBoat(int serialNumber, boolean hasBoat) throws Exceptions.MemberNotFoundException;
+    void updateBoatSerialNumber(int serialNumber,int boatSerialNumber);
+    void updateMemberPhone(int serialNumber, String phone) throws Exceptions.MemberNotFoundException;
+    void updateMemberEmail(int serialNumber, String email) throws Exceptions.MemberNotFoundException;
+    void updateMemberPassword(int serialNumber, String password) throws Exceptions.MemberNotFoundException;
+    void updateMemberRole(int serialNumber, boolean isManager) throws Exceptions.MemberNotFoundException;
 
 
 
@@ -58,6 +71,8 @@ public interface BMSEngine {
     public void updateActivity(Integer serialNumber,String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType);
     public Collection<Activity> getActivities();
     public Activity getActivity(Integer serialNumber);
+
+
 
 
 }

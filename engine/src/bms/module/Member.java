@@ -23,19 +23,19 @@ public class Member {
     public Member(int serialNumber, String name, int age, String notes, Level level, LocalDateTime joinDate,
                   LocalDateTime expireDate, boolean hasPrivateBoat, int boatSerialNumber, String phoneNumber,
                   String email, String password, boolean isManager) {
-        this.serialNumber = serialNumber;
-        this.name = name;
-        this.age = age;
-        this.notes = notes;
-        this.level = level;
-        this.joinDate = joinDate;
-        this.expireDate = expireDate;
-        this.hasPrivateBoat = hasPrivateBoat;
-        this.boatSerialNumber = boatSerialNumber;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.password = password;
-        this.isManager = isManager;
+        this.setSerialNumber(serialNumber);
+        this.setName(name);
+        this.setAge(age);
+        this.setNotes(notes);
+        this.setLevel(level);
+        this.setJoinDate(joinDate);
+        this.setExpireDate(expireDate);
+        this.setHasPrivateBoat(hasPrivateBoat);
+        this.setBoatSerialNumber(boatSerialNumber);
+        this.setPhoneNumber(phoneNumber);
+        this.setEmail(email);
+        this.setPassword(password);
+        this.setManager(isManager);
     }
 
     @Override

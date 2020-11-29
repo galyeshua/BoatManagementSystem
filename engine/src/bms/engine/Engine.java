@@ -98,11 +98,6 @@ public class Engine implements BMSEngine{
 
 
 
-
-
-
-
-
     @Override
     public void addMember(int serialNumber, String name, int age, String notes, Member.Level level,
                           LocalDateTime joinDate, LocalDateTime expireDate, boolean hasPrivateBoat,
@@ -135,6 +130,53 @@ public class Engine implements BMSEngine{
         return members.getMember(email);
     }
 
+    @Override
+    public void updateMemberName(int serialNumber, String name) throws Exceptions.MemberNotFoundException {
+        members.setMemberName(serialNumber, name);
+    }
+
+    public void updateMemberAge(int serialNumber, int age) throws Exceptions.MemberNotFoundException {
+        members.setMemberAge(serialNumber, age);
+    }
+    @Override
+    public void updateMemberNotes(int serialNumber, String notes) throws Exceptions.MemberNotFoundException {
+        members.setMemberNotes(serialNumber,notes);
+    }
+
+    @Override
+    public void updateMemberLevel(int serialNumber, Member.Level level) throws Exceptions.MemberNotFoundException {
+        members.setMemberLevel(serialNumber,level);
+    }
+
+    @Override
+    public void updateMemberPrivateBoat(int serialNumber, boolean hasBoat) throws Exceptions.MemberNotFoundException {
+        members.setMemberPrivateBoat(serialNumber,hasBoat);
+    }
+
+    @Override
+    public void updateBoatSerialNumber(int serialNumber, int boatSerialNumber) {
+        members.setMemberBoatSerialNumber(serialNumber,boatSerialNumber);
+    }
+
+    @Override
+    public void updateMemberPhone(int serialNumber, String phone) throws Exceptions.MemberNotFoundException {
+        members.setMemberPhone(serialNumber,phone);
+    }
+
+    @Override
+    public void updateMemberEmail(int serialNumber, String email) throws Exceptions.MemberNotFoundException {
+        members.setMemberEmail(serialNumber,email);
+    }
+
+    @Override
+    public void updateMemberPassword(int serialNumber, String password) throws Exceptions.MemberNotFoundException {
+        members.setMemberPassword(serialNumber,password);
+    }
+
+    @Override
+    public void updateMemberRole(int serialNumber, boolean isManager) throws Exceptions.MemberNotFoundException {
+        members.setMemberRole(serialNumber,isManager);
+    }
 
 
 //    @Override
@@ -170,7 +212,7 @@ public class Engine implements BMSEngine{
 
     @Override
     public void addActivity(String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType) {
-        Activity activity=new Activity(0,name,startTime,finishTime,boatType);
+        Activity activity=new Activity(name,startTime,finishTime,boatType);
         activities.add(activity);
     }
 
@@ -193,22 +235,22 @@ public class Engine implements BMSEngine{
     @Override
     public void updateActivity(Integer serialNumber,String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType) {
         Activity old = activities.get(serialNumber);
-       if (old==null)
-           System.out.println("boo");
-       else {
+//       if (old==null)
+//           System.out.println("boo");
+//       else {
+//
+//           if (name != null)
+//               old.setName(name);
+//           if (startTime != null)
+//               old.setStartTime(startTime);
+//           if (finishTime != null)
+//               old.setFinishTime(finishTime);
+//           if (boatType != null)
+//               old.setBoatType(boatType);
+//           activities.update(old);
+//       }
 
-           if (name != null)
-               old.setName(name);
-           if (startTime != null)
-               old.setStartTime(startTime);
-           if (finishTime != null)
-               old.setFinishTime(finishTime);
-           if (boatType != null)
-               old.setBoatType(boatType);
-           activities.update(old);
-       }
-    }
-
+}
 
 
 

@@ -10,10 +10,10 @@ public class Activity {
     private String boatType;
 
     public Activity(String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType) {
-        this.name = name;
-        this.startTime = startTime;
-        this.finishTime = finishTime;
-        this.boatType = boatType;
+        this.setName(name);
+        this.setStartTime(startTime);
+        this.setFinishTime(finishTime);
+        this.setBoatType(boatType);
     }
 
     @Override
@@ -53,4 +53,6 @@ public class Activity {
     public void setBoatType(String boatType) {
         this.boatType = boatType;
     }
+
+
 }

@@ -25,4 +25,11 @@ public class Exceptions {
         }
     }
 
+    public static class ActivityNotFoundException extends RuntimeException { }
+    public static class ActivityAlreadyExistsException extends RuntimeException {
+        public ActivityAlreadyExistsException(String message) {
+            super(message);
+        }
+    }
+
 }

@@ -2,9 +2,11 @@ package bms.utils.menu;
 
 import bms.engine.BMSEngine;
 import bms.engine.list.manager.Exceptions;
+import bms.module.Activity;
 import bms.module.Boat;
 import bms.module.Member;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static bms.utils.InputUtils.*;
@@ -158,6 +160,8 @@ public class Commands {
             }
         };
     }
+
+
 
     public static Command editBoatNumOfPaddles(int serialNumber) {
         return new Command() {
@@ -359,6 +363,343 @@ public class Commands {
             }
         };
     }
+
+    public static Command editMemberName(int serialNumber) {
+        return new Command() {
+            String MemberName;
+
+            @Override
+            public void execute() {
+                try{
+                    MemberName = getStringFromUser();
+                    engine.updateMemberName(serialNumber, MemberName);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editMemberAge(int serialNumber) {
+        return new Command() {
+            int MemberAge;
+
+            @Override
+            public void execute() {
+                try{
+                    MemberAge = getNumberFromUser(16, 99);
+                    engine.updateMemberAge(serialNumber, MemberAge);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editMemberNotes(int serialNumber) {
+        return new Command() {
+            String MemberNotes;
+
+            @Override
+            public void execute() {
+                try{
+                    MemberNotes = getStringFromUser();
+                    engine.updateMemberNotes(serialNumber, MemberNotes);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+
+    public static Command editMemberLevel(int serialNumber) {
+        return new Command() {
+            Member.Level MemberLevel;
+
+            @Override
+            public void execute() {
+                try{
+                    MemberLevel = (Member.Level) chooseFromOptins(Member.Level.values());
+                    engine.updateMemberLevel(serialNumber, MemberLevel);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editMemberPrivateBoat(int serialNumber) {
+        return new Command() {
+            boolean hasPrivateBoat;
+
+            @Override
+            public void execute() {
+                try{
+                    hasPrivateBoat = getBoolFromUser();
+                    engine.updateMemberPrivateBoat(serialNumber, hasPrivateBoat);
+                    if (hasPrivateBoat){
+                        System.out.println("Enter Boat Serial Number:");
+                        int boatSerialNumber = getNumberFromUser(1, 99);
+                        engine.updateBoatSerialNumber(serialNumber,boatSerialNumber);
+                    }
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editMemberPhone(int serialNumber) {
+        return new Command() {
+            String MemberPhone;
+
+            @Override
+            public void execute() {
+                try{
+                    MemberPhone = getStringFromUser();
+                    engine.updateMemberPhone(serialNumber, MemberPhone);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editMemberEmail(int serialNumber) {
+        return new Command() {
+            String MemberEmail;
+
+            @Override
+            public void execute() {
+                try{
+                    MemberEmail = getStringFromUser();
+                    engine.updateMemberEmail(serialNumber, MemberEmail);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editMemberPassword(int serialNumber) {
+        return new Command() {
+            String MemberPassword;
+
+            @Override
+            public void execute() {
+                try{
+                    MemberPassword = getStringFromUser();
+                    engine.updateMemberPassword(serialNumber, MemberPassword);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editMemberRole(int serialNumber) {
+        return new Command() {
+            boolean memberRole;
+
+            @Override
+            public void execute() {
+                try{
+                    memberRole = getBoolFromUser();
+                    engine.updateMemberRole(serialNumber, memberRole);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static Command chooseAndEditActivity() {
+        return new Command() {
+            int serialNumber;
+            Activity activity;
+
+            private void chooseActivityToUpdate() throws Exceptions.ActivityNotFoundException {
+                System.out.println("All the activities:");
+                printActivity().execute();
+                System.out.println("choose activity to edit");
+                serialNumber = getNumberFromUser();
+                member = engine.getMember(serialNumber);
+                if (member == null)
+                    throw new Exceptions.MemberNotFoundException();
+            }
+
+            @Override
+            public void execute() {
+                try{
+                    chooseActivityToUpdate();
+                    new MenuUtils.openEditMemberMenu(serialNumber).execute();
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command addActivity() {
+        return new Command() {
+            private String name;
+            private LocalDateTime startTime;
+            private LocalDateTime finishTime;
+            private String boatType;
+
+
+            private void askForValues(){
+                System.out.println("Enter Name:");
+                name = getStringFromUser();
+                System.out.println("Enter startTime:");
+                System.out.println("Enter Day:");
+                int day = getNumberFromUser(1, 31);
+                System.out.println("Enter Month:");
+                int month = getNumberFromUser(1, 12);
+                System.out.println("Enter Year:");
+                int year = getNumberFromUser(2020, 3000);
+                System.out.println("Enter hour:");
+                int hour = getNumberFromUser(5,24 );
+                System.out.println("Enter minute:");
+                int minute = getNumberFromUser(0,59);
+                startTime = LocalDateTime.of(year,month,day,hour,minute);
+                System.out.println("Enter startTime:");
+                System.out.println("Enter Day:");
+                day = getNumberFromUser(1, 31);
+                System.out.println("Enter Month:");
+                month = getNumberFromUser(1, 12);
+                System.out.println("Enter Year:");
+                year = getNumberFromUser(2020, 3000);
+                System.out.println("Enter hour:");
+                hour = getNumberFromUser(5,24 );
+                System.out.println("Enter minute:");
+                minute = getNumberFromUser(0,59);
+                finishTime = LocalDateTime.of(year,month,day,hour,minute);
+                System.out.println("Enter Boat Type:");
+                boatType = getStringFromUser();
+            }
+
+            @Override
+            public void execute() {
+                try{
+                    askForValues();
+                    engine.addActivity(name,startTime,finishTime,boatType);
+                } catch (Exceptions.ActivityAlreadyExistsException e){
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+        };
+    }
+
+    public static Command printActivities() {
+        return new Command() {
+            @Override
+            public void execute() {
+                for (Activity activity : engine.getActivities())
+                    System.out.println(activity);
+            }
+        };
+    }
+
+    public static Command deleteActivity() {
+        return new Command() {
+            int serialNumber;
+
+            @Override
+            public void execute() {
+                printBoats().execute();
+                System.out.println("choose member to delete");
+                serialNumber = getNumberFromUser();
+
+                try{
+                    engine.deleteMember(serialNumber);
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editActivityName(int serialNumber) {
+        return new Command() {
+            String MemberName;
+
+            @Override
+            public void execute() {
+                try{
+                    MemberName = getStringFromUser();
+                    engine.updateMemberName(serialNumber, MemberName);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editActivityStartTime(int serialNumber) {
+        return new Command() {
+            int MemberAge;
+
+            @Override
+            public void execute() {
+                try{
+                    MemberAge = getNumberFromUser(16, 99);
+                    engine.updateMemberAge(serialNumber, MemberAge);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editActivityFinishTime(int serialNumber) {
+        return new Command() {
+            String MemberNotes;
+
+            @Override
+            public void execute() {
+                try{
+                    MemberNotes = getStringFromUser();
+                    engine.updateMemberNotes(serialNumber, MemberNotes);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+    public static Command editActivityBoatType(int serialNumber) {
+        return new Command() {
+            String boatType;
+
+            @Override
+            public void execute() {
+                try{
+                    boatType = getStringFromUser();
+                    engine.updateMemberNotes(serialNumber, MemberNotes);
+
+                } catch (Exceptions.MemberNotFoundException e){
+                    System.out.println("Member not found");
+                }
+            }
+        };
+    }
+
+
 
 //
 //    public static Command updateBoat() {

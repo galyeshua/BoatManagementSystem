@@ -2,27 +2,28 @@ package bms.engine.list.manager;
 
 import bms.module.Activity;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class ActivityManager {
-    private Map<Integer, Activity> activities = new HashMap<Integer, Activity>();
+      private List activities =new ArrayList<Activity>();
 
     public void add(Activity activity) {
-        activities.put(activity.getSerialNumber(), activity);
+        activities.add(activity);
     }
 
-    public void delete(Integer serialNumber) {
-        activities.remove(serialNumber);
+    public void delete(String name, LocalDateTime startTime, LocalDateTime finishTime) {
+
+        activities.remove(name,startTime,finishTime);
     }
 
     public Collection<Activity> getAll() {
-        return activities.values();
+        return activities;
     }
 
-    public Activity get(Integer serialNumber) {
-        return activities.get(serialNumber);
+    public Activity get(String name, LocalDateTime startTime, LocalDateTime finishTime) {
+
+        return activities.get(name,startTime,finishTime);
     }
 
 
