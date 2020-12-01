@@ -1,5 +1,6 @@
 package bms.engine;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
@@ -34,8 +35,8 @@ public interface BMSEngine {
 
 
     void addMember(int serialNumber, String name, int age, String notes, Member.Level level,
-                          LocalDateTime joinDate, LocalDateTime expireDate, boolean hasPrivateBoat,
-                          int boatSerialNumber, String phoneNumber, String email, String password,
+                   LocalDate joinDate, LocalDate expireDate, boolean hasPrivateBoat,
+                   int boatSerialNumber, String phoneNumber, String email, String password,
                    boolean isManager) throws Exceptions.MemberAlreadyExistsException;
     void deleteMember(int serialNumber) throws Exceptions.MemberNotFoundException;
     Collection<Member> getMembers();
@@ -54,21 +55,20 @@ public interface BMSEngine {
     void updateMemberRole(int serialNumber, boolean isManager) throws Exceptions.MemberNotFoundException;
 
 
+
+
     void addActivity(String name, LocalTime startTime, LocalTime finishTime, String boatType)
             throws Exceptions.ActivityAlreadyExistsException;
     void addActivity(String name, LocalTime startTime, LocalTime finishTime)
             throws Exceptions.ActivityAlreadyExistsException;
-    void deleteActivity(String name, LocalTime startTime, LocalTime finishTime)
+    void deleteActivity(int id)
             throws Exceptions.ActivityNotFoundException;
     Collection<Activity> getActivities();
-    Activity getActivity(String name, LocalTime startTime, LocalTime finishTime);
+    Activity getActivity(int id);
 
-    void updateActivityName(String name, LocalTime startTime, LocalTime finishTime, String name1) throws Exceptions.ActivityNotFoundException;
-    void updateActivityStartTime(String name, LocalTime startTime, LocalTime finishTime, LocalTime StartTime1)throws Exceptions.ActivityNotFoundException;
-    void updateActivityFinishTime(String name, LocalTime startTime, LocalTime finishTime, LocalTime finishTime1)throws Exceptions.ActivityNotFoundException;
-    void updateActivityBoatType(String name, LocalTime startTime, LocalTime finishTime, String boatType) throws Exceptions.ActivityNotFoundException;
-
-
-    //void updateActivity(Integer serialNumber,String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType);
+    void updateActivityName(int id, String name) throws Exceptions.ActivityNotFoundException;
+    void updateActivityStartTime(int id, LocalTime StartTime)throws Exceptions.ActivityNotFoundException;
+    void updateActivityFinishTime(int id, LocalTime finishTime)throws Exceptions.ActivityNotFoundException;
+    void updateActivityBoatType(int id, String boatType) throws Exceptions.ActivityNotFoundException;
 
 }

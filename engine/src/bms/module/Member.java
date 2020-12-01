@@ -1,5 +1,6 @@
 package bms.module;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Member {
@@ -11,8 +12,8 @@ public class Member {
     private int age;
     private String notes;
     private Level level;
-    private LocalDateTime joinDate;
-    private LocalDateTime expireDate;
+    private LocalDate joinDate;
+    private LocalDate expireDate;
     private boolean hasPrivateBoat;
     private int boatSerialNumber;
     private String phoneNumber;
@@ -20,8 +21,8 @@ public class Member {
     private String password;
     private boolean isManager;
 
-    public Member(int serialNumber, String name, int age, String notes, Level level, LocalDateTime joinDate,
-                  LocalDateTime expireDate, boolean hasPrivateBoat, int boatSerialNumber, String phoneNumber,
+    public Member(int serialNumber, String name, int age, String notes, Level level, LocalDate joinDate,
+                  LocalDate expireDate, boolean hasPrivateBoat, int boatSerialNumber, String phoneNumber,
                   String email, String password, boolean isManager) {
         this.setSerialNumber(serialNumber);
         this.setName(name);
@@ -73,10 +74,10 @@ public class Member {
     public Level getLevel() {
         return level;
     }
-    public LocalDateTime getJoinDate() {
+    public LocalDate getJoinDate() {
         return joinDate;
     }
-    public LocalDateTime getExpireDate() {
+    public LocalDate getExpireDate() {
         return expireDate;
     }
     public boolean isHasPrivateBoat() {
@@ -115,10 +116,10 @@ public class Member {
     public void setLevel(Level level) {
         this.level = level;
     }
-    public void setJoinDate(LocalDateTime joinDate) {
+    public void setJoinDate(LocalDate joinDate) {
         this.joinDate = joinDate;
     }
-    public void setExpireDate(LocalDateTime expireDate) {
+    public void setExpireDate(LocalDate expireDate) {
         this.expireDate = expireDate;
     }
     public void setHasPrivateBoat(boolean hasPrivateBoat) {

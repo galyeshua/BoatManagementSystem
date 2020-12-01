@@ -3,13 +3,16 @@ package bms.module;
 import java.time.LocalTime;
 
 public class Activity {
+    private static int counter = 0;
 
+    private int id;
     private String name;
     private LocalTime startTime;
     private LocalTime finishTime;
     private String boatType;
 
     public Activity(String name, LocalTime startTime, LocalTime finishTime) {
+        this.setId(counter++);
         this.setName(name);
         this.setStartTime(startTime);
         this.setFinishTime(finishTime);
@@ -17,6 +20,7 @@ public class Activity {
     }
 
     public Activity(String name, LocalTime startTime, LocalTime finishTime, String boatType) {
+        this.setId(counter++);
         this.setName(name);
         this.setStartTime(startTime);
         this.setFinishTime(finishTime);
@@ -26,14 +30,17 @@ public class Activity {
     @Override
     public String toString() {
         return "Activity{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", startTime=" + startTime +
                 ", finishTime=" + finishTime +
                 ", boatType='" + boatType + '\'' +
                 '}';
     }
 
-
+    public int getId() {
+        return id;
+    }
     public String getName() {
         return name;
     }
@@ -48,6 +55,9 @@ public class Activity {
     }
 
 
+    public void setId(int id) {
+        this.id = id;
+    }
     public void setName(String name) {
         this.name = name;
     }

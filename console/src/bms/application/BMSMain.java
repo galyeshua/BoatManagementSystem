@@ -7,6 +7,7 @@ import bms.module.Activity;
 import bms.module.Boat;
 import bms.module.Member;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -23,6 +24,18 @@ public class BMSMain {
 
     private void start() {
         BMSEngine engine = new Engine();
+
+        engine.addMember(123, "Gal", 23, "PRO", Member.Level.BEGINNER,
+                LocalDate.of(2020, 12, 20), LocalDate.of(2021, 12, 20),
+                false, 0, "054-5454545", "gal@gmail.com",
+                "1234", true);
+
+        engine.addMember(123, "Maya", 23, "PRO", Member.Level.MODERATE,
+                LocalDate.of(2020, 11, 20), LocalDate.of(2021, 11, 20),
+                false, 0, "054-5454545", "maya@gmail.com",
+                "1234", true);
+
+
 
         //System.out.println(test.values()[1]);;
 

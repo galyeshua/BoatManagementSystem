@@ -9,6 +9,7 @@ import bms.module.Member;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 import static bms.utils.InputUtils.*;
 
@@ -285,8 +286,8 @@ public class Commands {
             private int age;
             private String notes;
             private Member.Level level;
-            private LocalDateTime joinDate;
-            private LocalDateTime expireDate;
+            private LocalDate joinDate;
+            private LocalDate expireDate;
             private boolean hasPrivateBoat;
             private int boatSerialNumber;
             private String phoneNumber;
@@ -305,8 +306,8 @@ public class Commands {
                 notes = getStringFromUser();
                 System.out.println("Enter Level:");
                 level = (Member.Level) chooseFromOptins(Member.Level.values());
-                joinDate = LocalDateTime.now();
-                expireDate = LocalDateTime.now().plusYears(1);
+                joinDate = LocalDate.now();
+                expireDate = LocalDate.now().plusYears(1);
                 System.out.println("Does member have private boat?");
                 hasPrivateBoat = getBoolFromUser();
                 if (hasPrivateBoat){
@@ -528,27 +529,17 @@ public class Commands {
     public static Command chooseAndEditActivity() {
         return new Command() {
             Activity activity;
-            String name;
-            LocalTime startTime, finishTime;
+            int id;
 
             private void chooseActivityToUpdate() throws Exceptions.ActivityNotFoundException {
-                System.out.println("All the activities:");
                 printActivities().execute();
                 System.out.println("choose activity to edit");
-                name = getStringFromUser();
-                System.out.println("Enter startTime:");
-                System.out.println("Enter hour:");
-                int hour = getNumberFromUser(5,24 );
-                System.out.println("Enter minute:");
-                int minute = getNumberFromUser(0,59);
-                startTime = LocalTime.of(hour,minute);
-                System.out.println("Enter finishTime:");
-                System.out.println("Enter hour:");
-                hour = getNumberFromUser(5,24 );
-                System.out.println("Enter minute:");
-                minute = getNumberFromUser(0,59);
-                finishTime = LocalTime.of(hour,minute);
-                activity = engine.getActivity(name,startTime,finishTime);
+
+                ArrayList<Activity> activities = (ArrayList<Activity>)engine.getActivities();
+                int activityIndex = getNumberFromUser(0, activities.size() - 1);
+                id = activities.get(activityIndex).getId();
+                activity = engine.getActivity(id);
+
                 if (activity == null)
                     throw new Exceptions.ActivityNotFoundException();
             }
@@ -557,9 +548,9 @@ public class Commands {
             public void execute() {
                 try{
                     chooseActivityToUpdate();
-                    new MenuUtils.openEditActivityMenu(name,startTime,finishTime).execute();
+                    new MenuUtils.openEditActivityMenu(id).execute();
                 } catch (Exceptions.ActivityNotFoundException e){
-                    System.out.println("Member not found");
+                    System.out.println("Activity not found");
                 }
             }
         };
@@ -608,32 +599,37 @@ public class Commands {
         return new Command() {
             @Override
             public void execute() {
-                for (Activity activity : engine.getActivities())
-                    System.out.println(activity);
+                int i =0;
+                for (Activity activity : engine.getActivities()){
+                    System.out.println("[" + i + "] " + activity.getStartTime() + " - " + activity.getFinishTime()
+                            + " : " + activity.getName());
+                    i++;
+                }
+
             }
         };
     }
 
     public static Command deleteActivity() {
         return new Command() {
-            int serialNumber;
-
             @Override
             public void execute() {
                 printActivities().execute();
                 System.out.println("choose activity to delete");
-                serialNumber = getNumberFromUser();
+                ArrayList<Activity> activities = (ArrayList<Activity>)engine.getActivities();
+                int activityIndex = getNumberFromUser(0, activities.size() - 1);
+                int id = activities.get(activityIndex).getId();
 
                 try{
-                    engine.deleteMember(serialNumber);
-                } catch (Exceptions.MemberNotFoundException e){
-                    System.out.println("Member not found");
+                    engine.deleteActivity(id);
+                } catch (Exceptions.ActivityNotFoundException e){
+                    System.out.println("Activity not found");
                 }
             }
         };
     }
 
-    public static Command editActivityName(String name, LocalTime startTime, LocalTime finishTime) {
+    public static Command editActivityName(int id) {
         return new Command() {
             String Name;
 
@@ -641,7 +637,7 @@ public class Commands {
             public void execute() {
                 try{
                     Name = getStringFromUser();
-                    engine.updateActivityName(name,startTime, finishTime, Name);
+                    engine.updateActivityName(id, Name);
 
                 } catch (Exceptions.ActivityNotFoundException e){
                     System.out.println("Activity not found");
@@ -650,7 +646,7 @@ public class Commands {
         };
     }
 
-    public static Command editActivityStartTime(String name, LocalTime startTime, LocalTime finishTime) {
+    public static Command editActivityStartTime(int id) {
         return new Command() {
             LocalTime StartTime;
 
@@ -662,7 +658,7 @@ public class Commands {
                     System.out.println("Enter minute:");
                     int minute = getNumberFromUser(0,59);
                     StartTime = LocalTime.of(hour,minute);
-                    engine.updateActivityStartTime(name,startTime, finishTime,StartTime);
+                    engine.updateActivityStartTime(id, StartTime);
 
                 } catch (Exceptions.ActivityNotFoundException e){
                     System.out.println("Activity not found");
@@ -671,7 +667,7 @@ public class Commands {
         };
     }
 
-    public static Command editActivityFinishTime(String name, LocalTime startTime, LocalTime finishTime) {
+    public static Command editActivityFinishTime(int id) {
         return new Command() {
             LocalTime FinishTime;
 
@@ -683,7 +679,7 @@ public class Commands {
                     System.out.println("Enter minute:");
                     int minute = getNumberFromUser(0,59);
                     FinishTime = LocalTime.of(hour,minute);
-                    engine.updateActivityFinishTime(name,startTime, finishTime, FinishTime);
+                    engine.updateActivityFinishTime(id, FinishTime);
 
                 } catch (Exceptions.ActivityNotFoundException e){
                     System.out.println("Activity not found");
@@ -692,7 +688,7 @@ public class Commands {
         };
     }
 
-    public static Command editActivityBoatType(String name, LocalTime startTime, LocalTime finishTime) {
+    public static Command editActivityBoatType(int id) {
         return new Command() {
             String boatType;
 
@@ -700,7 +696,7 @@ public class Commands {
             public void execute() {
                 try{
                     boatType = getStringFromUser();
-                    engine.updateActivityBoatType(name,startTime, finishTime, boatType);
+                    engine.updateActivityBoatType(id, boatType);
 
                 } catch (Exceptions.ActivityNotFoundException e){
                     System.out.println("Activity not found");
@@ -708,135 +704,6 @@ public class Commands {
             }
         };
     }
-
-
-//
-//    System.out.println("Enter startTime:");
-//                System.out.println("Enter hour:");
-//    int hour = getNumberFromUser(5,24 );
-//                System.out.println("Enter minute:");
-//    int minute = getNumberFromUser(0,59);
-//    startTime = LocalTime.of(hour,minute);
-//                System.out.println("Enter finishTime:");
-//                System.out.println("Enter hour:");
-//    hour = getNumberFromUser(5,24 );
-//                System.out.println("Enter minute:");
-//    minute = getNumberFromUser(0,59);
-//    finishTime = LocalTime.of(hour,minute);
-
-
-//
-//    public static Command updateBoat() {
-//        return new Command() {
-//            int serialNumber;
-//            boolean askForCoxswain = false;
-//            Boat oldBoat;
-//
-//            String boatName = null;
-//            Boat.Rowers numOfRowers = null;
-//            Boat.Paddles numOfPaddles = null;
-//            Boolean isPrivate = null;
-//            Boolean isWide = null;
-//            Boolean hasCoxswain = null;
-//            Boolean isMarine = null;
-//            Boolean isDisabled = null;
-//
-//            private void chooseBoatToUpdate() throws Exceptions.BoatNotFoundException {
-//                System.out.println("All the boats:");
-//                printBoats().execute();
-//                System.out.println("choose boat to edit");
-//                serialNumber = getNumberFromUser();
-//                oldBoat = engine.getBoat(serialNumber);
-//            }
-//
-//            private void askForNewName(){
-//                boatName = oldBoat.getName();
-//                if(isTrue("Do you want to change Name?"))
-//                    boatName = getStringFromUser();
-//            }
-//
-//            private void askForNewNumOfRowers(){
-//                numOfRowers = oldBoat.getNumOfRowers();
-//                if(isTrue("Do you want to change rowers?"))
-//                    numOfRowers = (Boat.Rowers) chooseFromOptins(Boat.Rowers.values());
-//
-//                if (numOfRowers.equals(Boat.Rowers.ONE)){
-//                    hasCoxswain = false;
-//                    askForCoxswain = false;
-//                }
-//
-//                if (numOfRowers.equals(Boat.Rowers.EIGHT)){
-//                    hasCoxswain = true;
-//                    askForCoxswain = false;
-//                }
-//            }
-//
-//            private void askForNewNumOfPaddles(){
-//                numOfPaddles = oldBoat.getNumOfPaddles();
-//                if(isTrue("Do you want to change type of paddles?"))
-//                    numOfPaddles = (Boat.Paddles) chooseFromOptins(Boat.Paddles.values());
-//            }
-//
-//            private void askForNewPrivate(){
-//                isPrivate = oldBoat.getPrivate();
-//                if(isTrue("Do you want to change private?"))
-//                    isPrivate = getBoolFromUser();
-//            }
-//
-//            private void askForNewWide(){
-//                isWide = oldBoat.getWide();
-//                if(isTrue("Do you want to change Wide?"))
-//                    isWide = getBoolFromUser();
-//            }
-//
-//            private void askForNewCoxswain(){
-//                hasCoxswain = oldBoat.getHasCoxswain();
-//                if(isTrue("Do you want to change Coxswain?"))
-//                    hasCoxswain = getBoolFromUser();
-//            }
-//
-//            private void askForNewMarine(){
-//                isMarine = oldBoat.getMarine();
-//                if(isTrue("Do you want to change Marine?"))
-//                    isMarine = getBoolFromUser();
-//            }
-//
-//            private void askForNewDisabled(){
-//                isDisabled = oldBoat.getDisabled();
-//                if(isTrue("Do you want to change Disabled?"))
-//                    isDisabled = getBoolFromUser();
-//            }
-//
-//            private void askForValues(){
-//                askForNewName();
-//                askForNewNumOfRowers();
-//                askForNewNumOfPaddles();
-//                askForNewPrivate();
-//                askForNewWide();
-//                if (askForCoxswain)
-//                    askForNewCoxswain();
-//                askForNewMarine();
-//                askForNewDisabled();
-//            }
-//
-//            @Override
-//            public void execute() {
-//                try{
-//                    chooseBoatToUpdate();
-//                    askForValues();
-//
-//                    engine.updateBoat(serialNumber, boatName, numOfRowers, numOfPaddles, isPrivate, isWide,
-//                            hasCoxswain, isMarine, isDisabled);
-//
-//                } catch (Exceptions.BoatNotFoundException e){
-//                    System.out.println("Boat not found");
-//                } catch (Exceptions.IllegalBoatValueExeption e){
-//                    System.out.println("Error: " + e.getMessage());
-//                }
-//            }
-//
-//        };
-//    }
 
 
 }

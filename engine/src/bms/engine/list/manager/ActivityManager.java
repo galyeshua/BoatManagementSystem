@@ -11,11 +11,11 @@ public class ActivityManager {
 
     public void addActivity(Activity activity) {
         activities.add(activity);
-        //activities.sort();
+        Collections.sort(activities, ((a1, a2) -> a1.getStartTime().compareTo(a2.getStartTime())));
     }
 
-    public void deleteActivity(String name, LocalTime startTime, LocalTime finishTime) {
-        Activity activity = getActivity(name, startTime, finishTime);
+    public void deleteActivity(int id) {
+        Activity activity = getActivity(id);
         activities.remove(activity);
     }
 
@@ -39,29 +39,38 @@ public class ActivityManager {
         return null;
     }
 
-    public void setActivityName(String name, LocalTime startTime, LocalTime finishTime, String name1) throws Exceptions.BoatNotFoundException{
-        Activity activity = getActivity(name,startTime,finishTime);
-        if (activity == null)
-            throw new Exceptions.ActivityNotFoundException();
-        activity.setName(name1);
+    public Activity getActivity(int id) {
+        for (Activity activity : activities) {
+            if(activity.getId() == id)
+                return activity;
+        }
+        return null;
     }
 
-    public void setActivityStartTime(String name, LocalTime startTime, LocalTime finishTime, LocalTime startTime1) throws Exceptions.BoatNotFoundException{
-        Activity activity = getActivity(name,startTime,finishTime);
+
+    public void setActivityName(int id, String name) throws Exceptions.ActivityNotFoundException{
+        Activity activity = getActivity(id);
         if (activity == null)
             throw new Exceptions.ActivityNotFoundException();
-        activity.setStartTime(startTime1);
+        activity.setName(name);
     }
 
-    public void setActivityFinishTime(String name, LocalTime startTime, LocalTime finishTime, LocalTime finishTime1) throws Exceptions.BoatNotFoundException{
-        Activity activity = getActivity(name,startTime,finishTime);
+    public void setActivityStartTime(int id, LocalTime startTime) throws Exceptions.ActivityNotFoundException{
+        Activity activity = getActivity(id);
         if (activity == null)
             throw new Exceptions.ActivityNotFoundException();
-        activity.setFinishTime(finishTime1);
+        activity.setStartTime(startTime);
     }
 
-    public void setActivityBoatType(String name, LocalTime startTime, LocalTime finishTime, String boatType) throws Exceptions.BoatNotFoundException{
-        Activity activity = getActivity(name,startTime,finishTime);
+    public void setActivityFinishTime(int id, LocalTime finishTime) throws Exceptions.ActivityNotFoundException{
+        Activity activity = getActivity(id);
+        if (activity == null)
+            throw new Exceptions.ActivityNotFoundException();
+        activity.setFinishTime(finishTime);
+    }
+
+    public void setActivityBoatType(int id, String boatType) throws Exceptions.ActivityNotFoundException{
+        Activity activity = getActivity(id);
         if (activity == null)
             throw new Exceptions.ActivityNotFoundException();
         activity.setBoatType(boatType);

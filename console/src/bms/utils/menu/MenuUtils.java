@@ -2,6 +2,7 @@ package bms.utils.menu;
 
 import bms.application.Menu;
 import bms.engine.BMSEngine;
+import bms.module.Activity;
 
 import java.time.LocalTime;
 
@@ -33,7 +34,7 @@ public class MenuUtils {
 
             subMenu.addOption("Manage Members", new openManageMembersMenu());
             subMenu.addOption("Manage Boats", new openManageBoatsMenu());
-            //subMenu.addOption("Manage Times", new openManageTimesMenu());
+            subMenu.addOption("Manage Activities", new openManageActivitiesMenu());
             //subMenu.addOption("Shibutzim", new BoatCommands.PrintBoats());
             subMenu.addOption("Back", subMenu.stopLoop());
 
@@ -129,7 +130,7 @@ public class MenuUtils {
     {
         @Override
         public void execute() {
-            Menu subMenu = new Menu("Manage Boats");
+            Menu subMenu = new Menu("Manage Activities");
 
             subMenu.addOption("Add Activity", Commands.addActivity());
             subMenu.addOption("Show Activities", Commands.printActivities());
@@ -143,22 +144,19 @@ public class MenuUtils {
 
     public static class openEditActivityMenu implements Command
     {
-        String name;
-        LocalTime startTime,finishTime;
-        public openEditActivityMenu(String name, LocalTime startTime, LocalTime finishTime) {
-            this.name = name;
-            this.finishTime = finishTime;
-            this.startTime = startTime;
+        int id;
+        public openEditActivityMenu(int id) {
+            this.id = id;
         }
 
         @Override
         public void execute() {
-            Menu subMenu = new Menu("Edit Activity " + name + startTime + finishTime);
+            Menu subMenu = new Menu("Edit Activity " + id);
 
-            subMenu.addOption("Edit Activity Name", Commands.editActivityName(name,startTime,finishTime));
-            subMenu.addOption("Edit Activity Start Time", Commands.editActivityStartTime(name,startTime,finishTime));
-            subMenu.addOption("Edit Activity Finish Time", Commands.editActivityFinishTime(name,startTime,finishTime));
-            subMenu.addOption("Edit Activity Boat Type", Commands.editActivityBoatType(name,startTime,finishTime));
+            subMenu.addOption("Edit Activity Name", Commands.editActivityName(id));
+            subMenu.addOption("Edit Activity Start Time", Commands.editActivityStartTime(id));
+            subMenu.addOption("Edit Activity Finish Time", Commands.editActivityFinishTime(id));
+            subMenu.addOption("Edit Activity Boat Type", Commands.editActivityBoatType(id));
 
 
             subMenu.addOption("Back", subMenu.stopLoop());

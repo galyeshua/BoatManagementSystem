@@ -1,5 +1,6 @@
 package bms.engine;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
@@ -101,7 +102,7 @@ public class Engine implements BMSEngine{
 
     @Override
     public void addMember(int serialNumber, String name, int age, String notes, Member.Level level,
-                          LocalDateTime joinDate, LocalDateTime expireDate, boolean hasPrivateBoat,
+                          LocalDate joinDate, LocalDate expireDate, boolean hasPrivateBoat,
                           int boatSerialNumber, String phoneNumber, String email, String password,
                           boolean isManager) {
 
@@ -198,9 +199,10 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void deleteActivity(String name, LocalTime startTime, LocalTime finishTime)
+    public void deleteActivity(int id)
             throws Exceptions.ActivityAlreadyExistsException {
-        activities.deleteActivity(name, startTime, finishTime);
+
+        activities.deleteActivity(id);
     }
 
     @Override
@@ -209,55 +211,30 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public Activity getActivity(String name, LocalTime startTime, LocalTime finishTime) {
-        return activities.getActivity(name, startTime, finishTime);
+    public Activity getActivity(int id) {
+        return activities.getActivity(id);
     }
 
 
-    public void updateActivityName(String name, LocalTime startTime, LocalTime finishTime, String name1)
+    public void updateActivityName(int id, String name)
             throws Exceptions.ActivityNotFoundException  {
-        activities.setActivityName(name,startTime,finishTime,name1);
+        activities.setActivityName(id, name);
 
     }
-    public void updateActivityStartTime(String name, LocalTime startTime, LocalTime finishTime,  LocalTime startTime1)
+    public void updateActivityStartTime(int id, LocalTime startTime)
             throws Exceptions.ActivityNotFoundException{
-        activities.setActivityStartTime(name,startTime,finishTime,startTime1);
+        activities.setActivityStartTime(id, startTime);
     }
 
-    public void updateActivityFinishTime(String name, LocalTime startTime, LocalTime finishTime, LocalTime finishTime1)
+    public void updateActivityFinishTime(int id, LocalTime finishTime)
             throws Exceptions.ActivityNotFoundException {
-        activities.setActivityFinishTime(name,startTime,finishTime,finishTime1);
+        activities.setActivityFinishTime(id, finishTime);
     }
 
-    public void updateActivityBoatType(String name, LocalTime startTime, LocalTime finishTime, String boatType)
+    public void updateActivityBoatType(int id, String boatType)
             throws Exceptions.ActivityNotFoundException{
-        activities.setActivityBoatType(name,startTime,finishTime,boatType);
+        activities.setActivityBoatType(id, boatType);
     }
-
-
-
-
-//    @Override
-//    public void updateActivity(Integer serialNumber,String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType) {
-//        //Activity old = activities.get(serialNumber);
-////       if (old==null)
-////           System.out.println("boo");
-////       else {
-////
-////           if (name != null)
-////               old.setName(name);
-////           if (startTime != null)
-////               old.setStartTime(startTime);
-////           if (finishTime != null)
-////               old.setFinishTime(finishTime);
-////           if (boatType != null)
-////               old.setBoatType(boatType);
-////           activities.update(old);
-////       }
-//
-//    }
-
-
 
 
 }
