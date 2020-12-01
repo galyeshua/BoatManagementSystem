@@ -29,7 +29,7 @@ public class BMSMain {
         // load user
 
         Menu mainMenu = getMainMenuForUser(true, engine);
-        //mainMenu.startLoop();
+        mainMenu.startLoop();
 
 //        System.out.println(Boat.getCounter());
 //

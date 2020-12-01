@@ -63,6 +63,12 @@ public interface BMSEngine {
     Collection<Activity> getActivities();
     Activity getActivity(String name, LocalTime startTime, LocalTime finishTime);
 
+    void updateActivityName(String name, LocalTime startTime, LocalTime finishTime, String name1) throws Exceptions.ActivityNotFoundException;
+    void updateActivityStartTime(String name, LocalTime startTime, LocalTime finishTime, LocalTime StartTime1)throws Exceptions.ActivityNotFoundException;
+    void updateActivityFinishTime(String name, LocalTime startTime, LocalTime finishTime, LocalTime finishTime1)throws Exceptions.ActivityNotFoundException;
+    void updateActivityBoatType(String name, LocalTime startTime, LocalTime finishTime, String boatType) throws Exceptions.ActivityNotFoundException;
+
+
     //void updateActivity(Integer serialNumber,String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType);
 
 }

@@ -214,6 +214,29 @@ public class Engine implements BMSEngine{
     }
 
 
+    public void updateActivityName(String name, LocalTime startTime, LocalTime finishTime, String name1)
+            throws Exceptions.ActivityNotFoundException  {
+        activities.setActivityName(name,startTime,finishTime,name1);
+
+    }
+    public void updateActivityStartTime(String name, LocalTime startTime, LocalTime finishTime,  LocalTime startTime1)
+            throws Exceptions.ActivityNotFoundException{
+        activities.setActivityStartTime(name,startTime,finishTime,startTime1);
+    }
+
+    public void updateActivityFinishTime(String name, LocalTime startTime, LocalTime finishTime, LocalTime finishTime1)
+            throws Exceptions.ActivityNotFoundException {
+        activities.setActivityFinishTime(name,startTime,finishTime,finishTime1);
+    }
+
+    public void updateActivityBoatType(String name, LocalTime startTime, LocalTime finishTime, String boatType)
+            throws Exceptions.ActivityNotFoundException{
+        activities.setActivityBoatType(name,startTime,finishTime,boatType);
+    }
+
+
+
+
 //    @Override
 //    public void updateActivity(Integer serialNumber,String name, LocalDateTime startTime, LocalDateTime finishTime, String boatType) {
 //        //Activity old = activities.get(serialNumber);
