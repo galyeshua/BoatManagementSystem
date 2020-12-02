@@ -40,6 +40,23 @@ public class InputUtils {
         return inputNumber;
     }
 
+    public static int getNumberFromUser(int min) {
+        int inputNumber = 0;
+        boolean validInput = false;
+        do {
+            inputNumber = getNumberFromUser();
+            validInput = true;
+
+            if (inputNumber < min){
+                System.out.println("Number out of range");
+                validInput = false;
+            }
+
+        } while(validInput == false);
+
+        return inputNumber;
+    }
+
 
     public static String getStringFromUser() {
         Scanner scanner = new Scanner(System.in);
@@ -59,25 +76,25 @@ public class InputUtils {
         return inputString;
     }
 
-    public static boolean getBoolFromUser() {
-        Scanner scanner = new Scanner(System.in);
-        String inputString = "";
-        boolean inputBool = true;
-        boolean validInput = false;
-        do {
-            inputString = getStringFromUser();
-            validInput = true;
-            if(inputString.equals("Y")){
-                inputBool = true;
-            } else if (inputString.equals("N")){
-                inputBool = false;
-            } else {
-                validInput = false;
-            }
-        } while (validInput == false);
-
-        return inputBool;
-    }
+//    public static boolean getBoolFromUser() {
+//        Scanner scanner = new Scanner(System.in);
+//        String inputString = "";
+//        boolean inputBool = true;
+//        boolean validInput = false;
+//        do {
+//            inputString = getStringFromUser();
+//            validInput = true;
+//            if(inputString.equals("Y")){
+//                inputBool = true;
+//            } else if (inputString.equals("N")){
+//                inputBool = false;
+//            } else {
+//                validInput = false;
+//            }
+//        } while (validInput == false);
+//
+//        return inputBool;
+//    }
 
     public static boolean isTrue(String question){
         System.out.println(question);
@@ -94,6 +111,23 @@ public class InputUtils {
         System.out.println("choose");
         res = getNumberFromUser(0, options.length - 1);
         return options[res];
+    }
+
+    private enum Answer {
+        YES(true), NO(false);
+        private boolean ans;
+
+        Answer(boolean ans) {
+            this.ans = ans;
+        }
+        private boolean getAns(){
+            return this.ans;
+        }
+    }
+
+    public static boolean getBoolFromUser() {
+        Answer ans = (Answer)chooseFromOptins(Answer.values());
+        return ans.getAns();
     }
 
 
