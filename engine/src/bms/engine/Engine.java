@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
+import java.util.Collections;
 
 import bms.engine.list.manager.BoatManager;
 import bms.engine.list.manager.ActivityManager;
@@ -12,6 +13,7 @@ import bms.engine.list.manager.MemberManager;
 
 import bms.module.Activity;
 import bms.module.Boat;
+import bms.module.BoatView;
 import bms.module.Member;
 
 
@@ -22,11 +24,11 @@ public class Engine implements BMSEngine{
 
 
     @Override
-    public void addBoat(String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles, boolean isPrivate,
+    public void addBoat(int serialNumber, String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles, boolean isPrivate,
                         boolean isWide, boolean hasCoxswain, boolean isMarine, boolean isDisabled)
             throws Exceptions.BoatAlreadyExistsException, Exceptions.IllegalBoatValueException {
 
-        Boat boat = new Boat(name,numOfRowers,numOfPaddles,isPrivate,isWide,hasCoxswain,isMarine,isDisabled);
+        Boat boat = new Boat(serialNumber, name,numOfRowers,numOfPaddles,isPrivate,isWide,hasCoxswain,isMarine,isDisabled);
         boats.addBoat(boat);
     }
 
@@ -36,17 +38,18 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public Collection<Boat> getBoats() {
-       return boats.getBoats();
+    public Collection<BoatView> getBoats() {
+        //return boats.getBoats();
+        return Collections.unmodifiableCollection(boats.getBoats());
     }
 
     @Override
-    public Boat getBoat(int serialNumber)  {
+    public BoatView getBoat(int serialNumber)  {
         return boats.getBoat(serialNumber);
     }
 
     @Override
-    public Boat getBoat(String name)  {
+    public BoatView getBoat(String name)  {
         return boats.getBoat(name);
     }
 
@@ -65,38 +68,48 @@ public class Engine implements BMSEngine{
 //        // Update XML
 //    }
 
-    public void updateBoatName(int serialNumber, String name) throws Exceptions.BoatNotFoundException{
-        boats.setBoatName(serialNumber, name);
+    public void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException {
+        boats.updateBoat(newBoat);
     }
-
-    public void updateBoatNumOfRowers(int serialNumber, Boat.Rowers numOfRowers) throws Exceptions.BoatNotFoundException{
-        boats.setBoatNumOfRowers(serialNumber, numOfRowers);
-    }
-
-    public void updateBoatNumOfPaddles(int serialNumber, Boat.Paddles numOfPaddles) throws Exceptions.BoatNotFoundException{
-        boats.setBoatNumOfPaddles(serialNumber, numOfPaddles);
-    }
-
-    public void updateBoatPrivate(int serialNumber, boolean isPrivate) throws Exceptions.BoatNotFoundException{
-        boats.setBoatPrivate(serialNumber, isPrivate);
-    }
-
-    public void updateBoatWide(int serialNumber, boolean isWide) throws Exceptions.BoatNotFoundException{
-        boats.setBoatWide(serialNumber, isWide);
-    }
-
-    public void updateBoatCoxswain(int serialNumber, boolean hasCoxswain)
-            throws Exceptions.BoatNotFoundException,Exceptions.IllegalBoatValueException {
-        boats.setBoatCoxswain(serialNumber, hasCoxswain);
-    }
-
-    public void updateBoatMarine(int serialNumber, boolean isMarine) throws Exceptions.BoatNotFoundException{
-        boats.setBoatMarine(serialNumber, isMarine);
-    }
-
-    public void updateBoatDisabled(int serialNumber, boolean isDisabled) throws Exceptions.BoatNotFoundException{
-        boats.setBoatDisabled(serialNumber, isDisabled);
-    }
+//
+//    ////////////////
+//
+//    public void updateBoatName(int serialNumber, String name) throws Exceptions.BoatNotFoundException {
+//        Boat newBoat = new Boat(getBoat(serialNumber));
+//        newBoat.setName(name);
+//        boats.updateBoat(newBoat);
+//        //boats.setBoatName(serialNumber, name);
+//    }
+//
+//    public void updateBoatNumOfRowers(int serialNumber, BoatView.Rowers numOfRowers) throws Exceptions.BoatNotFoundException{
+//        boats.setBoatNumOfRowers(serialNumber, numOfRowers);
+//    }
+//
+//    public void updateBoatNumOfPaddles(int serialNumber, BoatView.Paddles numOfPaddles) throws Exceptions.BoatNotFoundException{
+//        boats.setBoatNumOfPaddles(serialNumber, numOfPaddles);
+//    }
+//
+//    public void updateBoatPrivate(int serialNumber, boolean isPrivate) throws Exceptions.BoatNotFoundException{
+//        boats.setBoatPrivate(serialNumber, isPrivate);
+//    }
+//
+//    public void updateBoatWide(int serialNumber, boolean isWide) throws Exceptions.BoatNotFoundException{
+//        boats.setBoatWide(serialNumber, isWide);
+//    }
+//
+//    public void updateBoatCoxswain(int serialNumber, boolean hasCoxswain)
+//            throws Exceptions.BoatNotFoundException,Exceptions.IllegalBoatValueException {
+//        boats.setBoatCoxswain(serialNumber, hasCoxswain);
+//    }
+//
+//    public void updateBoatMarine(int serialNumber, boolean isMarine) throws Exceptions.BoatNotFoundException{
+//        boats.setBoatMarine(serialNumber, isMarine);
+//    }
+//
+//    public void updateBoatDisabled(int serialNumber, boolean isDisabled) throws Exceptions.BoatNotFoundException{
+//        boats.setBoatDisabled(serialNumber, isDisabled);
+//    }
+//
 
 
 
@@ -214,7 +227,6 @@ public class Engine implements BMSEngine{
     public Activity getActivity(int id) {
         return activities.getActivity(id);
     }
-
 
     public void updateActivityName(int id, String name)
             throws Exceptions.ActivityNotFoundException  {

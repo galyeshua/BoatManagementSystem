@@ -2,23 +2,7 @@ package bms.module;
 
 import bms.engine.list.manager.Exceptions;
 
-public class Boat {
-    private static Integer counter = 1;
-
-    public enum Rowers {
-        ONE("1"), TWO("2"), FOUR("4"), EIGHT("8") ;
-        private String num;
-
-        Rowers(String num) {
-            this.num = num;
-        }
-        private String getNum(){
-            return this.num;
-        }
-    }
-    public enum Paddles { SINGLE, DOUBLE }
-
-
+public class Boat implements BoatView {
     private int serialNumber;
     private String name;
     private Rowers numOfRowers;
@@ -30,20 +14,6 @@ public class Boat {
     private boolean isDisabled;
 
 
-    public Boat(String name, Rowers numOfRowers, Paddles numOfPaddles, Boolean isPrivate,
-                Boolean isWide, Boolean hasCoxswain, Boolean isMarine, Boolean isDisabled)
-            throws Exceptions.IllegalBoatValueException {
-
-        this.setSerialNumber(Boat.counter++);
-        this.setName(name);
-        this.setNumOfRowers(numOfRowers);
-        this.setNumOfPaddles(numOfPaddles);
-        this.setPrivate(isPrivate);
-        this.setWide(isWide);
-        this.setHasCoxswain(hasCoxswain);
-        this.setMarine(isMarine);
-        this.setDisabled(isDisabled);
-    }
 
     public Boat(int serialNumber, String name, Rowers numOfRowers, Paddles numOfPaddles,
                 Boolean isPrivate, Boolean isWide, Boolean hasCoxswain, Boolean isMarine,
@@ -58,6 +28,18 @@ public class Boat {
         this.setHasCoxswain(hasCoxswain);
         this.setMarine(isMarine);
         this.setDisabled(isDisabled);
+    }
+
+    public Boat(BoatView other) throws Exceptions.IllegalBoatValueException{
+        this.setSerialNumber(other.getSerialNumber());
+        this.setName(other.getName());
+        this.setNumOfRowers(other.getNumOfRowers());
+        this.setNumOfPaddles(other.getNumOfPaddles());
+        this.setPrivate(other.getPrivate());
+        this.setWide(other.getWide());
+        this.setHasCoxswain(other.getHasCoxswain());
+        this.setMarine(other.getMarine());
+        this.setDisabled(other.getDisabled());
     }
 
     @Override
@@ -75,43 +57,44 @@ public class Boat {
                 '}';
     }
 
-
-    public static int getCounter() {
-        return Boat.counter;
-    }
+    @Override
     public int getSerialNumber() {
         return serialNumber;
     }
+    @Override
     public String getName() {
         return name;
     }
+    @Override
     public Rowers getNumOfRowers() {
         return numOfRowers;
     }
+    @Override
     public Paddles getNumOfPaddles() {
         return numOfPaddles;
     }
+    @Override
     public boolean getPrivate() {
         return isPrivate;
     }
+    @Override
     public boolean getWide() {
         return isWide;
     }
+    @Override
     public boolean getHasCoxswain() {
         return hasCoxswain;
     }
+    @Override
     public boolean getMarine() {
         return isMarine;
     }
+    @Override
     public boolean getDisabled() {
         return isDisabled;
     }
 
 
-
-    public static void setCounter(int counter) {
-        Boat.counter = counter;
-    }
     public void setSerialNumber(int serialNumber) {
         this.serialNumber = serialNumber;
     }

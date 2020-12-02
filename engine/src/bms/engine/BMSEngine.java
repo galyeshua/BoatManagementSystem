@@ -8,28 +8,31 @@ import java.util.Collection;
 import bms.engine.list.manager.Exceptions;
 import bms.module.Activity;
 import bms.module.Boat;
+import bms.module.BoatView;
 import bms.module.Member;
 
 
 public interface BMSEngine {
 
-    void addBoat(String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles, boolean isPrivate,
+    void addBoat(int serialNumber, String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles, boolean isPrivate,
                  boolean isWide, boolean hasCoxswain, boolean isMarine, boolean isDisabled)
             throws Exceptions.BoatAlreadyExistsException, Exceptions.IllegalBoatValueException;
     void deleteBoat(int serialNumber) throws Exceptions.BoatNotFoundException;
-    Collection<Boat> getBoats();
-    Boat getBoat(int serialNumber);
-    Boat getBoat(String name);
+    Collection<BoatView> getBoats();
+    BoatView getBoat(int serialNumber);
+    BoatView getBoat(String name);
 
-    void updateBoatName(int serialNumber, String name) throws Exceptions.BoatNotFoundException;
-    void updateBoatNumOfRowers(int serialNumber, Boat.Rowers numOfRowers) throws Exceptions.BoatNotFoundException;
-    void updateBoatNumOfPaddles(int serialNumber, Boat.Paddles numOfPaddles) throws Exceptions.BoatNotFoundException;
-    void updateBoatPrivate(int serialNumber, boolean isPrivate) throws Exceptions.BoatNotFoundException;
-    void updateBoatWide(int serialNumber, boolean isWide) throws Exceptions.BoatNotFoundException;
-    void updateBoatCoxswain(int serialNumber, boolean hasCoxswain)
-            throws Exceptions.BoatNotFoundException,Exceptions.IllegalBoatValueException;
-    void updateBoatMarine(int serialNumber, boolean isMarine) throws Exceptions.BoatNotFoundException;
-    void updateBoatDisabled(int serialNumber, boolean isDisabled) throws Exceptions.BoatNotFoundException;
+    void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException;
+//
+//    void updateBoatName(int serialNumber, String name) throws Exceptions.BoatNotFoundException;
+//    void updateBoatNumOfRowers(int serialNumber, Boat.Rowers numOfRowers) throws Exceptions.BoatNotFoundException;
+//    void updateBoatNumOfPaddles(int serialNumber, Boat.Paddles numOfPaddles) throws Exceptions.BoatNotFoundException;
+//    void updateBoatPrivate(int serialNumber, boolean isPrivate) throws Exceptions.BoatNotFoundException;
+//    void updateBoatWide(int serialNumber, boolean isWide) throws Exceptions.BoatNotFoundException;
+//    void updateBoatCoxswain(int serialNumber, boolean hasCoxswain)
+//            throws Exceptions.BoatNotFoundException,Exceptions.IllegalBoatValueException;
+//    void updateBoatMarine(int serialNumber, boolean isMarine) throws Exceptions.BoatNotFoundException;
+//    void updateBoatDisabled(int serialNumber, boolean isDisabled) throws Exceptions.BoatNotFoundException;
 
 
 
