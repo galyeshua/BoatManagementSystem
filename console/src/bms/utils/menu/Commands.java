@@ -4,6 +4,7 @@ import bms.engine.BMSEngine;
 import bms.engine.list.manager.Exceptions;
 import bms.module.Activity;
 import bms.module.Boat;
+import bms.module.BoatView;
 import bms.module.Member;
 
 import java.time.LocalDate;
@@ -35,7 +36,7 @@ public class Commands {
         return new Command() {
             @Override
             public void execute() {
-                for (Boat boat : engine.getBoats())
+                for (BoatView boat : engine.getBoats())
                     System.out.println(boat);
             }
         };
@@ -44,8 +45,9 @@ public class Commands {
 
     public static Command addBoat(){
         return new Command() {
-            boolean askForCoxswain = false;
+            boolean askForCoxswain = true;
 
+            int serialNumber;
             String boatName;
             Boat.Rowers numOfRowers;
             Boat.Paddles numOfPaddles;
@@ -56,6 +58,8 @@ public class Commands {
             Boolean isDisabled;
 
             private void askForValues(){
+                System.out.println("Enter Serial Number:");
+                serialNumber = getNumberFromUser(1);
                 System.out.println("Enter name:");
                 boatName = getStringFromUser();
                 System.out.println("How many rowers:");
@@ -89,10 +93,8 @@ public class Commands {
             public void execute() {
                 try{
                     askForValues();
-                    engine.addBoat( boatName, numOfRowers, numOfPaddles, isPrivate, isWide, hasCoxswain, isMarine, isDisabled);
+                    engine.addBoat(serialNumber, boatName, numOfRowers, numOfPaddles, isPrivate, isWide, hasCoxswain, isMarine, isDisabled);
                 } catch (Exceptions.BoatAlreadyExistsException e){
-                    System.out.println("Boat Already Exists");
-                } catch (Exceptions.IllegalBoatValueException e){
                     System.out.println("Error: " + e.getMessage());
                 }
             }
@@ -122,7 +124,7 @@ public class Commands {
     public static Command chooseAndEditBoat() {
         return new Command() {
             int serialNumber;
-            Boat boat;
+            BoatView boat;
 
             private void chooseBoatToUpdate() throws Exceptions.BoatNotFoundException {
                 System.out.println("All the boats:");
@@ -149,15 +151,19 @@ public class Commands {
     public static Command editBoatName(int serialNumber) {
         return new Command() {
             String boatName;
+            Boat newBoat;
 
             @Override
             public void execute() {
                 try{
+                    newBoat = new Boat(engine.getBoat(serialNumber));
                     boatName = getStringFromUser();
-                    engine.updateBoatName(serialNumber, boatName);
-
+                    newBoat.setName(boatName);
+                    engine.updateBoat(newBoat);
                 } catch (Exceptions.BoatNotFoundException e){
                     System.out.println("Boat not found");
+                } catch (Exceptions.IllegalBoatValueException e){
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
         };
@@ -168,15 +174,19 @@ public class Commands {
     public static Command editBoatNumOfPaddles(int serialNumber) {
         return new Command() {
             Boat.Paddles numOfPaddles;
+            Boat newBoat;
 
             @Override
             public void execute() {
                 try{
-                    numOfPaddles = (Boat.Paddles) chooseFromOptins(Boat.Paddles.values());
-                    engine.updateBoatNumOfPaddles(serialNumber, numOfPaddles);
-
+                    newBoat = new Boat(engine.getBoat(serialNumber));
+                    numOfPaddles = (BoatView.Paddles) chooseFromOptins(BoatView.Paddles.values());
+                    newBoat.setNumOfPaddles(numOfPaddles);
+                    engine.updateBoat(newBoat);
                 } catch (Exceptions.BoatNotFoundException e){
                     System.out.println("Boat not found");
+                } catch (Exceptions.IllegalBoatValueException e){
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
         };
@@ -185,15 +195,19 @@ public class Commands {
     public static Command editBoatPrivate(int serialNumber) {
         return new Command() {
             boolean isPrivate;
+            Boat newBoat;
 
             @Override
             public void execute() {
                 try{
+                    newBoat = new Boat(engine.getBoat(serialNumber));
                     isPrivate = getBoolFromUser();
-                    engine.updateBoatPrivate(serialNumber, isPrivate);
-
+                    newBoat.setPrivate(isPrivate);
+                    engine.updateBoat(newBoat);
                 } catch (Exceptions.BoatNotFoundException e){
                     System.out.println("Boat not found");
+                } catch (Exceptions.IllegalBoatValueException e){
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
         };
@@ -202,12 +216,15 @@ public class Commands {
     public static Command editBoatCoxswain(int serialNumber) {
         return new Command() {
             boolean hasCoxswain;
+            Boat newBoat;
 
             @Override
             public void execute() {
                 try{
+                    newBoat = new Boat(engine.getBoat(serialNumber));
                     hasCoxswain = getBoolFromUser();
-                    engine.updateBoatCoxswain(serialNumber, hasCoxswain);
+                    newBoat.setHasCoxswain(hasCoxswain);
+                    engine.updateBoat(newBoat);
                 } catch (Exceptions.BoatNotFoundException e){
                     System.out.println("Boat not found");
                 } catch (Exceptions.IllegalBoatValueException e){
@@ -220,15 +237,19 @@ public class Commands {
     public static Command editBoatMarine(int serialNumber) {
         return new Command() {
             boolean isMarine;
+            Boat newBoat;
 
             @Override
             public void execute() {
                 try{
+                    newBoat = new Boat(engine.getBoat(serialNumber));
                     isMarine = getBoolFromUser();
-                    engine.updateBoatMarine(serialNumber, isMarine);
-
+                    newBoat.setMarine(isMarine);
+                    engine.updateBoat(newBoat);
                 } catch (Exceptions.BoatNotFoundException e){
                     System.out.println("Boat not found");
+                } catch (Exceptions.IllegalBoatValueException e){
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
         };
@@ -237,15 +258,19 @@ public class Commands {
     public static Command editBoatDisabled(int serialNumber) {
         return new Command() {
             boolean isDisabled;
+            Boat newBoat;
 
             @Override
             public void execute() {
                 try{
+                    newBoat = new Boat(engine.getBoat(serialNumber));
                     isDisabled = getBoolFromUser();
-                    engine.updateBoatDisabled(serialNumber, isDisabled);
-
+                    newBoat.setDisabled(isDisabled);
+                    engine.updateBoat(newBoat);
                 } catch (Exceptions.BoatNotFoundException e){
                     System.out.println("Boat not found");
+                } catch (Exceptions.IllegalBoatValueException e){
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
         };
