@@ -1,11 +1,8 @@
 package bms.module;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-public class Member {
-
-    public enum Level { BEGINNER, MODERATE, PROFESSIONAL }
+public class Member implements MemberView {
 
     private int serialNumber;
     private String name;
@@ -39,6 +36,22 @@ public class Member {
         this.setManager(isManager);
     }
 
+    public Member(MemberView other) {
+        this.setSerialNumber(other.getSerialNumber());
+        this.setName(other.getName());
+        this.setAge(other.getAge());
+        this.setNotes(other.getNotes());
+        this.setLevel(other.getLevel());
+        this.setJoinDate(other.getJoinDate());
+        this.setExpireDate(other.getExpireDate());
+        this.setHasPrivateBoat(other.getHasPrivateBoat());
+        this.setBoatSerialNumber(other.getBoatSerialNumber());
+        this.setPhoneNumber(other.getPhoneNumber());
+        this.setEmail(other.getEmail());
+        this.setPassword(other.getPassword());
+        this.setManager(other.getManager());
+    }
+
     @Override
     public String toString() {
         return "Member{" +
@@ -58,44 +71,56 @@ public class Member {
                 '}';
     }
 
-
+    @Override
     public int getSerialNumber() {
         return serialNumber;
     }
+    @Override
     public String getName() {
         return name;
     }
+    @Override
     public int getAge() {
         return age;
     }
+    @Override
     public String getNotes() {
         return notes;
     }
+    @Override
     public Level getLevel() {
         return level;
     }
+    @Override
     public LocalDate getJoinDate() {
         return joinDate;
     }
+    @Override
     public LocalDate getExpireDate() {
         return expireDate;
     }
-    public boolean isHasPrivateBoat() {
+    @Override
+    public boolean getHasPrivateBoat() {
         return hasPrivateBoat;
     }
+    @Override
     public int getBoatSerialNumber() {
         return boatSerialNumber;
     }
+    @Override
     public String getPhoneNumber() {
         return phoneNumber;
     }
+    @Override
     public String getEmail() {
         return email;
     }
+    @Override
     public String getPassword() {
         return password;
     }
-    public boolean isManager() {
+    @Override
+    public boolean getManager() {
         return isManager;
     }
 

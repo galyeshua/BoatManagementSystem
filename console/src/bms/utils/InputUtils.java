@@ -1,5 +1,6 @@
 package bms.utils;
 
+import java.time.LocalTime;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -76,25 +77,6 @@ public class InputUtils {
         return inputString;
     }
 
-//    public static boolean getBoolFromUser() {
-//        Scanner scanner = new Scanner(System.in);
-//        String inputString = "";
-//        boolean inputBool = true;
-//        boolean validInput = false;
-//        do {
-//            inputString = getStringFromUser();
-//            validInput = true;
-//            if(inputString.equals("Y")){
-//                inputBool = true;
-//            } else if (inputString.equals("N")){
-//                inputBool = false;
-//            } else {
-//                validInput = false;
-//            }
-//        } while (validInput == false);
-//
-//        return inputBool;
-//    }
 
     public static boolean isTrue(String question){
         System.out.println(question);
@@ -130,6 +112,14 @@ public class InputUtils {
         return ans.getAns();
     }
 
+
+    public static LocalTime getLocalTimeFromUser() {
+        System.out.println("Enter hour:");
+        int hour = getNumberFromUser(0, 23);
+        System.out.println("Enter minute:");
+        int minute = getNumberFromUser(0,59);
+        return LocalTime.of(hour,minute);
+    }
 
 
 }

@@ -1,7 +1,6 @@
 package bms.engine.list.manager;
 
 import bms.module.Activity;
-import bms.module.Boat;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -47,33 +46,56 @@ public class ActivityManager {
         return null;
     }
 
+    public void updateActivity(Activity newActivity)
+            throws Exceptions.ActivityNotFoundException, Exceptions.IllegalActivityValueException {
+        int id = newActivity.getId();
+        Activity currentActivity = getActivity(id);
 
-    public void setActivityName(int id, String name) throws Exceptions.ActivityNotFoundException{
-        Activity activity = getActivity(id);
-        if (activity == null)
+        if (currentActivity == null)
             throw new Exceptions.ActivityNotFoundException();
-        activity.setName(name);
+
+        boolean isNameEquals = currentActivity.getName().equals(newActivity.getName());
+        boolean isStartTimeEquals = currentActivity.getStartTime().equals(newActivity.getStartTime());
+        boolean isFinishTimeEquals = currentActivity.getFinishTime().equals(newActivity.getFinishTime());
+
+        if (!(isNameEquals && isStartTimeEquals && isFinishTimeEquals))
+            validateActivityParameters(newActivity.getName(), newActivity.getStartTime(), newActivity.getFinishTime());
+
+        activities.set(id, newActivity);
     }
 
-    public void setActivityStartTime(int id, LocalTime startTime) throws Exceptions.ActivityNotFoundException{
-        Activity activity = getActivity(id);
-        if (activity == null)
-            throw new Exceptions.ActivityNotFoundException();
-        activity.setStartTime(startTime);
+    private void validateActivityParameters(String name, LocalTime startTime, LocalTime finishTime) {
+        if (getActivity(name, startTime, finishTime) != null)
+            throw new Exceptions.IllegalActivityValueException("Activity with same name, start time and finish time already exists.");
     }
-
-    public void setActivityFinishTime(int id, LocalTime finishTime) throws Exceptions.ActivityNotFoundException{
-        Activity activity = getActivity(id);
-        if (activity == null)
-            throw new Exceptions.ActivityNotFoundException();
-        activity.setFinishTime(finishTime);
-    }
-
-    public void setActivityBoatType(int id, String boatType) throws Exceptions.ActivityNotFoundException{
-        Activity activity = getActivity(id);
-        if (activity == null)
-            throw new Exceptions.ActivityNotFoundException();
-        activity.setBoatType(boatType);
-    }
+//
+//
+//    public void setActivityName(int id, String name) throws Exceptions.ActivityNotFoundException{
+//        Activity activity = getActivity(id);
+//        if (activity == null)
+//            throw new Exceptions.ActivityNotFoundException();
+//        activity.setName(name);
+//    }
+//
+//    public void setActivityStartTime(int id, LocalTime startTime) throws Exceptions.ActivityNotFoundException{
+//        Activity activity = getActivity(id);
+//        if (activity == null)
+//            throw new Exceptions.ActivityNotFoundException();
+//        activity.setStartTime(startTime);
+//    }
+//
+//    public void setActivityFinishTime(int id, LocalTime finishTime) throws Exceptions.ActivityNotFoundException{
+//        Activity activity = getActivity(id);
+//        if (activity == null)
+//            throw new Exceptions.ActivityNotFoundException();
+//        activity.setFinishTime(finishTime);
+//    }
+//
+//    public void setActivityBoatType(int id, String boatType) throws Exceptions.ActivityNotFoundException{
+//        Activity activity = getActivity(id);
+//        if (activity == null)
+//            throw new Exceptions.ActivityNotFoundException();
+//        activity.setBoatType(boatType);
+//    }
 
 }

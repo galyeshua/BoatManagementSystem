@@ -11,10 +11,7 @@ import bms.engine.list.manager.ActivityManager;
 import bms.engine.list.manager.Exceptions;
 import bms.engine.list.manager.MemberManager;
 
-import bms.module.Activity;
-import bms.module.Boat;
-import bms.module.BoatView;
-import bms.module.Member;
+import bms.module.*;
 
 
 public class Engine implements BMSEngine{
@@ -53,63 +50,11 @@ public class Engine implements BMSEngine{
         return boats.getBoat(name);
     }
 
-//    @Override
-//    public void updateBoat(int serialNumber,String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles,
-//                           boolean isPrivate, boolean isWide, boolean hasCoxswain, boolean isMarine,
-//                           boolean isDisabled)
-//            throws Exceptions.BoatNotFoundException, Exceptions.IllegalBoatValueExeption{
-//
-//        Boat oldBoat = getBoat(serialNumber);
-//
-//        Boat newBoat = new Boat(serialNumber, name, numOfRowers, numOfPaddles, isPrivate, isWide, hasCoxswain,
-//                isMarine, isDisabled);
-//
-//        boats.updateBoat(oldBoat.getSerialNumber(), newBoat);
-//        // Update XML
-//    }
-
     public void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException {
         boats.updateBoat(newBoat);
     }
-//
-//    ////////////////
-//
-//    public void updateBoatName(int serialNumber, String name) throws Exceptions.BoatNotFoundException {
-//        Boat newBoat = new Boat(getBoat(serialNumber));
-//        newBoat.setName(name);
-//        boats.updateBoat(newBoat);
-//        //boats.setBoatName(serialNumber, name);
-//    }
-//
-//    public void updateBoatNumOfRowers(int serialNumber, BoatView.Rowers numOfRowers) throws Exceptions.BoatNotFoundException{
-//        boats.setBoatNumOfRowers(serialNumber, numOfRowers);
-//    }
-//
-//    public void updateBoatNumOfPaddles(int serialNumber, BoatView.Paddles numOfPaddles) throws Exceptions.BoatNotFoundException{
-//        boats.setBoatNumOfPaddles(serialNumber, numOfPaddles);
-//    }
-//
-//    public void updateBoatPrivate(int serialNumber, boolean isPrivate) throws Exceptions.BoatNotFoundException{
-//        boats.setBoatPrivate(serialNumber, isPrivate);
-//    }
-//
-//    public void updateBoatWide(int serialNumber, boolean isWide) throws Exceptions.BoatNotFoundException{
-//        boats.setBoatWide(serialNumber, isWide);
-//    }
-//
-//    public void updateBoatCoxswain(int serialNumber, boolean hasCoxswain)
-//            throws Exceptions.BoatNotFoundException,Exceptions.IllegalBoatValueException {
-//        boats.setBoatCoxswain(serialNumber, hasCoxswain);
-//    }
-//
-//    public void updateBoatMarine(int serialNumber, boolean isMarine) throws Exceptions.BoatNotFoundException{
-//        boats.setBoatMarine(serialNumber, isMarine);
-//    }
-//
-//    public void updateBoatDisabled(int serialNumber, boolean isDisabled) throws Exceptions.BoatNotFoundException{
-//        boats.setBoatDisabled(serialNumber, isDisabled);
-//    }
-//
+
+
 
 
 
@@ -131,66 +76,23 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public Collection<Member> getMembers() {
-        return members.getMembers();
+    public Collection<MemberView> getMembers() {
+        return Collections.unmodifiableCollection(members.getMembers());
     }
 
     @Override
-    public Member getMember(int serialNumber) {
+    public MemberView getMember(int serialNumber) {
         return members.getMember(serialNumber);
     }
 
     @Override
-    public Member getMember(String email) {
+    public MemberView getMember(String email) {
         return members.getMember(email);
     }
 
     @Override
-    public void updateMemberName(int serialNumber, String name) throws Exceptions.MemberNotFoundException {
-        members.setMemberName(serialNumber, name);
-    }
-
-    public void updateMemberAge(int serialNumber, int age) throws Exceptions.MemberNotFoundException {
-        members.setMemberAge(serialNumber, age);
-    }
-    @Override
-    public void updateMemberNotes(int serialNumber, String notes) throws Exceptions.MemberNotFoundException {
-        members.setMemberNotes(serialNumber,notes);
-    }
-
-    @Override
-    public void updateMemberLevel(int serialNumber, Member.Level level) throws Exceptions.MemberNotFoundException {
-        members.setMemberLevel(serialNumber,level);
-    }
-
-    @Override
-    public void updateMemberPrivateBoat(int serialNumber, boolean hasBoat) throws Exceptions.MemberNotFoundException {
-        members.setMemberPrivateBoat(serialNumber,hasBoat);
-    }
-
-    @Override
-    public void updateBoatSerialNumber(int serialNumber, int boatSerialNumber) {
-        members.setMemberBoatSerialNumber(serialNumber,boatSerialNumber);
-    }
-
-    @Override
-    public void updateMemberPhone(int serialNumber, String phone) throws Exceptions.MemberNotFoundException {
-        members.setMemberPhone(serialNumber,phone);
-    }
-
-    @Override
-    public void updateMemberEmail(int serialNumber, String email) throws Exceptions.MemberNotFoundException {
-        members.setMemberEmail(serialNumber,email);
-    }
-
-    @Override
-    public void updateMemberPassword(int serialNumber, String password) throws Exceptions.MemberNotFoundException {
-        members.setMemberPassword(serialNumber,password);
-    }
-
-    @Override
-    public void updateMemberRole(int serialNumber, boolean isManager) throws Exceptions.MemberNotFoundException {
-        members.setMemberRole(serialNumber,isManager);
+    public void updateMember(Member newMember) throws Exceptions.MemberNotFoundException{
+        members.updateMember(newMember);
     }
 
 
@@ -219,34 +121,20 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public Collection<Activity> getActivities() {
-        return activities.getActivities();
+    public Collection<ActivityView> getActivities() {
+        return Collections.unmodifiableCollection(activities.getActivities());
     }
 
     @Override
-    public Activity getActivity(int id) {
+    public ActivityView getActivity(int id) {
         return activities.getActivity(id);
     }
 
-    public void updateActivityName(int id, String name)
+
+    public void updateActivity(Activity newActivity)
             throws Exceptions.ActivityNotFoundException  {
-        activities.setActivityName(id, name);
+        activities.updateActivity(newActivity);
 
     }
-    public void updateActivityStartTime(int id, LocalTime startTime)
-            throws Exceptions.ActivityNotFoundException{
-        activities.setActivityStartTime(id, startTime);
-    }
-
-    public void updateActivityFinishTime(int id, LocalTime finishTime)
-            throws Exceptions.ActivityNotFoundException {
-        activities.setActivityFinishTime(id, finishTime);
-    }
-
-    public void updateActivityBoatType(int id, String boatType)
-            throws Exceptions.ActivityNotFoundException{
-        activities.setActivityBoatType(id, boatType);
-    }
-
 
 }

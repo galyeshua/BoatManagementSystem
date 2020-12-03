@@ -31,5 +31,10 @@ public class Exceptions {
             super(message);
         }
     }
+    public static class IllegalActivityValueException extends RuntimeException{
+        public IllegalActivityValueException(String message) {
+            super(message);
+        }
+    }
 
 }
