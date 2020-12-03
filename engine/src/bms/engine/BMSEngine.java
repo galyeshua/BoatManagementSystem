@@ -48,4 +48,13 @@ public interface BMSEngine {
     ActivityView getActivity(int id);
     void updateActivity(Activity newActivity) throws Exceptions.ActivityNotFoundException;
 
+
+//
+//    void addReservation();
+//    void deleteReservation(int id);
+//    Collection<Reservation> getReservations();
+//    Reservation getReservation(int id);
+//
+
+
 }

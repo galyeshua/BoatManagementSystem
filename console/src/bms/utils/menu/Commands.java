@@ -35,8 +35,13 @@ public class Commands {
         return new Command() {
             @Override
             public void execute() {
-                for (BoatView boat : engine.getBoats())
-                    System.out.println(boat);
+                for (BoatView boat : engine.getBoats()){
+                    //System.out.println(boat);
+                    System.out.println("Name: " + boat.getName() + ". Type: " + boat.getFormattedCode() +
+                            ". Serial Number: " + boat.getSerialNumber() + ". Private: " + boat.getPrivate() +
+                            ". Disabled: " + boat.getDisabled());
+                }
+
             }
         };
     }
@@ -44,7 +49,8 @@ public class Commands {
 
     public static Command addBoat(){
         return new Command() {
-            boolean askForCoxswain = true;
+            boolean askForCoxswain;
+            boolean askForPaddles;
 
             int serialNumber;
             String boatName;
@@ -57,6 +63,9 @@ public class Commands {
             Boolean isDisabled;
 
             private void askForValues(){
+                askForCoxswain = true;
+                askForPaddles = true;
+
                 System.out.println("Enter Serial Number:");
                 serialNumber = getNumberFromUser(1);
                 System.out.println("Enter name:");
@@ -66,14 +75,18 @@ public class Commands {
                 if (numOfRowers.equals(Boat.Rowers.ONE)){
                     hasCoxswain = false;
                     askForCoxswain = false;
-                }
 
+                    numOfPaddles = Boat.Paddles.DOUBLE;
+                    askForPaddles = false;
+                }
                 if (numOfRowers.equals(Boat.Rowers.EIGHT)){
                     hasCoxswain = true;
                     askForCoxswain = false;
                 }
-                System.out.println("choose type of paddles:");
-                numOfPaddles = (Boat.Paddles) chooseFromOptins(Boat.Paddles.values());
+                if (askForPaddles){
+                    System.out.println("choose type of paddles:");
+                    numOfPaddles = (Boat.Paddles) chooseFromOptins(Boat.Paddles.values());
+                }
                 System.out.println("is private?");
                 isPrivate = getBoolFromUser();
                 System.out.println("is Wide?");

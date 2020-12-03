@@ -94,6 +94,29 @@ public class Boat implements BoatView {
         return isDisabled;
     }
 
+    @Override
+    public String getFormattedCode(){
+        String result = "";
+        result += getNumOfRowers().getNum();
+        if (getNumOfPaddles().equals(Paddles.DOUBLE))
+            result += 'X';
+        else
+            result += '-';
+
+        if (getHasCoxswain())
+            result += '+';
+
+        result = result.replace("-+", "+");
+
+        if (getWide())
+            result += " wide";
+
+        if (getMarine())
+            result += " costal";
+
+        return result;
+    }
+
 
     public void setSerialNumber(int serialNumber) {
         this.serialNumber = serialNumber;
@@ -104,7 +127,10 @@ public class Boat implements BoatView {
     public void setNumOfRowers(Rowers numOfRowers) {
         this.numOfRowers = numOfRowers;
     }
-    public void setNumOfPaddles(Paddles numOfPaddles) {
+    public void setNumOfPaddles(Paddles numOfPaddles) throws Exceptions.IllegalBoatValueException{
+        if (getNumOfRowers().equals(Rowers.ONE))
+            if (numOfPaddles.equals(Paddles.SINGLE))
+                throw new Exceptions.IllegalBoatValueException("Boat with size ONE cannot have Single Paddles");
         this.numOfPaddles = numOfPaddles;
     }
     public void setPrivate(boolean aPrivate) {
@@ -115,11 +141,11 @@ public class Boat implements BoatView {
     }
 
     public void setHasCoxswain(boolean hasCoxswain) throws Exceptions.IllegalBoatValueException{
-        if (this.numOfRowers.equals(Rowers.ONE))
+        if (getNumOfRowers().equals(Rowers.ONE))
             if (hasCoxswain)
                 throw new Exceptions.IllegalBoatValueException("Boat with size ONE cannot have coxswain");
 
-        if (this.numOfRowers.equals(Rowers.EIGHT))
+        if (getNumOfRowers().equals(Rowers.EIGHT))
             if (!hasCoxswain)
                 throw new Exceptions.IllegalBoatValueException("Boat with size EIGHT must have coxswain");
 

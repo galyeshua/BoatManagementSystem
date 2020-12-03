@@ -3,6 +3,7 @@ package bms.application;
 import bms.engine.BMSEngine;
 import bms.engine.Engine;
 import bms.module.Boat;
+import bms.module.BoatView;
 import bms.module.Member;
 
 import java.time.LocalDate;

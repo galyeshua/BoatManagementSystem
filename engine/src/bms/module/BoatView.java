@@ -11,6 +11,7 @@ public interface BoatView {
     boolean getHasCoxswain();
     boolean getMarine();
     boolean getDisabled();
+    String getFormattedCode();
 
     public enum Rowers {
         ONE("1"), TWO("2"), FOUR("4"), EIGHT("8");
@@ -20,7 +21,7 @@ public interface BoatView {
             this.num = num;
         }
 
-        private String getNum() {
+        public String getNum() {
             return this.num;
         }
     }
