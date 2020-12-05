@@ -37,4 +37,21 @@ public class Exceptions {
         }
     }
 
+    public static class ReservationNotFoundException extends RuntimeException { }
+    public static class ReservationAlreadyExistsException extends RuntimeException {
+        public ReservationAlreadyExistsException(String message) {
+            super(message);
+        }
+    }
+    public static class IllegalReservationValueException extends RuntimeException{
+        public IllegalReservationValueException(String message) {
+            super(message);
+        }
+    }
+    public static class ReservationAlreadyApprovedException extends RuntimeException {
+        public ReservationAlreadyApprovedException(String message) {
+            super(message);
+        }
+    }
+
 }

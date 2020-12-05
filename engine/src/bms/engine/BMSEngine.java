@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
+import java.util.List;
 
 import bms.engine.list.manager.Exceptions;
 import bms.module.*;
@@ -49,12 +50,15 @@ public interface BMSEngine {
     void updateActivity(Activity newActivity) throws Exceptions.ActivityNotFoundException;
 
 
-//
-//    void addReservation();
-//    void deleteReservation(int id);
-//    Collection<Reservation> getReservations();
-//    Reservation getReservation(int id);
-//
+
+    void addReservation(int memberID, Activity activity, LocalDate activityDate,
+                        List<Boat.Rowers> boatType, List<Member> participants,
+                        LocalDateTime orderDate, int orderMemberID);
+    void deleteReservation(int id);
+    Collection<Reservation> getReservations();
+    ReservationView getReservation(int id);
+    public void updateReservation(Reservation newReservation) throws Exceptions.ReservationNotFoundException;
 
 
-}
+
+    }

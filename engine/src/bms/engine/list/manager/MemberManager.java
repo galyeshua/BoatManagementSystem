@@ -65,7 +65,7 @@ public class MemberManager {
 
     private void validateMemberEmail(String email) {
         if (getMember(email) != null)
-            throw new Exceptions.BoatAlreadyExistsException("Member with email '" + email + "' already exist");
+            throw new Exceptions.MemberAlreadyExistsException("Member with email '" + email + "' already exist");
     }
 
 

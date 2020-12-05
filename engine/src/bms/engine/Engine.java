@@ -5,11 +5,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
-import bms.engine.list.manager.BoatManager;
-import bms.engine.list.manager.ActivityManager;
-import bms.engine.list.manager.Exceptions;
-import bms.engine.list.manager.MemberManager;
+import bms.engine.list.manager.*;
 
 import bms.module.*;
 
@@ -18,7 +16,7 @@ public class Engine implements BMSEngine{
     BoatManager boats = new BoatManager();
     MemberManager members = new MemberManager();
     ActivityManager activities = new ActivityManager();
-
+    ReservationManager reservations = new ReservationManager();
 
     @Override
     public void addBoat(int serialNumber, String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles, boolean isPrivate,
@@ -136,5 +134,36 @@ public class Engine implements BMSEngine{
         activities.updateActivity(newActivity);
 
     }
+
+    @Override
+    public void addReservation(int memberID, Activity activity, LocalDate activityDate,
+                               List<Boat.Rowers>boatType, List<Member> participants,
+                                LocalDateTime orderDate, int orderMemberID)
+    throws Exceptions.ReservationAlreadyExistsException{
+        Reservation reservation = new Reservation(memberID, activity, activityDate,
+                boatType,  participants, orderDate,  orderMemberID);
+        reservations.addReservation(reservation);
+
+    }
+
+    @Override
+    public void deleteReservation(int id)
+    throws Exceptions.ReservationAlreadyExistsException{
+        reservations.deleteReservation(id);
+    }
+
+    @Override
+    public Collection<Reservation> getReservations() {
+        return reservations.getReservations();
+    }
+
+    @Override
+    public ReservationView getReservation(int id) { return reservations.getReservation(id);    }
+
+    @Override
+    public void updateReservation(Reservation newReservation) throws Exceptions.ReservationNotFoundException{
+        reservations.updateReservation(newReservation);
+    }
+
 
 }

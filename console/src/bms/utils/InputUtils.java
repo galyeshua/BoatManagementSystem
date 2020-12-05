@@ -1,5 +1,7 @@
 package bms.utils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -83,7 +85,7 @@ public class InputUtils {
         return getBoolFromUser();
     }
 
-    public static Object chooseFromOptins(Object[] options) {
+    public static Object chooseFromOptions(Object[] options) {
         System.out.println("Choose from the options:");
         int res = 0;
         int i = 0;
@@ -108,7 +110,7 @@ public class InputUtils {
     }
 
     public static boolean getBoolFromUser() {
-        Answer ans = (Answer)chooseFromOptins(Answer.values());
+        Answer ans = (Answer) chooseFromOptions(Answer.values());
         return ans.getAns();
     }
 
@@ -121,5 +123,20 @@ public class InputUtils {
         return LocalTime.of(hour,minute);
     }
 
+    public static LocalDate getLocalDateFromUser() {
+        System.out.println("Enter day:");
+        int dayOfMonth = getNumberFromUser(1, 31);
+        System.out.println("Enter month:");
+        int month = getNumberFromUser(1, 12);
+        System.out.println("Enter year:");
+        int year = getNumberFromUser(2020);
+        return LocalDate.of(year,month,dayOfMonth);
+    }
 
+    public static LocalDateTime getLocalDateTimeFromUser(){
+        LocalTime time = getLocalTimeFromUser();
+        LocalDate date = getLocalDateFromUser();
+        return LocalDateTime.of(date,time);
+
+    }
 }

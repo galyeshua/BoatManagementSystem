@@ -1,7 +1,9 @@
 package bms.engine.list.manager;
 
 import bms.module.Activity;
+import bms.module.Member;
 import bms.module.Reservation;
+import bms.module.ReservationView;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -17,7 +19,7 @@ public class ReservationManager {
     }
 
     public void deleteReservation(int id) {
-        Reservation reservation = getAReservation(id);
+        Reservation reservation = getReservation(id);
         reservations.remove(reservation);
     }
 
@@ -25,7 +27,7 @@ public class ReservationManager {
         return reservations;
     }
 
-    public Reservation getAReservation(int id) {
+    public Reservation getReservation(int id) {
         for (Reservation reservation : reservations) {
             if(reservation.getId() == id)
                 return reservation;
@@ -33,6 +35,23 @@ public class ReservationManager {
         return null;
     }
 
+    public void updateReservation(Reservation newReservation) {
+        int serialNumber = newReservation.getId();
+        Reservation currentReservation = getReservation(serialNumber);
+
+        if (currentReservation == null)
+            throw new Exceptions.ReservationNotFoundException();
+
+        validateReservationNotApproved(currentReservation.getIsApproved());
+
+        reservations.set(serialNumber, newReservation);
+    }
+
+    public void validateReservationNotApproved(boolean isApproved){
+        if (isApproved)
+            throw new Exceptions.ReservationAlreadyApprovedException("Your Reservation Already Approved");
+
+    }
 
 
 }

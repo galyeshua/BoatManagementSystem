@@ -3,8 +3,14 @@ package bms.utils.menu;
 import bms.application.Menu;
 import bms.engine.BMSEngine;
 import bms.module.Activity;
+import bms.module.Boat;
+import bms.module.BoatView;
+import bms.module.Member;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 public class MenuUtils {
 
@@ -35,7 +41,7 @@ public class MenuUtils {
             subMenu.addOption("Manage Members", new openManageMembersMenu());
             subMenu.addOption("Manage Boats", new openManageBoatsMenu());
             subMenu.addOption("Manage Activities", new openManageActivitiesMenu());
-            //subMenu.addOption("Shibutzim", new BoatCommands.PrintBoats());
+            subMenu.addOption("Manage Reservations", new openManageReservationsMenu());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -164,6 +170,51 @@ public class MenuUtils {
             subMenu.startLoop();
         }
     }
+
+
+    public static class openManageReservationsMenu implements Command
+    {
+        @Override
+        public void execute() {
+            Menu subMenu = new Menu("Manage Reservations");
+
+            subMenu.addOption("Add Reservation", Commands.addReservation());
+            subMenu.addOption("Show Reservation", Commands.printReservation());
+            subMenu.addOption("Edit Reservation", Commands.chooseAndEditReservation());
+            subMenu.addOption("Delete Reservation", Commands.deleteReservation());
+            subMenu.addOption("Back", subMenu.stopLoop());
+
+            subMenu.startLoop();
+        }
+    }
+
+    public static class openEditReservationMenu implements Command
+    {
+        int id;
+        public openEditReservationMenu(int id) {
+            this.id = id;
+        }
+
+        @Override
+        public void execute() {
+            Menu subMenu = new Menu("Edit Reservation " + id);
+
+            subMenu.addOption("Edit Reservation member ID", Commands.editReservationMemberID(id));
+            subMenu.addOption("Edit Reservation activity ", Commands.editReservationActivity(id));
+            subMenu.addOption("Edit Reservation activity Date", Commands.editReservationActivityDate(id));
+            subMenu.addOption("Edit Reservation Boat Type", Commands.editReservationBoatType(id));
+            subMenu.addOption("Edit Reservation participants", Commands.editReservationParticipants(id));
+            subMenu.addOption("Edit Reservation order Date", Commands.editReservationOrderDate(id));
+            subMenu.addOption("Edit Reservation ordered Member ID", Commands.editReservationMemberID(id));
+
+
+            subMenu.addOption("Back", subMenu.stopLoop());
+
+            subMenu.startLoop();
+        }
+    }
+
+
 
 
 
