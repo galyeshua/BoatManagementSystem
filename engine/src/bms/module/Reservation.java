@@ -1,8 +1,13 @@
 package bms.module;
 
+import bms.engine.list.manager.Exceptions;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class Reservation implements ReservationView {
@@ -19,27 +24,38 @@ public class Reservation implements ReservationView {
 
 
 
-    public Reservation(Activity activity, LocalDate activityDate, List<BoatView.Rowers> boatType,
-                       List<Integer> participants, LocalDateTime orderDate, int orderedMemberID) {
+    public Reservation(Activity activity, LocalDate activityDate, LocalDateTime orderDate, int orderedMemberID) {
         this.setId(counter++);
-        this.activity = activity;
-        this.activityDate = activityDate;
-        this.boatType = boatType;
-        this.participants = participants;
-        this.orderDate = orderDate;
-        this.orderedMemberID = orderedMemberID;
-        this.isApproved = false;
+        this.setActivity(activity);
+        this.setActivityDate(activityDate);
+        this.setOrderDate(orderDate);
+        this.setOrderedMemberID(orderedMemberID);
+        this.setApproved(false);
+        this.participants = new ArrayList<Integer>();
+        this.boatType = new ArrayList<Boat.Rowers>();
     }
+
+//    public Reservation(Activity activity, LocalDate activityDate, List<BoatView.Rowers> boatType,
+//                       List<Integer> participants, LocalDateTime orderDate, int orderedMemberID) {
+//        this.setId(counter++);
+//        this.setActivity(activity);
+//        this.setActivityDate(activityDate);
+//        this.setOrderDate(orderDate);
+//        this.setOrderedMemberID(orderedMemberID);
+//        this.setApproved(false);
+//        this.participants = new ArrayList<Integer>();
+//        this.boatType = new ArrayList<Boat.Rowers>();
+//    }
 
     public Reservation(ReservationView other){
         this.setId(other.getId());
         this.setActivity(other.getActivity());
         this.setActivityDate(other.getActivityDate());
-        this.setBoatType(other.getBoatType());
-        this.setParticipants(other.getParticipants());
         this.setOrderDate(other.getOrderDate());
         this.setOrderedMemberID(other.getOrderedMemberID());
         this.setApproved(other.getIsApproved());
+        this.setBoatType(other.getBoatType());
+        this.setParticipants(other.getParticipants());
     }
 
     @Override
@@ -66,10 +82,10 @@ public class Reservation implements ReservationView {
         return activityDate;
     }
     public List<Boat.Rowers> getBoatType() {
-        return boatType;
+        return Collections.unmodifiableList(boatType);
     }
     public List<Integer> getParticipants() {
-        return participants;
+        return Collections.unmodifiableList(participants);
     }
     public LocalDateTime getOrderDate() {
         return orderDate;
@@ -87,26 +103,39 @@ public class Reservation implements ReservationView {
         return participants.isEmpty();
     }
     public boolean isCollide(ReservationView other){
-        //System.out.println("comparing " + get);
-
-        //boolean isSameDate = getOrderDate().equals(other.getOrderDate());
         boolean isTimeOverlapping = getActivity().isOverlapping(other.getActivity());
         return isTimeOverlapping;
-        //return isSameDate && isTimeOverlapping;
     }
 
     private void setId(int id) {this.id = id;}
     public void setActivity(Activity activity) {this.activity = activity;}
     public void setActivityDate(LocalDate activityDate) {this.activityDate = activityDate;}
-    public void setBoatType(List<Boat.Rowers> boatType) {this.boatType = boatType;}
-    public void setParticipants(List<Integer> participants) {this.participants = participants;}
+    public void setBoatType(List<Boat.Rowers> boatType) {this.boatType = new ArrayList<Boat.Rowers>(boatType);}
+    public void setParticipants(List<Integer> participants) {this.participants = new ArrayList<Integer>(participants);}
     public void setOrderDate(LocalDateTime orderDate) {this.orderDate = orderDate;}
     public void setOrderedMemberID(int orderedMemberID) {this.orderedMemberID = orderedMemberID;}
     public void setApproved(boolean approved) {isApproved = approved;}
 
+    public void addParticipant(Integer memberID){
+        if (participants.contains(memberID))
+            throw new Exceptions.MemberAlreadyExistsException("Member already exist in list");
+        participants.add(memberID);
+    }
     public void deleteParticipant(Integer memberID){
+        if (participants.size() == 1)
+            throw new Exceptions.ListCannotBeEmptyException();
         participants.remove(memberID);
     }
 
+    public void addBoatType(Boat.Rowers type){
+        if (boatType.contains(type))
+            throw new Exceptions.IllegalBoatValueException("Boat type already exist in list");
+        boatType.add(type);
+    }
+    public void deleteBoatType(Boat.Rowers type){
+        if (boatType.size() == 1)
+            throw new Exceptions.ListCannotBeEmptyException();
+        boatType.remove(type);
+    }
 
 }

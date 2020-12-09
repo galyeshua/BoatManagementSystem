@@ -69,25 +69,26 @@ public class BMSMain {
         List<Integer> memlist4 = new ArrayList<Integer>();
         memlist4.add(1276);
 
-        engine.addReservation(new Activity(LocalTime.of(5, 50), LocalTime.of(6, 50)),
-                LocalDate.of(2020, 12, 9), new ArrayList<BoatView.Rowers>(),
-                memlist1, LocalDateTime.now(),123);
+        Reservation r1 = new Reservation(new Activity(LocalTime.of(5, 50), LocalTime.of(6, 50)),
+                LocalDate.of(2020, 12, 9), LocalDateTime.now(), 123);
+        r1.addBoatType(BoatView.Rowers.FOUR);
+        r1.addParticipant(123);
+        engine.addReservation(r1);
 
-        engine.addReservation(new Activity(LocalTime.of(7, 00), LocalTime.of(7, 50)),
-                LocalDate.of(2020, 12, 9), new ArrayList<BoatView.Rowers>(),
-                memlist2, LocalDateTime.now(),123);
+        Reservation r2 = new Reservation(new Activity(LocalTime.of(7, 00), LocalTime.of(9, 50)),
+                LocalDate.of(2020, 12, 9), LocalDateTime.now(), 123);
+        r2.addBoatType(BoatView.Rowers.FOUR);
+        r2.addParticipant(123);
+        engine.addReservation(r2);
 
-        engine.addReservation(new Activity(LocalTime.of(6, 50), LocalTime.of(7, 50)),
-                LocalDate.of(2020, 12, 14), new ArrayList<BoatView.Rowers>(),
-                memlist3, LocalDateTime.now(),1276);
-
-        engine.addReservation(new Activity(LocalTime.of(5, 50), LocalTime.of(7, 50)),
-                LocalDate.of(2020, 12, 15), new ArrayList<BoatView.Rowers>(),
-                memlist4, LocalDateTime.now(),123);
+        Reservation r3 = new Reservation(new Activity(LocalTime.of(5, 50), LocalTime.of(6, 50)),
+                LocalDate.of(2020, 12, 10), LocalDateTime.now(), 123);
+        r3.addBoatType(BoatView.Rowers.FOUR);
+        r3.addParticipant(123);
+        engine.addReservation(r3);
 
         // load user
         // log in...
-
 
         MemberView user = engine.getMember(123);
         engine.setCurrentUser(user);

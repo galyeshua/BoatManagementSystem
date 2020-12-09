@@ -40,11 +40,13 @@ public class ReservationManager {
                     System.out.println(overlapRes);
                     System.out.println(memberID);
                     validateIfOldReservationsAlreadyApproved(overlapRes, memberID);
-                    overlapRes.deleteParticipant(memberID);
-                }
 
-                if (overlapRes.isParticipantsListEmpty())
-                    deleteReservation(overlapRes.getId());
+                    try{
+                        overlapRes.deleteParticipant(memberID);
+                    } catch ( Exceptions.ListCannotBeEmptyException e){
+                        deleteReservation(overlapRes.getId());
+                    }
+                }
             }
         }
     }

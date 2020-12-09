@@ -15,6 +15,9 @@ public class Boat implements BoatView {
 
 
 
+
+
+
     public Boat(int serialNumber, String name, Rowers numOfRowers, Paddles numOfPaddles,
                 Boolean isPrivate, Boolean isWide, Boolean hasCoxswain, Boolean isMarine,
                 Boolean isDisabled) throws Exceptions.IllegalBoatValueException{

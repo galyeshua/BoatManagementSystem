@@ -161,15 +161,11 @@ public class Engine implements BMSEngine{
 
     }
 
-    @Override
-    public void addReservation(Activity activity, LocalDate activityDate,
-                               List<Boat.Rowers>boatType, List<Integer> participants,
-                                LocalDateTime orderDate, int orderMemberID)
-    throws Exceptions.IllegalReservationValueException{
-        Reservation reservation = new Reservation(activity, activityDate, boatType, participants, orderDate,  orderMemberID);
 
+    @Override
+    public void addReservation(Reservation newReservation) throws Exceptions.IllegalReservationValueException{
         try{
-            reservations.addReservation(reservation);
+            reservations.addReservation(newReservation);
         } catch (Exceptions.MemberAlreadyInApprovedReservationsException e){
             MemberView member = getMember(e.getMemberID());
             throw new Exceptions.IllegalReservationValueException("Member '" + member.getName() + "' already have an approved reservation for this time");
@@ -259,6 +255,17 @@ public class Engine implements BMSEngine{
     }
 
     @Override
+    public Collection<ReservationView> getApprovedReservationsForWeek(LocalDate startDate) {
+        LocalDate finishDate = startDate.plusDays(7);
+        return Collections.unmodifiableCollection(
+                getReservationsForWeek(startDate)
+                        .stream()
+                        .filter(ReservationView::getIsApproved)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
     public Collection<ReservationView> getUnapprovedReservationsByDate(LocalDate date) {
         return Collections.unmodifiableCollection(
                 getReservationsByDate(date)
@@ -314,6 +321,7 @@ public class Engine implements BMSEngine{
             safeReservation.setParticipants(newReservation.getParticipants());
         }
 
+        // check if objects are equals and throw access denied if not
 
         try{
             reservations.updateReservation(safeReservation);

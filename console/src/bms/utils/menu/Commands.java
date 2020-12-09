@@ -1,5 +1,6 @@
 package bms.utils.menu;
 
+import bms.application.Menu;
 import bms.engine.BMSEngine;
 import bms.engine.list.manager.Exceptions;
 import bms.module.*;
@@ -836,7 +837,7 @@ public class Commands {
 
             private void chooseReservationToUpdate() throws Exceptions.ReservationNotFoundException {
                 System.out.println("Choose reservation:");
-                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getReservationsForWeek(LocalDate.now()));
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getUnapprovedReservationsForWeek(LocalDate.now()));
                 if (reservations.isEmpty())
                     throw new Exceptions.EmptyReservationListException();
 
@@ -856,6 +857,45 @@ public class Commands {
                 try{
                     chooseReservationToUpdate();
                     new MenuUtils.openEditReservationMenu(id, true).execute();
+                } catch (Exceptions.ReservationNotFoundException e){
+                    System.out.println("Reservation not found");
+                } catch (Exceptions.EmptyReservationListException e){
+                    System.out.println("No Reservations found");
+                }
+            }
+        };
+    }
+
+
+
+    public static Command chooseAndUnapproveReservationForManager() {
+        return new Command() {
+            int id;
+            ReservationView reservation;
+
+            private void chooseReservationToUnapprove() throws Exceptions.ReservationNotFoundException {
+                System.out.println("Choose reservation:");
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getApprovedReservationsForWeek(LocalDate.now()));
+                if (reservations.isEmpty())
+                    throw new Exceptions.EmptyReservationListException();
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+
+                System.out.println("choose reservation to edit");
+                int reservationIndex = getNumberFromUser(0, reservations.size() - 1);
+                id = reservations.get(reservationIndex).getId();
+                reservation = engine.getReservation(id);
+
+                if (reservation == null)
+                    throw new Exceptions.ReservationNotFoundException();
+            }
+            @Override
+            public void execute() {
+                try{
+                    chooseReservationToUnapprove();
+                    engine.unapproveReservation(id);
+                    System.out.println("successfully unapproved reservation");
                 } catch (Exceptions.ReservationNotFoundException e){
                     System.out.println("Reservation not found");
                 } catch (Exceptions.EmptyReservationListException e){
@@ -954,7 +994,11 @@ public class Commands {
             public void execute() {
                // try{ impossible ?????
                     askForValues();
-                    engine.addReservation(activity,activityDate,boatType,participants,orderDate,orderedMemberID);
+                    Reservation reservation = new Reservation(activity, activityDate, orderDate, orderedMemberID);
+                    reservation.setParticipants(participants);
+                    reservation.setBoatType(boatType);
+
+                    engine.addReservation(reservation);
              //   } catch (Exceptions.ReservationAlreadyExistsException e){
                //     System.out.println("Error: " + e.getMessage());
                 //}
@@ -1086,17 +1130,6 @@ public class Commands {
 //    }
 
 
-
-    public static Command unapproveReservation(int id) {
-        return new Command() {
-            @Override
-            public void execute() {
-                engine.unapproveReservation(id);
-                System.out.println("Successfully unapproved reservations");
-            }
-        };
-    }
-
     public static Command editReservationActivity(int id) {
         return new Command() {
             Activity activity;
@@ -1138,6 +1171,7 @@ public class Commands {
         };
     }
 
+
     public static Command editReservationActivityDate(int id) {
         return new Command() {
             LocalDate activityDate;
@@ -1152,38 +1186,18 @@ public class Commands {
                     engine.updateReservation(newReservation);
                 }catch (Exceptions.ReservationNotFoundException e){
                     System.out.println("Reservation Not Found" );
-                } catch (Exceptions.ReservationAlreadyApprovedException e){
-                    System.out.println("Reservation Already Approved");
-                } catch (Exceptions.IllegalActivityValueException e){
+                } catch (Exceptions.IllegalReservationValueException | Exceptions.MemberAccessDeniedException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Exceptions.ReservationAlreadyApprovedException e){
+                    System.out.println("Cannot edit Approved Reservation" );
                 }
             }
         };
     }
 
 
-    public static Command editReservationBoatType(int id) {
-        return new Command() {
-            List<Boat.Rowers> boatType;
-            Reservation newReservation;
 
-            @Override
-            public void execute() {
-                try {
-                    newReservation = new Reservation(engine.getReservation(id));
-                    //boatType = getLocalDateFromUser();
-                    newReservation.setBoatType(boatType);
-                    engine.updateReservation(newReservation);
-                }catch (Exceptions.ReservationNotFoundException e){
-                    System.out.println("Reservation Not Found" );
-                } catch (Exceptions.ReservationAlreadyApprovedException e){
-                    System.out.println("Reservation Already Approved");
-                } catch (Exceptions.IllegalActivityValueException e){
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-        };
-    }
+
 
     public static Command editReservationParticipants(int id) {
         return new Command() {
@@ -1254,6 +1268,165 @@ public class Commands {
             }
         };
     }
+
+    public static Command showReservationBoatType(int id) {
+        return new Command() {
+            @Override
+            public void execute() {
+                ReservationView reservation = engine.getReservation(id);
+                List<BoatView.Rowers> boatTypes = reservation.getBoatType();
+
+                System.out.println("All types");
+                for (BoatView.Rowers boatType : boatTypes)
+                    System.out.println(boatType);
+            }
+        };
+    }
+
+    public static Command addReservationBoatType(int id) {
+        return new Command() {
+            Reservation newReservation;
+
+            @Override
+            public void execute() {
+                try {
+                    newReservation = new Reservation(engine.getReservation(id));
+                    System.out.println("Enter new type");
+                    newReservation.addBoatType((Boat.Rowers) chooseFromOptions(Boat.Rowers.values()));
+                    engine.updateReservation(newReservation);
+                }catch (Exceptions.ReservationNotFoundException e){
+                    System.out.println("Reservation Not Found" );
+                } catch (Exceptions.IllegalReservationValueException | Exceptions.MemberAccessDeniedException |
+                        Exceptions.IllegalBoatValueException e){
+                    System.out.println("Error: " + e.getMessage());
+                } catch (Exceptions.ReservationAlreadyApprovedException e){
+                    System.out.println("Cannot edit Approved Reservation" );
+                }
+            }
+        };
+    }
+
+    public static Command deleteReservationBoatType(int id) {
+        return new Command() {
+            Reservation newReservation;
+
+            @Override
+            public void execute() {
+                try {
+                    newReservation = new Reservation(engine.getReservation(id));
+                    System.out.println("choose type to delete");
+                    newReservation.deleteBoatType((Boat.Rowers) chooseFromOptions(newReservation.getBoatType().toArray()));
+                    engine.updateReservation(newReservation);
+                }catch (Exceptions.ReservationNotFoundException e){
+                    System.out.println("Reservation Not Found" );
+                } catch (Exceptions.IllegalReservationValueException | Exceptions.MemberAccessDeniedException e){
+                    System.out.println("Error: " + e.getMessage());
+                } catch (Exceptions.ReservationAlreadyApprovedException e){
+                    System.out.println("Cannot edit Approved Reservation" );
+                } catch (Exceptions.ListCannotBeEmptyException e){
+                    System.out.println("List must have at least one type" );
+                }
+            }
+        };
+    }
+
+    public static Command showReservationPerticipents(int id) {
+        return new Command() {
+            @Override
+            public void execute() {
+                ReservationView reservation = engine.getReservation(id);
+                List<Integer> participants = reservation.getParticipants();
+
+                System.out.println("All Rowers:");
+                for (int memberID : participants)
+                    System.out.println(engine.getMember(memberID));
+            }
+        };
+    }
+
+    public static Command addReservationPerticipent(int id) {
+        return new Command() {
+            Reservation newReservation;
+            String name;
+            List<MemberView> members;
+
+            private int getMemberSerialNumberFromListByName(List<MemberView> members, String name){
+                if(members.size() == 1)
+                    return members.get(0).getSerialNumber();
+
+                int i=0;
+                for (MemberView member : members){
+                    System.out.println("[" + i + "] " + member.getName() + " - " + member.getAge());
+                    i++;
+                }
+                int memberIndex = getNumberFromUser(0, members.size() - 1);
+                return members.get(memberIndex).getSerialNumber();
+            }
+
+            private String getNameFromUser(){
+                String name;
+                do{
+                    System.out.println("Enter Member name");
+                    name = getStringFromUser();
+                    members = new ArrayList<MemberView>(engine.getMembers(name));
+                    if(members.isEmpty())
+                        System.out.println("Could not find member");
+                } while(members.isEmpty());
+                return name;
+            }
+
+            @Override
+            public void execute() {
+                try {
+                    newReservation = new Reservation(engine.getReservation(id));
+                    System.out.println("Enter new member");
+                    name=getNameFromUser();
+                    newReservation.addParticipant(getMemberSerialNumberFromListByName(members, name));
+                    engine.updateReservation(newReservation);
+                }catch (Exceptions.ReservationNotFoundException e){
+                    System.out.println("Reservation Not Found" );
+                } catch (Exceptions.IllegalReservationValueException | Exceptions.MemberAccessDeniedException |
+                        Exceptions.MemberAlreadyExistsException | Exceptions.IllegalBoatValueException e){
+                    System.out.println("Error: " + e.getMessage());
+                } catch (Exceptions.ReservationAlreadyApprovedException e){
+                    System.out.println("Cannot edit Approved Reservation" );
+                }
+            }
+        };
+    }
+
+
+    public static Command deleteReservationPerticipent(int id) {
+        return new Command() {
+            Reservation newReservation;
+
+            @Override
+            public void execute() {
+                try {
+                    newReservation = new Reservation(engine.getReservation(id));
+                    System.out.println("choose rower to delete");
+                    int i=0;
+                    for (int memberID : newReservation.getParticipants()){
+                        MemberView member = engine.getMember(memberID);
+                        System.out.println("[" + i + "] " + member.getName() + " - " + member.getAge());
+                        i++;
+                    }
+                    int memberIndex = getNumberFromUser(0, newReservation.getParticipants().size()-1);
+                    newReservation.deleteParticipant(newReservation.getParticipants().get(memberIndex));
+                    engine.updateReservation(newReservation);
+                }catch (Exceptions.ReservationNotFoundException e){
+                    System.out.println("Reservation Not Found" );
+                } catch (Exceptions.IllegalReservationValueException | Exceptions.MemberAccessDeniedException e){
+                    System.out.println("Error: " + e.getMessage());
+                } catch (Exceptions.ReservationAlreadyApprovedException e){
+                    System.out.println("Cannot edit Approved Reservation" );
+                } catch (Exceptions.ListCannotBeEmptyException e){
+                    System.out.println("List must have at least one participant" );
+                }
+            }
+        };
+    }
+
 
 }
 

@@ -55,9 +55,7 @@ public interface BMSEngine {
 
 
 
-    void addReservation(Activity activity, LocalDate activityDate,
-                        List<Boat.Rowers> boatType, List<Integer> participants,
-                        LocalDateTime orderDate, int orderMemberID);
+    void addReservation(Reservation newReservation);
     void deleteReservation(int id);
     Collection<ReservationView> getReservations();
     Collection<ReservationView> getFutureUnapprovedReservationsForCurrentUser();
@@ -66,6 +64,7 @@ public interface BMSEngine {
     Collection<ReservationView> getReservationsByDate(LocalDate date);
     Collection<ReservationView> getReservationsForWeek(LocalDate startDate);
     Collection<ReservationView> getApprovedReservationsByDate(LocalDate date);
+    Collection<ReservationView> getApprovedReservationsForWeek(LocalDate startDate);
     Collection<ReservationView> getUnapprovedReservationsByDate(LocalDate date);
     Collection<ReservationView> getUnapprovedReservationsForWeek(LocalDate startDate);
     void unapproveReservation(int id);

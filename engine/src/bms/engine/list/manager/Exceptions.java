@@ -75,4 +75,7 @@ public class Exceptions {
         }
     }
 
+    public static class ListCannotBeEmptyException extends RuntimeException{ }
+
+
 }

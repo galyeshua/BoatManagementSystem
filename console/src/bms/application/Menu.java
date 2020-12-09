@@ -29,14 +29,12 @@ public class Menu {
     private String title;
     private List<Option> options;
     public boolean exitMenu;
-    private Menu parentMenu;
 
 
     public Menu(String title) {
         this.title = title;
         this.options = new ArrayList<Option>(5);
         this.exitMenu = false;
-        parentMenu = null;
     }
 
     public void startLoop(){
@@ -55,10 +53,12 @@ public class Menu {
         System.out.println("    " + this.title);
         for (Option option : this.options)
             System.out.println("[" + options.indexOf(option) + "] " + option.getDescription());
+
     }
 
     private void execute(int optionIndex){
-        Command commandOfOption = options.get(optionIndex).getCommand();
+        Option option = options.get(optionIndex);
+        Command commandOfOption = option.getCommand();
         commandOfOption.execute();
     }
 
@@ -81,12 +81,10 @@ public class Menu {
         };
     }
 
-    public void reload(){
-
-    }
-
     public void addOption(String description, Command command){
-        this.options.add(new Option(description, command));
+        Option option = new Option(description, command);
+        this.options.add(option);
     }
+
 
 }

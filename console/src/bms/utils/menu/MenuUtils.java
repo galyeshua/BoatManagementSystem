@@ -182,7 +182,9 @@ public class MenuUtils {
             //subMenu.addOption("Add Reservation", Commands.addReservation());
             subMenu.addOption("Show All Reservation", new openShowDatesForReservationsMenu());
             subMenu.addOption("Show Unapproved Reservation", new openShowDatesForUnapprovedReservationsMenu());
-            subMenu.addOption("Edit Reservation", Commands.chooseAndEditReservationForManager());
+            subMenu.addOption("Edit Unapproved Reservations", Commands.chooseAndEditReservationForManager());
+            subMenu.addOption("Unapprove reservation", Commands.chooseAndUnapproveReservationForManager());
+
             //subMenu.addOption("Delete Reservation", Commands.deleteReservation());
             subMenu.addOption("Back", subMenu.stopLoop());
 
@@ -244,27 +246,76 @@ public class MenuUtils {
 
         @Override
         public void execute() {
+
             Menu subMenu = new Menu("Edit Reservation for " + id + " (Approved: " + reservation.getIsApproved() + ")");
 
-            if(!reservation.getIsApproved()){
-                subMenu.addOption("Edit Reservation activity", Commands.editReservationActivity(id));
-                subMenu.addOption("Edit Reservation activity Date", Commands.editReservationActivityDate(id));
-                subMenu.addOption("Edit Reservation Boat Type", Commands.editReservationBoatType(id));
-                subMenu.addOption("Edit Reservation participants", Commands.editReservationParticipants(id));
+            subMenu.addOption("Edit Reservation activity", Commands.editReservationActivity(id));
+            subMenu.addOption("Edit Reservation activity Date", Commands.editReservationActivityDate(id));
+            subMenu.addOption("Edit Reservation Boat Type", new openAddOrRemoveReservationBoatTypeMenu(id));
+            subMenu.addOption("Edit Reservation participants", new openAddOrRemoveReservationParticipentsMenu(id));
 
-                if(forManager && Commands.user.getManager()){
-                    subMenu.addOption("View available boats", Commands.editReservationBoatType(id));
-                    subMenu.addOption("Split reservation participants", Commands.editReservationBoatType(id));
-                    subMenu.addOption("Allocate Boat and confirm reservation", Commands.test());
-                }
-            } else{
-                subMenu.addOption("Unapprove reservation", Commands.unapproveReservation(id));
+            if(forManager && Commands.user.getManager()){
+                subMenu.addOption("View available boats", Commands.test());
+                subMenu.addOption("Split reservation participants", Commands.test());
+                subMenu.addOption("Allocate Boat and confirm reservation", Commands.test());
             }
+
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
         }
     }
+
+
+    public static class openAddOrRemoveReservationBoatTypeMenu implements Command
+    {
+        int id;
+        ReservationView reservation;
+
+        public openAddOrRemoveReservationBoatTypeMenu(int id) {
+            this.id = id;
+            this.reservation = Commands.engine.getReservation(id);
+        }
+
+        @Override
+        public void execute() {
+
+            Menu subMenu = new Menu("Edit Boat Type for Reservation");
+
+            subMenu.addOption("Show boat type", Commands.showReservationBoatType(id));
+            subMenu.addOption("Add type", Commands.addReservationBoatType(id));
+            subMenu.addOption("delete type", Commands.deleteReservationBoatType(id));
+            subMenu.addOption("Back", subMenu.stopLoop());
+
+            subMenu.startLoop();
+        }
+    }
+
+
+    public static class openAddOrRemoveReservationParticipentsMenu implements Command
+    {
+        int id;
+        ReservationView reservation;
+
+        public openAddOrRemoveReservationParticipentsMenu(int id) {
+            this.id = id;
+            this.reservation = Commands.engine.getReservation(id);
+        }
+
+        @Override
+        public void execute() {
+
+            Menu subMenu = new Menu("Edit Perticipents for Reservation");
+
+            subMenu.addOption("Show Perticipents", Commands.showReservationPerticipents(id));
+            subMenu.addOption("Add Perticipent", Commands.addReservationPerticipent(id));
+            subMenu.addOption("delete Perticipent", Commands.deleteReservationPerticipent(id));
+            subMenu.addOption("Back", subMenu.stopLoop());
+
+            subMenu.startLoop();
+        }
+    }
+
 
 
 
