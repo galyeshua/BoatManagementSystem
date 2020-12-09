@@ -1,11 +1,15 @@
 package bms.engine;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import bms.engine.list.manager.*;
 
@@ -13,10 +17,21 @@ import bms.module.*;
 
 
 public class Engine implements BMSEngine{
+    Member currentUser = null;
     BoatManager boats = new BoatManager();
     MemberManager members = new MemberManager();
     ActivityManager activities = new ActivityManager();
     ReservationManager reservations = new ReservationManager();
+
+    @Override
+    public MemberView getCurrentUser() {
+        return currentUser;
+    }
+
+    @Override
+    public void setCurrentUser(MemberView currentUser) {
+        this.currentUser = new Member(currentUser);
+    }
 
     @Override
     public void addBoat(int serialNumber, String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles, boolean isPrivate,
@@ -79,6 +94,17 @@ public class Engine implements BMSEngine{
     }
 
     @Override
+    public Collection<MemberView> getMembers(String name) {
+        return Collections.unmodifiableCollection(
+                members.getMembers()
+                        .stream()
+                        .filter(m -> m.getName().equals(name))
+                        .collect(Collectors.toList())
+        );
+    }
+
+
+    @Override
     public MemberView getMember(int serialNumber) {
         return members.getMember(serialNumber);
     }
@@ -136,15 +162,20 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void addReservation(int memberID, Activity activity, LocalDate activityDate,
-                               List<Boat.Rowers>boatType, List<Member> participants,
+    public void addReservation(Activity activity, LocalDate activityDate,
+                               List<Boat.Rowers>boatType, List<Integer> participants,
                                 LocalDateTime orderDate, int orderMemberID)
-    throws Exceptions.ReservationAlreadyExistsException{
-        Reservation reservation = new Reservation(memberID, activity, activityDate,
-                boatType,  participants, orderDate,  orderMemberID);
-        reservations.addReservation(reservation);
+    throws Exceptions.IllegalReservationValueException{
+        Reservation reservation = new Reservation(activity, activityDate, boatType, participants, orderDate,  orderMemberID);
 
+        try{
+            reservations.addReservation(reservation);
+        } catch (Exceptions.MemberAlreadyInApprovedReservationsException e){
+            MemberView member = getMember(e.getMemberID());
+            throw new Exceptions.IllegalReservationValueException("Member '" + member.getName() + "' already have an approved reservation for this time");
+        }
     }
+
 
     @Override
     public void deleteReservation(int id)
@@ -152,9 +183,112 @@ public class Engine implements BMSEngine{
         reservations.deleteReservation(id);
     }
 
+
     @Override
-    public Collection<Reservation> getReservations() {
-        return reservations.getReservations();
+    public Collection<ReservationView> getReservations() {
+        return Collections.unmodifiableCollection(reservations.getReservations());
+    }
+
+
+    private Stream<Reservation> getReservationsForCurrentUser(){
+        int userID = currentUser.getSerialNumber();
+        return reservations.getReservations()
+                .stream()
+                .filter(r -> r.getParticipants().contains(userID) || r.getOrderedMemberID()==userID);
+    }
+
+
+    @Override
+    public Collection<ReservationView> getFutureUnapprovedReservationsForCurrentUser() {
+        return Collections.unmodifiableCollection(
+                getReservationsForCurrentUser()
+                        .filter(r -> r.getActivityDate().isAfter(LocalDate.now() ))
+                        .filter(r -> !r.getIsApproved())
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public Collection<ReservationView> getFutureReservationsForCurrentUser() {
+        return Collections.unmodifiableCollection(
+                getReservationsForCurrentUser()
+                        .filter(r -> r.getActivityDate().isAfter(LocalDate.now() ))
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public Collection<ReservationView> getReservationsHistoryForCurrentUser() {
+        return Collections.unmodifiableCollection(
+                getReservationsForCurrentUser()
+                        .filter(r -> r.getActivityDate().isBefore(LocalDate.now() ))
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public Collection<ReservationView> getReservationsByDate(LocalDate date) {
+        return Collections.unmodifiableCollection(
+                reservations.getReservations()
+                        .stream()
+                        .filter(r -> r.getActivityDate().equals(date))
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public Collection<ReservationView> getReservationsForWeek(LocalDate startDate) {
+        LocalDate finishDate = startDate.plusDays(7);
+        return Collections.unmodifiableCollection(
+                reservations.getReservations()
+                        .stream()
+                        .filter(r -> r.getActivityDate().isEqual(startDate) || r.getActivityDate().isAfter(startDate))
+                        .filter(r -> r.getActivityDate().isBefore(finishDate))
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public Collection<ReservationView> getApprovedReservationsByDate(LocalDate date) {
+        return Collections.unmodifiableCollection(
+                getReservationsByDate(date)
+                        .stream()
+                        .filter(ReservationView::getIsApproved)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public Collection<ReservationView> getUnapprovedReservationsByDate(LocalDate date) {
+        return Collections.unmodifiableCollection(
+                getReservationsByDate(date)
+                        .stream()
+                        .filter(r -> !r.getIsApproved())
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public Collection<ReservationView> getUnapprovedReservationsForWeek(LocalDate startDate) {
+        LocalDate finishDate = startDate.plusDays(7);
+        return Collections.unmodifiableCollection(
+                getReservationsForWeek(startDate)
+                        .stream()
+                        .filter(r -> !r.getIsApproved())
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public void unapproveReservation(int id){
+        Reservation reservation = reservations.getReservation(id);
+        validateUserRole();
+
+        if(reservation==null)
+            throw new Exceptions.ReservationNotFoundException();
+
+        if (reservation.getIsApproved())
+            reservation.setApproved(false);
     }
 
     @Override
@@ -162,8 +296,36 @@ public class Engine implements BMSEngine{
 
     @Override
     public void updateReservation(Reservation newReservation) throws Exceptions.ReservationNotFoundException{
-        reservations.updateReservation(newReservation);
+        Reservation safeReservation = newReservation;
+
+        int reservationID = newReservation.getId();
+        Reservation oldReservation = reservations.getReservation(reservationID);
+
+        validateUserRole();
+        if (!oldReservation.isMemberInReservation(currentUser.getSerialNumber()))
+            throw new Exceptions.MemberAccessDeniedException();
+
+        if (!currentUser.getManager()){
+            safeReservation = new Reservation(oldReservation);
+
+            safeReservation.setActivity(newReservation.getActivity());
+            safeReservation.setActivityDate(newReservation.getActivityDate());
+            safeReservation.setBoatType(newReservation.getBoatType());
+            safeReservation.setParticipants(newReservation.getParticipants());
+        }
+
+
+        try{
+            reservations.updateReservation(safeReservation);
+        } catch (Exceptions.MemberAlreadyInApprovedReservationsException e){
+            MemberView member = getMember(e.getMemberID());
+            throw new Exceptions.IllegalReservationValueException("Member '" + member.getName() + "' already have an approved reservation for this time");
+        }
     }
 
+    private void validateUserRole(){
+        if (!currentUser.getManager())
+            throw new Exceptions.MemberAccessDeniedException();
+    }
 
 }

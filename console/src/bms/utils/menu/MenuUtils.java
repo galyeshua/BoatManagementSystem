@@ -2,29 +2,29 @@ package bms.utils.menu;
 
 import bms.application.Menu;
 import bms.engine.BMSEngine;
-import bms.module.Activity;
-import bms.module.Boat;
-import bms.module.BoatView;
-import bms.module.Member;
+import bms.module.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class MenuUtils {
 
-    public static Menu getMainMenuForUser(boolean isManager, BMSEngine engine) {
+    public static Menu getMainMenuForUser(MemberView user, BMSEngine engine) {
         Commands.setEngine(engine);
-        return createMainMenu(isManager);
+        Commands.setLoggedInUser(user);
+        return createMainMenu(user.getManager());
     }
 
     private static Menu createMainMenu(boolean isManager){
         Menu mainMenu = new Menu("Boat House Main Menu");
-        //mainMenu.addOption("New reservation", Commands.test());
-        //mainMenu.addOption("Show reservations", Commands.test());
-        //mainMenu.addOption("Reservation history", Commands.test());
         //mainMenu.addOption("Edit my profile", Commands.test());
+        mainMenu.addOption("New reservation", Commands.addReservation());
+        mainMenu.addOption("Show my reservations", Commands.printFutureReservationForCurrentUser());
+        mainMenu.addOption("Edit my reservations", Commands.chooseAndEditReservationForCurrentUser());
+        mainMenu.addOption("Reservation history", Commands.printReservationHistoryForCurrentUser());
         if (isManager)
             mainMenu.addOption("Manage", new openManageMenu());
         mainMenu.addOption("Exit", mainMenu.ExitApp());
@@ -42,6 +42,7 @@ public class MenuUtils {
             subMenu.addOption("Manage Boats", new openManageBoatsMenu());
             subMenu.addOption("Manage Activities", new openManageActivitiesMenu());
             subMenu.addOption("Manage Reservations", new openManageReservationsMenu());
+            subMenu.addOption("Display assignments for today", Commands.printApprovedReservations(LocalDate.now()));
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -178,36 +179,87 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Manage Reservations");
 
-            subMenu.addOption("Add Reservation", Commands.addReservation());
-            subMenu.addOption("Show Reservation", Commands.printReservation());
-            subMenu.addOption("Edit Reservation", Commands.chooseAndEditReservation());
-            subMenu.addOption("Delete Reservation", Commands.deleteReservation());
+            //subMenu.addOption("Add Reservation", Commands.addReservation());
+            subMenu.addOption("Show All Reservation", new openShowDatesForReservationsMenu());
+            subMenu.addOption("Show Unapproved Reservation", new openShowDatesForUnapprovedReservationsMenu());
+            subMenu.addOption("Edit Reservation", Commands.chooseAndEditReservationForManager());
+            //subMenu.addOption("Delete Reservation", Commands.deleteReservation());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
         }
     }
 
+    public static class openShowDatesForReservationsMenu implements Command
+    {
+        @Override
+        public void execute() {
+            Menu subMenu = new Menu("Choose date to show Reservations");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate startDate = LocalDate.now();
+
+            for (int i = 0; i< 7; i++){
+                LocalDate date = startDate.plusDays(i);
+                subMenu.addOption(date.format(formatter), Commands.printReservations(date));
+            }
+            subMenu.addOption("All week", Commands.printReservationsForWeek(startDate));
+
+            subMenu.addOption("Back", subMenu.stopLoop());
+            subMenu.startLoop();
+        }
+    }
+
+
+    public static class openShowDatesForUnapprovedReservationsMenu implements Command
+    {
+        @Override
+        public void execute() {
+            Menu subMenu = new Menu("Choose date to show Unapproved Reservations");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate startDate = LocalDate.now();
+
+            for (int i = 0; i< 7; i++){
+                LocalDate date = startDate.plusDays(i);
+                subMenu.addOption(date.format(formatter), Commands.printUnapprovedReservations(date));
+            }
+            subMenu.addOption("All week", Commands.printUnapprovedReservationsForWeek(startDate));
+
+            subMenu.addOption("Back", subMenu.stopLoop());
+            subMenu.startLoop();
+        }
+    }
+
+
     public static class openEditReservationMenu implements Command
     {
         int id;
-        public openEditReservationMenu(int id) {
+        ReservationView reservation;
+        boolean forManager = false;
+
+        public openEditReservationMenu(int id, boolean forManager) {
             this.id = id;
+            this.forManager = forManager;
+            this.reservation = Commands.engine.getReservation(id);
         }
 
         @Override
         public void execute() {
-            Menu subMenu = new Menu("Edit Reservation " + id);
+            Menu subMenu = new Menu("Edit Reservation for " + id + " (Approved: " + reservation.getIsApproved() + ")");
 
-            subMenu.addOption("Edit Reservation member ID", Commands.editReservationMemberID(id));
-            subMenu.addOption("Edit Reservation activity ", Commands.editReservationActivity(id));
-            subMenu.addOption("Edit Reservation activity Date", Commands.editReservationActivityDate(id));
-            subMenu.addOption("Edit Reservation Boat Type", Commands.editReservationBoatType(id));
-            subMenu.addOption("Edit Reservation participants", Commands.editReservationParticipants(id));
-            subMenu.addOption("Edit Reservation order Date", Commands.editReservationOrderDate(id));
-            subMenu.addOption("Edit Reservation ordered Member ID", Commands.editReservationMemberID(id));
+            if(!reservation.getIsApproved()){
+                subMenu.addOption("Edit Reservation activity", Commands.editReservationActivity(id));
+                subMenu.addOption("Edit Reservation activity Date", Commands.editReservationActivityDate(id));
+                subMenu.addOption("Edit Reservation Boat Type", Commands.editReservationBoatType(id));
+                subMenu.addOption("Edit Reservation participants", Commands.editReservationParticipants(id));
 
-
+                if(forManager && Commands.user.getManager()){
+                    subMenu.addOption("View available boats", Commands.editReservationBoatType(id));
+                    subMenu.addOption("Split reservation participants", Commands.editReservationBoatType(id));
+                    subMenu.addOption("Allocate Boat and confirm reservation", Commands.test());
+                }
+            } else{
+                subMenu.addOption("Unapprove reservation", Commands.unapproveReservation(id));
+            }
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();

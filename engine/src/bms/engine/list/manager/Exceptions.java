@@ -24,6 +24,12 @@ public class Exceptions {
             super(message);
         }
     }
+    public static class MemberAccessDeniedException extends RuntimeException{
+
+    }
+
+
+
 
     public static class ActivityNotFoundException extends RuntimeException { }
     public static class ActivityAlreadyExistsException extends RuntimeException {
@@ -37,12 +43,15 @@ public class Exceptions {
         }
     }
 
+
+
     public static class ReservationNotFoundException extends RuntimeException { }
     public static class ReservationAlreadyExistsException extends RuntimeException {
         public ReservationAlreadyExistsException(String message) {
             super(message);
         }
     }
+    public static class EmptyReservationListException extends RuntimeException { }
     public static class IllegalReservationValueException extends RuntimeException{
         public IllegalReservationValueException(String message) {
             super(message);
@@ -51,6 +60,18 @@ public class Exceptions {
     public static class ReservationAlreadyApprovedException extends RuntimeException {
         public ReservationAlreadyApprovedException(String message) {
             super(message);
+        }
+    }
+
+    public static class MemberAlreadyInApprovedReservationsException extends RuntimeException {
+        int memberID;
+        public MemberAlreadyInApprovedReservationsException(int memberID) {
+            super();
+            this.memberID=memberID;
+        }
+
+        public int getMemberID() {
+            return memberID;
         }
     }
 

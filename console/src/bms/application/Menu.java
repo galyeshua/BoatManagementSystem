@@ -79,6 +79,10 @@ public class Menu {
         };
     }
 
+    public void reload(){
+
+    }
+
     public void addOption(String description, Command command){
         this.options.add(new Option(description, command));
     }

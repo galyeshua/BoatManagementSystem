@@ -8,16 +8,22 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static bms.utils.InputUtils.*;
+import static bms.utils.InputUtils.getBoolFromUser;
 //import static bms.utils.InputUtils.getStringFromUser;
 
 public class Commands {
     static BMSEngine engine;
+    static MemberView user;
 
     public static void setEngine(BMSEngine engine) {
         Commands.engine = engine;
+    }
+    public static void setLoggedInUser(MemberView user) {
+        Commands.user = user;
     }
 
 
@@ -785,17 +791,25 @@ public class Commands {
 
 
 
-    public static Command chooseAndEditReservation() {
+    public static Command chooseAndEditReservationForCurrentUser() {
         return new Command() {
-            int serialNumber;
+            int id;
             ReservationView reservation;
 
             private void chooseReservationToUpdate() throws Exceptions.ReservationNotFoundException {
-                System.out.println("All the reservation:");
-                printReservation().execute();
+                System.out.println("Choose reservation:");
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getFutureUnapprovedReservationsForCurrentUser());
+                if (reservations.isEmpty())
+                    throw new Exceptions.EmptyReservationListException();
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+
                 System.out.println("choose reservation to edit");
-                serialNumber = getNumberFromUser();
-                reservation = engine.getReservation(serialNumber);
+                int reservationIndex = getNumberFromUser(0, reservations.size() - 1);
+                id = reservations.get(reservationIndex).getId();
+                reservation = engine.getReservation(id);
+
                 if (reservation == null)
                     throw new Exceptions.ReservationNotFoundException();
             }
@@ -804,9 +818,48 @@ public class Commands {
             public void execute() {
                 try{
                     chooseReservationToUpdate();
-                    new MenuUtils.openEditReservationMenu(serialNumber).execute();
+                    new MenuUtils.openEditReservationMenu(id, false).execute();
                 } catch (Exceptions.ReservationNotFoundException e){
                     System.out.println("Reservation not found");
+                } catch (Exceptions.EmptyReservationListException e){
+                    System.out.println("No Reservations found");
+                }
+            }
+        };
+    }
+
+
+    public static Command chooseAndEditReservationForManager() {
+        return new Command() {
+            int id;
+            ReservationView reservation;
+
+            private void chooseReservationToUpdate() throws Exceptions.ReservationNotFoundException {
+                System.out.println("Choose reservation:");
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getReservationsForWeek(LocalDate.now()));
+                if (reservations.isEmpty())
+                    throw new Exceptions.EmptyReservationListException();
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+
+                System.out.println("choose reservation to edit");
+                int reservationIndex = getNumberFromUser(0, reservations.size() - 1);
+                id = reservations.get(reservationIndex).getId();
+                reservation = engine.getReservation(id);
+
+                if (reservation == null)
+                    throw new Exceptions.ReservationNotFoundException();
+            }
+            @Override
+            public void execute() {
+                try{
+                    chooseReservationToUpdate();
+                    new MenuUtils.openEditReservationMenu(id, true).execute();
+                } catch (Exceptions.ReservationNotFoundException e){
+                    System.out.println("Reservation not found");
+                } catch (Exceptions.EmptyReservationListException e){
+                    System.out.println("No Reservations found");
                 }
             }
         };
@@ -814,36 +867,94 @@ public class Commands {
 
     public static Command addReservation() {
         return new Command() {
-            private int memberID;
-            private Activity activity; //
+            private Activity activity;
             private LocalDate activityDate;
             private List<Boat.Rowers> boatType;
-            private List<Member> participants; //
-            private LocalDateTime orderDate;
-            private int orderedMemberID;
+            private List<Integer> participants;
+            private LocalDateTime orderDate = LocalDateTime.now();
+            private int orderedMemberID = user.getSerialNumber();
+
+            private List<ActivityView> activities = new ArrayList<ActivityView>(engine.getActivities());
+            List<MemberView> members;
+
+            private int getMemberSerialNumberFromListByName(List<MemberView> members, String name){
+                if(members.size() == 1)
+                    return members.get(0).getSerialNumber();
+
+                int i=0;
+                for (MemberView member : members){
+                    System.out.println("[" + i + "] " + member.getName() + " - " + member.getAge());
+                    i++;
+                }
+                int memberIndex = getNumberFromUser(0, members.size() - 1);
+                return members.get(memberIndex).getSerialNumber();
+            }
+
+            private String getNameFromUser(){
+                String name;
+                do{
+                    System.out.println("Enter Member name");
+                    name = getStringFromUser();
+                    members = new ArrayList<MemberView>(engine.getMembers(name));
+                    if(members.isEmpty())
+                        System.out.println("Could not find member");
+                } while(members.isEmpty());
+                return name;
+            }
 
             private void askForValues(){
-                System.out.println("Enter member ID:");
-                memberID = getNumberFromUser();
-                System.out.println("Enter activity:");
-                //activity = getStringFromUser();
+                String name;
+                boatType = new ArrayList<Boat.Rowers>();
+                participants = new ArrayList<Integer>();
+
+                System.out.println("Do the reservation is for you?");
+                if(getBoolFromUser())
+                    participants.add(user.getSerialNumber());
+                else{
+                    name=getNameFromUser();
+                    participants.add(getMemberSerialNumberFromListByName(members, name));
+                }
+
+                if (activities.isEmpty()){
+                    System.out.println("Enter startTime:");
+                    LocalTime startTime = getLocalTimeFromUser();
+                    System.out.println("Enter finishTime:");
+                    LocalTime finishTime = getLocalTimeFromUser();
+
+                    activity = new Activity(startTime, finishTime);
+                } else {
+                    printActivities().execute();
+                    System.out.println("choose activity:");
+                    int activityIndex = getNumberFromUser(0, activities.size() - 1);
+
+                    activity = new Activity(activities.get(activityIndex));
+                }
+
                 System.out.println("Enter activity Date:");
                 activityDate = getLocalDateFromUser();
-                System.out.println("Enter boat Type:");
-                //boatType = getStringFromUser();
-                System.out.println("Enter participants:");
-               // participants = (Member.Level) chooseFromOptions(Member.Level.values());
-                System.out.println("Enter order Date:");
-                orderDate = getLocalDateTimeFromUser();
-                System.out.println("Enter Your ID:");
-                orderedMemberID = getNumberFromUser();
+
+                do {
+                    System.out.println("Enter boat Type:");
+                    boatType.add((Boat.Rowers) chooseFromOptions(Boat.Rowers.values()));
+                    System.out.println("Do you want to add more options?");
+                } while(getBoolFromUser());
+
+                if (!(boatType.contains(BoatView.Rowers.ONE) && boatType.size() == 1)){
+                    System.out.println("Do you want to add rowers?");
+                    while(getBoolFromUser()){
+                        name=getNameFromUser();
+                        participants.add(getMemberSerialNumberFromListByName(members, name));
+                        System.out.println("Do you want to add more options?");
+                    }
+                }
+
             }
 
             @Override
             public void execute() {
                // try{ impossible ?????
                     askForValues();
-                    engine.addReservation(memberID,activity,activityDate,boatType,participants,orderDate,orderedMemberID);
+                    engine.addReservation(activity,activityDate,boatType,participants,orderDate,orderedMemberID);
              //   } catch (Exceptions.ReservationAlreadyExistsException e){
                //     System.out.println("Error: " + e.getMessage());
                 //}
@@ -851,55 +962,137 @@ public class Commands {
         };
     }
 
-    public static Command printReservation() {
+    public static Command printReservations(LocalDate date) {
         return new Command() {
             @Override
             public void execute() {
-                for (ReservationView reservation : engine.getReservations())
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getReservationsByDate(date));
+                if (reservations.isEmpty())
+                    System.out.println("No reservations for this date");
+
+                for (ReservationView reservation : reservations)
                     System.out.println(reservation);
             }
         };
     }
 
-    public static Command deleteReservation() {
-        return new Command() {
-            int serialNumber;
 
+    public static Command printReservationsForWeek(LocalDate startDate) {
+        return new Command() {
             @Override
             public void execute() {
-                printReservation().execute();
-                System.out.println("choose Reservation to delete");
-                serialNumber = getNumberFromUser();
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getReservationsForWeek(startDate));
+                if (reservations.isEmpty())
+                    System.out.println("No reservations for this week");
 
-                try{
-                    engine.deleteReservation(serialNumber);
-                } catch (Exceptions.ReservationNotFoundException e){
-                    System.out.println("Reservation not found");
-                }
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
             }
         };
     }
 
 
-    public static Command editReservationMemberID(int id) {
+    public static Command printUnapprovedReservations(LocalDate date) {
         return new Command() {
-            int memberID;
-            Reservation newReservation;
-
             @Override
             public void execute() {
-                try {
-                    newReservation = new Reservation(engine.getReservation(id));
-                    memberID = getNumberFromUser();
-                    newReservation.setMemberID(memberID);
-                    engine.updateReservation(newReservation);
-                }catch (Exceptions.ReservationNotFoundException e){
-                    System.out.println("Reservation Not Found" );
-                } catch (Exceptions.ReservationAlreadyApprovedException e){
-                    System.out.println("Reservation Already Approved");
-                } catch (Exceptions.IllegalActivityValueException e){
-                    System.out.println("Error: " + e.getMessage());
-                }
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getUnapprovedReservationsByDate(date));
+                if (reservations.isEmpty())
+                    System.out.println("No Unapproved reservations for this date");
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+            }
+        };
+    }
+
+
+    public static Command printUnapprovedReservationsForWeek(LocalDate startDate) {
+        return new Command() {
+            @Override
+            public void execute() {
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getUnapprovedReservationsForWeek(startDate));
+                if (reservations.isEmpty())
+                    System.out.println("No Unapproved reservations for this week");
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+            }
+        };
+    }
+
+    public static Command printApprovedReservations(LocalDate date) {
+        return new Command() {
+            @Override
+            public void execute() {
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getApprovedReservationsByDate(date));
+                if (reservations.isEmpty())
+                    System.out.println("No Approved reservations for today");
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+            }
+        };
+    }
+
+    public static Command printFutureReservationForCurrentUser() {
+        return new Command() {
+            @Override
+            public void execute() {
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getFutureReservationsForCurrentUser());
+                if (reservations.isEmpty())
+                    System.out.println("No reservations");
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+            }
+        };
+    }
+
+    public static Command printReservationHistoryForCurrentUser() {
+        return new Command() {
+            @Override
+            public void execute() {
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getReservationsHistoryForCurrentUser());
+                if (reservations.isEmpty())
+                    System.out.println("No reservations");
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+            }
+        };
+    }
+
+
+
+
+//    public static Command deleteReservation() {
+//        return new Command() {
+//            int serialNumber;
+//
+//            @Override
+//            public void execute() {
+//                printReservations().execute();
+//                System.out.println("choose Reservation to delete");
+//                serialNumber = getNumberFromUser();
+//
+//                try{
+//                    engine.deleteReservation(serialNumber);
+//                } catch (Exceptions.ReservationNotFoundException e){
+//                    System.out.println("Reservation not found");
+//                }
+//            }
+//        };
+//    }
+
+
+
+    public static Command unapproveReservation(int id) {
+        return new Command() {
+            @Override
+            public void execute() {
+                engine.unapproveReservation(id);
+                System.out.println("Successfully unapproved reservations");
             }
         };
     }
@@ -908,20 +1101,38 @@ public class Commands {
         return new Command() {
             Activity activity;
             Reservation newReservation;
+            private List<ActivityView> activities = new ArrayList<ActivityView>(engine.getActivities());
+
+            private void askForActivity(){
+                if (activities.isEmpty()){
+                    System.out.println("Enter startTime:");
+                    LocalTime startTime = getLocalTimeFromUser();
+                    System.out.println("Enter finishTime:");
+                    LocalTime finishTime = getLocalTimeFromUser();
+
+                    activity = new Activity(startTime, finishTime);
+                } else {
+                    printActivities().execute();
+                    System.out.println("choose activity:");
+                    int activityIndex = getNumberFromUser(0, activities.size() - 1);
+
+                    activity = new Activity(activities.get(activityIndex));
+                }
+            }
 
             @Override
             public void execute() {
                 try {
                     newReservation = new Reservation(engine.getReservation(id));
-                   // activity = getNumberFromUser();
+                    askForActivity();
                     newReservation.setActivity(activity);
                     engine.updateReservation(newReservation);
                 }catch (Exceptions.ReservationNotFoundException e){
                     System.out.println("Reservation Not Found" );
-                } catch (Exceptions.ReservationAlreadyApprovedException e){
-                    System.out.println("Reservation Already Approved");
-                } catch (Exceptions.IllegalActivityValueException e){
+                } catch (Exceptions.IllegalReservationValueException | Exceptions.MemberAccessDeniedException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Exceptions.ReservationAlreadyApprovedException e){
+                    System.out.println("Cannot edit Approved Reservation" );
                 }
             }
         };
@@ -976,7 +1187,7 @@ public class Commands {
 
     public static Command editReservationParticipants(int id) {
         return new Command() {
-            List<Member> participants;
+            List<Integer> participants;
             Reservation newReservation;
 
             @Override

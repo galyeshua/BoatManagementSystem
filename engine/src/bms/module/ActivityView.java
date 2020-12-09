@@ -12,4 +12,6 @@ public interface ActivityView {
     LocalTime getFinishTime();
 
     String getBoatType();
+
+    boolean isOverlapping(ActivityView other);
 }

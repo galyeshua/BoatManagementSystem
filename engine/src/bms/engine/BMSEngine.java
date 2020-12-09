@@ -12,6 +12,9 @@ import bms.module.*;
 
 public interface BMSEngine {
 
+    MemberView getCurrentUser();
+    void setCurrentUser(MemberView currentUser);
+
     void addBoat(int serialNumber, String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles, boolean isPrivate,
                  boolean isWide, boolean hasCoxswain, boolean isMarine, boolean isDisabled)
             throws Exceptions.BoatAlreadyExistsException, Exceptions.IllegalBoatValueException;
@@ -31,6 +34,7 @@ public interface BMSEngine {
                    boolean isManager) throws Exceptions.MemberAlreadyExistsException;
     void deleteMember(int serialNumber) throws Exceptions.MemberNotFoundException;
     Collection<MemberView> getMembers();
+    Collection<MemberView> getMembers(String name);
     MemberView getMember(int serialNumber);
     MemberView getMember(String email);
     void updateMember(Member newMember) throws Exceptions.MemberNotFoundException;
@@ -51,11 +55,20 @@ public interface BMSEngine {
 
 
 
-    void addReservation(int memberID, Activity activity, LocalDate activityDate,
-                        List<Boat.Rowers> boatType, List<Member> participants,
+    void addReservation(Activity activity, LocalDate activityDate,
+                        List<Boat.Rowers> boatType, List<Integer> participants,
                         LocalDateTime orderDate, int orderMemberID);
     void deleteReservation(int id);
-    Collection<Reservation> getReservations();
+    Collection<ReservationView> getReservations();
+    Collection<ReservationView> getFutureUnapprovedReservationsForCurrentUser();
+    Collection<ReservationView> getFutureReservationsForCurrentUser();
+    Collection<ReservationView> getReservationsHistoryForCurrentUser();
+    Collection<ReservationView> getReservationsByDate(LocalDate date);
+    Collection<ReservationView> getReservationsForWeek(LocalDate startDate);
+    Collection<ReservationView> getApprovedReservationsByDate(LocalDate date);
+    Collection<ReservationView> getUnapprovedReservationsByDate(LocalDate date);
+    Collection<ReservationView> getUnapprovedReservationsForWeek(LocalDate startDate);
+    void unapproveReservation(int id);
     ReservationView getReservation(int id);
     public void updateReservation(Reservation newReservation) throws Exceptions.ReservationNotFoundException;
 

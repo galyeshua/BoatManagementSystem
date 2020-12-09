@@ -7,19 +7,24 @@ import java.util.List;
 public interface ReservationView {
     int getId();
 
-    int getMemberID();
-
     Activity getActivity();
 
     LocalDate getActivityDate();
 
     List<Boat.Rowers> getBoatType();
 
-    List<Member> getParticipants();
+    List<Integer> getParticipants();
 
     LocalDateTime getOrderDate();
 
     int getOrderedMemberID();
 
     boolean getIsApproved();
+
+    boolean isMemberInReservation(int memberID);
+
+    boolean isParticipantsListEmpty();
+
+    boolean isCollide(ReservationView other);
+
 }
