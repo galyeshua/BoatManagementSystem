@@ -29,18 +29,20 @@ public class Menu {
     private String title;
     private List<Option> options;
     public boolean exitMenu;
+    private Menu parentMenu;
 
 
     public Menu(String title) {
         this.title = title;
         this.options = new ArrayList<Option>(5);
         this.exitMenu = false;
+        parentMenu = null;
     }
 
     public void startLoop(){
         int choice = 0;
 
-        while(exitMenu == false) {
+        while(!exitMenu) {
             this.displayOptions();
             System.out.println("Choose number from the menu: ");
             choice = getNumberFromUser(0, options.size() - 1);
