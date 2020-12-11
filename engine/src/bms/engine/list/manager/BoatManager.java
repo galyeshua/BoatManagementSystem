@@ -69,4 +69,8 @@ public class BoatManager {
             throw new Exceptions.BoatAlreadyExistsException("Boat with name '" + name + "' already exist");
     }
 
+    public void eraseAll(){
+        boats.clear();
+    }
+
 }

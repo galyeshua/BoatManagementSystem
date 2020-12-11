@@ -11,30 +11,23 @@ public class Activity implements ActivityView {
     private String name;
     private LocalTime startTime = null;
     private LocalTime finishTime = null;
-    private String boatType;
+    private BoatView.BoatType boatType = null;
+    //private String boatType;
 
     public Activity(LocalTime startTime, LocalTime finishTime) {
         this.setId(0);
         this.setName("");
-        this.setBoatType("");
+        this.setBoatType(null);
         this.setStartTime(startTime);
         this.setFinishTime(finishTime);
     }
 
-//    public Activity(String name, LocalTime startTime, LocalTime finishTime) {
-//        this.setId(counter++);
-//        this.setName(name);
-//        this.setStartTime(startTime);
-//        this.setFinishTime(finishTime);
-//        this.setBoatType("");
-//    }
-
-    public Activity(String name, LocalTime startTime, LocalTime finishTime, String boatType) {
+    public Activity(String name, LocalTime startTime, LocalTime finishTime) {
         this.setId(counter++);
         this.setName(name);
         this.setStartTime(startTime);
         this.setFinishTime(finishTime);
-        this.setBoatType(boatType);
+        this.setBoatType(null);
     }
 
     public Activity(ActivityView other) {
@@ -73,13 +66,11 @@ public class Activity implements ActivityView {
         return finishTime;
     }
     @Override
-    public String getBoatType() {
+    public BoatView.BoatType getBoatType() {
         return boatType;
     }
 
     public boolean isOverlapping(ActivityView other){
-//        boolean timesAreEqual = getStartTime().equals(other.getStartTime()) &&
-//                getFinishTime().equals(other.getFinishTime());
         boolean otherIsBefore = other.getFinishTime().isBefore(getStartTime());
         boolean otherIsAfter = other.getStartTime().isAfter(getFinishTime());
 
@@ -108,7 +99,7 @@ public class Activity implements ActivityView {
         this.finishTime = finishTime;
     }
 
-    public void setBoatType(String boatType) {
+    public void setBoatType(BoatView.BoatType boatType) {
         this.boatType = boatType;
     }
 

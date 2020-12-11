@@ -2,6 +2,8 @@ package bms.module;
 
 import bms.engine.list.manager.Exceptions;
 
+import java.util.stream.Stream;
+
 public class Boat implements BoatView {
     private int serialNumber;
     private String name;
@@ -14,14 +16,19 @@ public class Boat implements BoatView {
     private boolean isDisabled;
 
 
-
-
-
+    public Boat(int serialNumber, String name, BoatType boatType) throws Exceptions.IllegalBoatValueException{
+        this.setSerialNumber(serialNumber);
+        this.setName(name);
+        this.setType(boatType);
+        this.setPrivate(false);
+        this.setWide(false);
+        this.setMarine(false);
+        this.setDisabled(false);
+    }
 
     public Boat(int serialNumber, String name, Rowers numOfRowers, Paddles numOfPaddles,
                 Boolean isPrivate, Boolean isWide, Boolean hasCoxswain, Boolean isMarine,
                 Boolean isDisabled) throws Exceptions.IllegalBoatValueException{
-
         this.setSerialNumber(serialNumber);
         this.setName(name);
         this.setNumOfRowers(numOfRowers);
@@ -120,6 +127,20 @@ public class Boat implements BoatView {
         return result;
     }
 
+    public BoatType getType(){
+        return Stream.of(BoatType.values())
+                .filter(b -> b.HasCoxswain() == getHasCoxswain())
+                .filter(b -> b.getNumOfPaddles() == getNumOfPaddles())
+                .filter(b -> b.getNumOfRowers() == getNumOfRowers())
+                .findFirst().get();
+    }
+
+    public int getAllowedNumOfRowers(){
+        int res = Integer.parseInt(getNumOfRowers().getNum());
+        if(getHasCoxswain())
+            res += 1;
+        return res;
+    }
 
     public void setSerialNumber(int serialNumber) {
         this.serialNumber = serialNumber;
@@ -159,6 +180,11 @@ public class Boat implements BoatView {
     }
     public void setDisabled(boolean disabled) {
         isDisabled = disabled;
+    }
+    public void setType(BoatType type){
+        this.setNumOfRowers(type.getNumOfRowers());
+        this.setNumOfPaddles(type.getNumOfPaddles());
+        this.setHasCoxswain(type.HasCoxswain());
     }
 
 }

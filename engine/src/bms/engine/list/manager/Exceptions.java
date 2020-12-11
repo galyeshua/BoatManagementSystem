@@ -12,6 +12,9 @@ public class Exceptions {
             super(message);
         }
     }
+    public static class BoatAlreadyAllocatedException extends RuntimeException { }
+
+
 
     public static class MemberNotFoundException extends RuntimeException { }
     public static class MemberAlreadyExistsException extends RuntimeException {
@@ -77,5 +80,8 @@ public class Exceptions {
 
     public static class ListCannotBeEmptyException extends RuntimeException{ }
 
+    public static class IllegalFileTypeException extends RuntimeException { }
+    public static class FileNotFoundException extends RuntimeException { }
+    public static class FileAlreadyExistException extends RuntimeException { }
 
 }

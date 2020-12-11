@@ -4,7 +4,11 @@ import bms.application.Menu;
 import bms.engine.BMSEngine;
 import bms.engine.list.manager.Exceptions;
 import bms.module.*;
+import com.sun.javaws.exceptions.InvalidArgumentException;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -13,7 +17,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static bms.utils.InputUtils.*;
-import static bms.utils.InputUtils.getBoolFromUser;
 //import static bms.utils.InputUtils.getStringFromUser;
 
 public class Commands {
@@ -56,63 +59,36 @@ public class Commands {
 
     public static Command addBoat(){
         return new Command() {
-            boolean askForCoxswain;
-            boolean askForPaddles;
+            Boat boat;
 
-            int serialNumber;
-            String boatName;
-            Boat.Rowers numOfRowers;
-            Boat.Paddles numOfPaddles;
-            Boolean isPrivate;
-            Boolean isWide;
-            Boolean hasCoxswain;
-            Boolean isMarine;
-            Boolean isDisabled;
-
-            private void askForValues(){
-                askForCoxswain = true;
-                askForPaddles = true;
-
+            private void askForRequiredDataAndCreateBoat(){
                 System.out.println("Enter Serial Number:");
-                serialNumber = getNumberFromUser(1);
-                System.out.println("Enter name:");
-                boatName = getStringFromUser();
-                System.out.println("How many rowers:");
-                numOfRowers = (Boat.Rowers) chooseFromOptions(Boat.Rowers.values());
-                if (numOfRowers.equals(Boat.Rowers.ONE)){
-                    hasCoxswain = false;
-                    askForCoxswain = false;
+                int serialNumber = getNumberFromUser(1);
+                System.out.println("Enter Boat name:");
+                String boatName = getStringFromUser();
+                System.out.println("Choose boat type:");
+                Boat.BoatType boatType = (Boat.BoatType) chooseFromOptions(Boat.BoatType.values());
 
-                    numOfPaddles = Boat.Paddles.DOUBLE;
-                    askForPaddles = false;
-                }
-                if (numOfRowers.equals(Boat.Rowers.EIGHT)){
-                    hasCoxswain = true;
-                    askForCoxswain = false;
-                }
-                if (askForPaddles){
-                    System.out.println("choose type of paddles:");
-                    numOfPaddles = (Boat.Paddles) chooseFromOptions(Boat.Paddles.values());
-                }
+                boat = new Boat(serialNumber, boatName, boatType);
+            }
+
+            private void askForOptionalValues(){
                 System.out.println("is private?");
-                isPrivate = getBoolFromUser();
+                boat.setPrivate(getBoolFromUser());
                 System.out.println("is Wide?");
-                isWide = getBoolFromUser();
-                if (askForCoxswain){
-                    System.out.println("has Coxswain?");
-                    hasCoxswain = getBoolFromUser();
-                }
+                boat.setWide(getBoolFromUser());
                 System.out.println("is Marine?");
-                isMarine = getBoolFromUser();
+                boat.setMarine(getBoolFromUser());
                 System.out.println("is Disabled?");
-                isDisabled = getBoolFromUser();
+                boat.setDisabled(getBoolFromUser());
             }
 
             @Override
             public void execute() {
                 try{
-                    askForValues();
-                    engine.addBoat(serialNumber, boatName, numOfRowers, numOfPaddles, isPrivate, isWide, hasCoxswain, isMarine, isDisabled);
+                    askForRequiredDataAndCreateBoat();
+                    askForOptionalValues();
+                    engine.addBoat(boat);
                 } catch (Exceptions.BoatAlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
                 }
@@ -325,55 +301,56 @@ public class Commands {
 
     public static Command addMember() {
         return new Command() {
-            private int serialNumber;
-            private String name;
-            private int age;
-            private String notes;
-            private Member.Level level;
-            private LocalDate joinDate;
-            private LocalDate expireDate;
-            private boolean hasPrivateBoat;
-            private int boatSerialNumber;
-            private String phoneNumber;
-            private String email;
-            private String password;
-            private boolean isManager;
+            Member member;
 
-            private void askForValues(){
+            private void askForRequiredDataAndCreateMember(){
                 System.out.println("Enter Serial Number:");
-                serialNumber = getNumberFromUser(1, 99);
+                int serialNumber = getNumberFromUser(1);
                 System.out.println("Enter name:");
-                name = getStringFromUser();
-                System.out.println("Enter Age:");
-                age = getNumberFromUser(16, 99);
-                System.out.println("Enter Notes:");
-                notes = getStringFromUser();
-                System.out.println("Enter Level:");
-                level = (Member.Level) chooseFromOptions(Member.Level.values());
-                joinDate = LocalDate.now();
-                expireDate = LocalDate.now().plusYears(1);
-                System.out.println("Does member have private boat?");
-                hasPrivateBoat = getBoolFromUser();
-                if (hasPrivateBoat){
-                    System.out.println("Enter Boat Serial Number:");
-                    boatSerialNumber = getNumberFromUser(1, 99);
-                }
-                System.out.println("Enter phone number:");
-                phoneNumber = getStringFromUser();
+                String name = getStringFromUser();
                 System.out.println("Enter email:");
-                email = getStringFromUser();
+                String email = getStringFromUser();
                 System.out.println("Enter password:");
-                password = getStringFromUser();
+                String password = getStringFromUser();
+
+                member = new Member(serialNumber, name, email, password);
+            }
+
+            private void askForOptionalValues(){
+                System.out.println("Enter Notes:");
+                member.setNotes(getStringFromUser());
+                System.out.println("Does member have private boat?");
+                member.setHasPrivateBoat(getBoolFromUser());
+
+                if (member.getHasPrivateBoat()){
+                    System.out.println("Enter Boat Serial Number:");
+                    int boatSerialNumber = getNumberFromUser(1);
+                    BoatView boat = engine.getBoat(boatSerialNumber);
+
+                    if (boat != null && boat.getPrivate())
+                        member.setBoatSerialNumber(boatSerialNumber);
+                    else{
+                        member.setHasPrivateBoat(false);
+                        System.out.println("boat doesn't exist or its not private. please check and try again.");
+                    }
+                }
+
+                System.out.println("Enter phone number:");
+                member.setPhoneNumber(getStringFromUser());
                 System.out.println("is manager?");
-                isManager = getBoolFromUser();
+                member.setManager(getBoolFromUser());
+                System.out.println("Enter Age:");
+                member.setAge(getNumberFromUser(1));
+                System.out.println("Enter Level:");
+                member.setLevel((Member.Level) chooseFromOptions(Member.Level.values()));
             }
 
             @Override
             public void execute() {
                 try{
-                    askForValues();
-                    engine.addMember(serialNumber, name, age, notes, level, joinDate, expireDate, hasPrivateBoat,
-                            boatSerialNumber, phoneNumber, email, password, isManager);
+                    askForRequiredDataAndCreateMember();
+                    askForOptionalValues();
+                    engine.addMember(member);
                 } catch (Exceptions.MemberAlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
                 }
@@ -617,8 +594,8 @@ public class Commands {
             private void chooseActivityToUpdate() throws Exceptions.ActivityNotFoundException {
                 printActivities().execute();
                 System.out.println("choose activity to edit");
+                ArrayList<ActivityView> activities = new ArrayList<ActivityView>(engine.getActivities());
 
-                ArrayList<ActivityView> activities = (ArrayList<ActivityView>)engine.getActivities();
                 int activityIndex = getNumberFromUser(0, activities.size() - 1);
                 id = activities.get(activityIndex).getId();
                 activity = engine.getActivity(id);
@@ -644,25 +621,30 @@ public class Commands {
             private String name;
             private LocalTime startTime;
             private LocalTime finishTime;
-            private String boatType;
+            private BoatView.BoatType boatType;
 
 
             private void askForValues(){
+                boatType = null;
+
                 System.out.println("Enter Name:");
                 name = getStringFromUser();
                 System.out.println("Enter startTime:");
                 startTime = getLocalTimeFromUser();
                 System.out.println("Enter finishTime:");
                 finishTime = getLocalTimeFromUser();
-                System.out.println("Enter Boat Type:");
-                boatType = getStringFromUser();
+                System.out.println("do you want to specify boat type?");
+                if(getBoolFromUser())
+                    boatType = (BoatView.BoatType) chooseFromOptions(BoatView.BoatType.values());
             }
 
             @Override
             public void execute() {
                 try{
                     askForValues();
-                    engine.addActivity(name,startTime,finishTime,boatType);
+                    Activity activity = new Activity(name,startTime,finishTime);
+                    activity.setBoatType(boatType);
+                    engine.addActivity(activity);
                 } catch (Exceptions.ActivityAlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
                 }
@@ -677,7 +659,7 @@ public class Commands {
                 int i =0;
                 for (ActivityView activity : engine.getActivities()){
                     System.out.println("[" + i + "] " + activity.getStartTime() + " - " + activity.getFinishTime()
-                            + " : " + activity.getName());
+                            + " : " + activity.getName() + " : " + activity.getBoatType());
                     i++;
                 }
             }
@@ -768,14 +750,17 @@ public class Commands {
 
     public static Command editActivityBoatType(int id) {
         return new Command() {
-            String boatType;
+            BoatView.BoatType boatType;
             Activity newActivity;
 
             @Override
             public void execute() {
                 try{
+                    boatType = null;
                     newActivity = new Activity(engine.getActivity(id));
-                    boatType = getStringFromUser();
+                    System.out.println("Do you want to specify boat type?");
+                    if(getBoolFromUser())
+                        boatType = (BoatView.BoatType) chooseFromOptions(BoatView.BoatType.values());
                     newActivity.setBoatType(boatType);
                     engine.updateActivity(newActivity);
                 } catch (Exceptions.ActivityNotFoundException e){
@@ -992,11 +977,14 @@ public class Commands {
 
             @Override
             public void execute() {
-               // try{ impossible ?????
+               // try{
                     askForValues();
                     Reservation reservation = new Reservation(activity, activityDate, orderDate, orderedMemberID);
-                    reservation.setParticipants(participants);
-                    reservation.setBoatType(boatType);
+                    for (Integer memberID: participants)
+                        reservation.addParticipant(memberID);
+
+                    for (BoatView.Rowers boatType: boatType)
+                        reservation.addBoatType(boatType);
 
                     engine.addReservation(reservation);
              //   } catch (Exceptions.ReservationAlreadyExistsException e){
@@ -1109,25 +1097,24 @@ public class Commands {
 
 
 
+    public static Command deleteReservation() {
+        return new Command() {
+            int serialNumber;
 
-//    public static Command deleteReservation() {
-//        return new Command() {
-//            int serialNumber;
-//
-//            @Override
-//            public void execute() {
-//                printReservations().execute();
-//                System.out.println("choose Reservation to delete");
-//                serialNumber = getNumberFromUser();
-//
-//                try{
-//                    engine.deleteReservation(serialNumber);
-//                } catch (Exceptions.ReservationNotFoundException e){
-//                    System.out.println("Reservation not found");
-//                }
-//            }
-//        };
-//    }
+            @Override
+            public void execute() {
+                printReservationsForWeek(LocalDate.now()).execute();
+                System.out.println("choose Reservation to delete");
+                serialNumber = getNumberFromUser();
+
+                try{
+                    engine.deleteReservation(serialNumber);
+                } catch (Exceptions.ReservationNotFoundException e){
+                    System.out.println("Reservation not found");
+                }
+            }
+        };
+    }
 
 
     public static Command editReservationActivity(int id) {
@@ -1195,79 +1182,6 @@ public class Commands {
         };
     }
 
-
-
-
-
-    public static Command editReservationParticipants(int id) {
-        return new Command() {
-            List<Integer> participants;
-            Reservation newReservation;
-
-            @Override
-            public void execute() {
-                try {
-                    newReservation = new Reservation(engine.getReservation(id));
-                  //  activityDate = getLocalDateFromUser();
-                    newReservation.setParticipants(participants);
-                    engine.updateReservation(newReservation);
-                }catch (Exceptions.ReservationNotFoundException e){
-                    System.out.println("Reservation Not Found" );
-                } catch (Exceptions.ReservationAlreadyApprovedException e){
-                    System.out.println("Reservation Already Approved");
-                } catch (Exceptions.IllegalActivityValueException e){
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-        };
-    }
-
-
-    public static Command editReservationOrderDate(int id) {
-        return new Command() {
-            LocalDateTime orderDate;
-            Reservation newReservation;
-
-            @Override
-            public void execute() {
-                try {
-                    newReservation = new Reservation(engine.getReservation(id));
-                    orderDate = getLocalDateTimeFromUser();
-                    newReservation.setOrderDate(orderDate);
-                    engine.updateReservation(newReservation);
-                }catch (Exceptions.ReservationNotFoundException e){
-                    System.out.println("Reservation Not Found" );
-                } catch (Exceptions.ReservationAlreadyApprovedException e){
-                    System.out.println("Reservation Already Approved");
-                } catch (Exceptions.IllegalActivityValueException e){
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-        };
-    }
-
-    public static Command editReservationOrderedMemberID(int id) {
-        return new Command() {
-            int orderedMemberID;
-            Reservation newReservation;
-
-            @Override
-            public void execute() {
-                try {
-                    newReservation = new Reservation(engine.getReservation(id));
-                    orderedMemberID = getNumberFromUser();
-                    newReservation.setOrderedMemberID(orderedMemberID);
-                    engine.updateReservation(newReservation);
-                }catch (Exceptions.ReservationNotFoundException e){
-                    System.out.println("Reservation Not Found" );
-                } catch (Exceptions.ReservationAlreadyApprovedException e){
-                    System.out.println("Reservation Already Approved");
-                } catch (Exceptions.IllegalActivityValueException e){
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-        };
-    }
 
     public static Command showReservationBoatType(int id) {
         return new Command() {
@@ -1427,7 +1341,373 @@ public class Commands {
         };
     }
 
+    private static void printErrorsAfterLoading(){
+        if (engine.getXmlImportErrors().size() > 0){
+            System.out.println("The following errors occurred:");
+            for (String error : engine.getXmlImportErrors())
+                System.out.println(error);
+        } else
+            System.out.println("Data loaded successfully");
+    }
 
+
+    public static Command addActivitiesFromFile() {
+        return new Command() {
+            String filePath;
+            @Override
+            public void execute() {
+                System.out.println("Enter file path");
+                filePath = getStringFromUser();
+                try{
+                    engine.loadActivitiesFromFile(filePath);
+                    printErrorsAfterLoading();
+                } catch (Exceptions.IllegalFileTypeException e){
+                    System.out.println("File must be in xml format");
+                } catch (Exceptions.FileNotFoundException e){
+                    System.out.println("Cant find file " + filePath);
+                }
+            }
+        };
+    }
+
+    public static Command replaceActivitiesFromFile() {
+        return new Command() {
+            String filePath;
+            boolean areYouSure;
+            @Override
+            public void execute() {
+                System.out.println("Warning: this operation will erase all reservations. Do you want to continue?");
+                areYouSure = getBoolFromUser();
+
+                if (areYouSure){
+                    System.out.println("Enter file path");
+                    filePath = getStringFromUser();
+                    try{
+                        engine.eraseAndLoadActivitiesFromFile(filePath);
+                        printErrorsAfterLoading();
+                    } catch (Exceptions.IllegalFileTypeException e){
+                        System.out.println("File must be in xml format");
+                    } catch (Exceptions.FileNotFoundException e){
+                        System.out.println("Cant find file " + filePath);
+                    }
+                }
+            }
+        };
+    }
+
+
+    public static Command exportActivitiesToFile() {
+        return new Command() {
+            String filePath;
+            @Override
+            public void execute() {
+                System.out.println("Enter file path include name and extension");
+                filePath = getStringFromUser();
+                try {
+                    engine.saveActivitiesToFile(filePath);
+                    System.out.println("successfully saved");
+                } catch (Exceptions.FileAlreadyExistException e){
+                    System.out.println("Error: File with the same name already exist at this location. cannot export data.");
+                }
+            }
+        };
+    }
+
+
+    public static Command addBoatsFromFile() {
+        return new Command() {
+            String filePath;
+            @Override
+            public void execute() {
+                System.out.println("Enter file path");
+                filePath = getStringFromUser();
+                try{
+                    engine.loadBoatsFromFile(filePath);
+                    printErrorsAfterLoading();
+                } catch (Exceptions.IllegalFileTypeException e){
+                    System.out.println("File must be in xml format");
+                } catch (Exceptions.FileNotFoundException e){
+                    System.out.println("Cant find file " + filePath);
+                }
+            }
+        };
+    }
+
+    public static Command replaceBoatsFromFile() {
+        return new Command() {
+            String filePath;
+            boolean areYouSure;
+            @Override
+            public void execute() {
+                System.out.println("Warning: this operation will erase all reservations. Do you want to continue?");
+                areYouSure = getBoolFromUser();
+
+                if (areYouSure){
+                    System.out.println("Enter file path");
+                    filePath = getStringFromUser();
+                    try{
+                        engine.eraseAndLoadBoatsFromFile(filePath);
+                        printErrorsAfterLoading();
+                    } catch (Exceptions.IllegalFileTypeException e){
+                        System.out.println("File must be in xml format");
+                    } catch (Exceptions.FileNotFoundException e){
+                        System.out.println("Cant find file " + filePath);
+                    }
+                }
+            }
+        };
+    }
+
+    public static Command exportBoatsToFile() {
+        return new Command() {
+            String filePath;
+            @Override
+            public void execute() {
+                System.out.println("Enter file path include name and extension");
+                filePath = getStringFromUser();
+                try {
+                    engine.saveBoatsToFile(filePath);
+                    System.out.println("successfully saved");
+                } catch (Exceptions.FileAlreadyExistException e){
+                    System.out.println("Error: File with the same name already exist at this location. cannot export data.");
+                }
+            }
+        };
+    }
+
+    public static Command addMembersFromFile() {
+        return new Command() {
+            String filePath;
+            @Override
+            public void execute() {
+                System.out.println("Enter file path");
+                filePath = getStringFromUser();
+                try{
+                    engine.loadMembersFromFile(filePath);
+                    printErrorsAfterLoading();
+                } catch (Exceptions.IllegalFileTypeException e){
+                    System.out.println("File must be in xml format");
+                } catch (Exceptions.FileNotFoundException e){
+                    System.out.println("Cant find file " + filePath);
+                }
+            }
+        };
+    }
+
+    public static Command replaceMembersFromFile() {
+        return new Command() {
+            String filePath;
+            boolean areYouSure;
+            @Override
+            public void execute() {
+                System.out.println("Warning: this operation will erase all reservations. Do you want to continue?");
+                areYouSure = getBoolFromUser();
+
+                if (areYouSure){
+                    System.out.println("Enter file path");
+                    filePath = getStringFromUser();
+                    try{
+                        engine.eraseAndLoadMembersFromFile(filePath);
+                        printErrorsAfterLoading();
+                    } catch (Exceptions.IllegalFileTypeException e){
+                        System.out.println("File must be in xml format");
+                    } catch (Exceptions.FileNotFoundException e){
+                        System.out.println("Cant find file " + filePath);
+                    }
+                }
+            }
+        };
+    }
+
+    public static Command exportMembersToFile() {
+        return new Command() {
+            String filePath;
+            @Override
+            public void execute() {
+                System.out.println("Enter file path include name and extension");
+                filePath = getStringFromUser();
+                try {
+                    engine.saveMembersToFile(filePath);
+                    System.out.println("successfully saved");
+                } catch (Exceptions.FileAlreadyExistException e){
+                    System.out.println("Error: File with the same name already exist at this location. cannot export data.");
+                } catch (DatatypeConfigurationException e){
+                    System.out.println(e.getMessage());
+                }
+
+            }
+        };
+    }
+
+
+
+
+    public static Command chooseAndDeleteReservationForCurrentUser() {
+        return new Command() {
+            int id;
+            ReservationView reservation;
+
+            private void chooseReservationToDelete() throws Exceptions.ReservationNotFoundException {
+                System.out.println("Choose reservation:");
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getFutureUnapprovedReservationsForCurrentUser());
+                if (reservations.isEmpty())
+                    throw new Exceptions.EmptyReservationListException();
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+
+                System.out.println("choose reservation to delete");
+                int reservationIndex = getNumberFromUser(0, reservations.size() - 1);
+                id = reservations.get(reservationIndex).getId();
+                reservation = engine.getReservation(id);
+
+                if (reservation == null)
+                    throw new Exceptions.ReservationNotFoundException();
+            }
+            @Override
+            public void execute() {
+                try{
+                    chooseReservationToDelete();
+                    engine.deleteReservation(id);
+                } catch (Exceptions.ReservationNotFoundException e){
+                    System.out.println("Reservation not found");
+                } catch (Exceptions.EmptyReservationListException e){
+                    System.out.println("No Reservations found");
+                }
+            }
+        };
+    }
+
+    public static Command chooseAndDeleteReservationForManager() {
+        return new Command() {
+            int id;
+            ReservationView reservation;
+
+            private void chooseReservationToDelete() throws Exceptions.ReservationNotFoundException {
+                System.out.println("Choose reservation:");
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getUnapprovedReservationsForWeek(LocalDate.now()));
+                if (reservations.isEmpty())
+                    throw new Exceptions.EmptyReservationListException();
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+
+                System.out.println("choose reservation to delete");
+                int reservationIndex = getNumberFromUser(0, reservations.size() - 1);
+                id = reservations.get(reservationIndex).getId();
+                reservation = engine.getReservation(id);
+
+                if (reservation == null)
+                    throw new Exceptions.ReservationNotFoundException();
+            }
+            @Override
+            public void execute() {
+                try{
+                    chooseReservationToDelete();
+                    engine.deleteReservation(id);
+                } catch (Exceptions.ReservationNotFoundException e){
+                    System.out.println("Reservation not found");
+                } catch (Exceptions.EmptyReservationListException e){
+                    System.out.println("No Reservations found");
+                }
+            }
+        };
+    }
+
+
+    public static Command splitReservationParticipants(int id) {
+        return new Command(){
+            private ReservationView currentReservation = engine.getReservation(id);
+
+            private List<Integer> restOfParticipants = new ArrayList<Integer>(currentReservation.getParticipants());
+            private List<Integer> participants = new ArrayList<Integer>();
+
+            private void askForParticipants(){
+                do {
+                    System.out.println("Choose rower for new reservation");
+                    int i=0;
+                    for(Integer memberID : restOfParticipants){
+                        MemberView member = engine.getMember(memberID);
+                        System.out.println("[" + i + "] " + member.getName() + " (" + member.getAge() + ")");
+                        i++;
+                    }
+                    int index = getNumberFromUser(0, restOfParticipants.size() - 1);
+
+                    MemberView member = engine.getMember(restOfParticipants.get(index));
+                    participants.add(member.getSerialNumber());
+
+                    restOfParticipants.remove(index);
+
+                    if (restOfParticipants.size()>1)
+                        System.out.println("Do you want to add more?");
+
+                } while (restOfParticipants.size()>1 && getBoolFromUser());
+            }
+
+            @Override
+            public void execute() {
+                if (currentReservation.getParticipants().size() == 1)
+                    System.out.println("Cannot split reservation with one participent");
+                else {
+                    askForParticipants();
+                    try {
+                        engine.splitReservation(id, participants);
+                        System.out.println("the reservation has been split");
+                    } catch (Exceptions.MemberAlreadyExistsException e){
+                        System.out.println(e.getMessage());
+                    }
+                }
+            }
+        };
+    }
+
+
+    public static Command viewAvailableBoats() {
+        return new Command() {
+            @Override
+            public void execute() {
+                System.out.println("All the boats that not Disabled and not private:");
+                for(BoatView boat : engine.getAvailableBoats())
+                    System.out.println(boat);
+            }
+        };
+    }
+
+    public static Command allocateBoatAndConfirm(int id) {
+        return new Command() {
+            ReservationView currentReservation = engine.getReservation(id);
+            int boatID;
+
+            private void chooseBoat(){
+                System.out.println("All available boats for reservation at this time:");
+                List<BoatView> availableBoats = new ArrayList<BoatView>(engine.getAvailableBoats(currentReservation.getActivityDate(), currentReservation.getActivity()));
+
+                if(availableBoats.isEmpty())
+                    throw new Exceptions.EmptyReservationListException();
+
+                for (BoatView boat : availableBoats)
+                    System.out.println(boat);
+
+                int index = getNumberFromUser(0, availableBoats.size() - 1);
+                boatID = availableBoats.get(index).getSerialNumber();
+            }
+
+            @Override
+            public void execute() {
+
+                try{
+                    chooseBoat();
+                    engine.approveReservation(id, boatID);
+                } catch (Exceptions.BoatAlreadyAllocatedException e){
+                    System.out.println("Error: boat already allocated to another reservation");
+                } catch (Exceptions.IllegalReservationValueException e){
+                    System.out.println(e.getMessage());
+                } catch (Exceptions.EmptyReservationListException e){
+                    System.out.println("There are no available boats fot this time.");
+                }
+            }
+        };
+    }
 }
 
 

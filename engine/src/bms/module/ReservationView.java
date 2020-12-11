@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReservationView {
+
+    Integer getAllocatedBoatID();
+
     int getId();
 
     Activity getActivity();

@@ -11,7 +11,7 @@ public interface ActivityView {
 
     LocalTime getFinishTime();
 
-    String getBoatType();
+    BoatView.BoatType getBoatType();
 
     boolean isOverlapping(ActivityView other);
 }

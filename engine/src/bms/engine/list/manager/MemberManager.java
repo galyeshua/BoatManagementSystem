@@ -68,5 +68,8 @@ public class MemberManager {
             throw new Exceptions.MemberAlreadyExistsException("Member with email '" + email + "' already exist");
     }
 
+    public void eraseAll(){
+        members.clear();
+    }
 
 }

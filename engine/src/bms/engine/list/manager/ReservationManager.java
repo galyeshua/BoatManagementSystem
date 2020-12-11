@@ -11,8 +11,10 @@ import java.util.stream.Collectors;
 public class ReservationManager {
     private List<Reservation> reservations = new ArrayList<Reservation>();
 
-    public void addReservation(Reservation reservation)
-            throws Exceptions.MemberAlreadyInApprovedReservationsException{
+    public void addReservation(Reservation reservation) throws Exceptions.MemberAlreadyInApprovedReservationsException{
+
+        if (getReservation(reservation.getId()) != null)
+            throw new Exceptions.ReservationAlreadyExistsException("Reservation " + reservation.getId() + " already exist");
 
         removeParticipantsFromOlderReservations(reservation);
 
@@ -24,21 +26,12 @@ public class ReservationManager {
             throws Exceptions.MemberAlreadyInApprovedReservationsException {
         List<Reservation> overlapReservations = (ArrayList<Reservation>)getOverlapReservations(reservation);
 
-        System.out.println("the list");
-        for (Reservation res: overlapReservations)
-            System.out.println(res);
-        System.out.println("finish");
-
         List<Integer> participantsForRes = reservation.getParticipants();
 
         for (int memberID : participantsForRes){
             for (Reservation overlapRes : overlapReservations){
 
                 if ( overlapRes.isMemberInReservation(memberID)){
-
-                    System.out.println("need to delete");
-                    System.out.println(overlapRes);
-                    System.out.println(memberID);
                     validateIfOldReservationsAlreadyApproved(overlapRes, memberID);
 
                     try{
@@ -63,7 +56,7 @@ public class ReservationManager {
                 .stream()
                 .filter(r -> r.getActivityDate().equals(reservation.getActivityDate()))
                 .filter(r -> r.isCollide(reservation))
-                .filter(r -> r.getId() != reservation.getId())
+                //.filter(r -> r.getId() != reservation.getId())
                 .collect(Collectors.toList());
     }
 
@@ -101,5 +94,8 @@ public class ReservationManager {
             throw new Exceptions.ReservationAlreadyApprovedException("Regular User cannot change approved reservation");
     }
 
+    public void eraseAll(){
+        reservations.clear();
+    }
 
 }

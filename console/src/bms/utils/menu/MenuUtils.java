@@ -24,6 +24,7 @@ public class MenuUtils {
         mainMenu.addOption("New reservation", Commands.addReservation());
         mainMenu.addOption("Show my reservations", Commands.printFutureReservationForCurrentUser());
         mainMenu.addOption("Edit my reservations", Commands.chooseAndEditReservationForCurrentUser());
+        mainMenu.addOption("Remove unapproved reservation", Commands.chooseAndDeleteReservationForCurrentUser());
         mainMenu.addOption("Reservation history", Commands.printReservationHistoryForCurrentUser());
         if (isManager)
             mainMenu.addOption("Manage", new openManageMenu());
@@ -59,6 +60,8 @@ public class MenuUtils {
             subMenu.addOption("Show Members", Commands.printMembers());
             subMenu.addOption("Edit Member", Commands.chooseAndEditMember());
             subMenu.addOption("Delete Member", Commands.deleteMember());
+            subMenu.addOption("Import data from file", new openImportMembersMenu());
+            subMenu.addOption("Export data to file", Commands.exportMembersToFile());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -93,6 +96,22 @@ public class MenuUtils {
         }
     }
 
+    public static class openImportMembersMenu implements Command
+    {
+        @Override
+        public void execute() {
+            Menu subMenu = new Menu("Import members from file ");
+
+            subMenu.addOption("Add to current data", Commands.addMembersFromFile());
+            subMenu.addOption("Replace current data", Commands.replaceMembersFromFile());
+
+            subMenu.addOption("Back", subMenu.stopLoop());
+
+            subMenu.startLoop();
+        }
+    }
+
+
     public static class openManageBoatsMenu implements Command
     {
         @Override
@@ -103,6 +122,8 @@ public class MenuUtils {
             subMenu.addOption("Show Boats", Commands.printBoats());
             subMenu.addOption("Edit Boat", Commands.chooseAndEditBoat());
             subMenu.addOption("Delete Boat", Commands.deleteBoat());
+            subMenu.addOption("Import data from file", new openImportBoatsMenu());
+            subMenu.addOption("Export data to file", Commands.exportBoatsToFile());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -133,6 +154,21 @@ public class MenuUtils {
         }
     }
 
+    public static class openImportBoatsMenu implements Command
+    {
+        @Override
+        public void execute() {
+            Menu subMenu = new Menu("Import boats from file ");
+
+            subMenu.addOption("Add to current data", Commands.addBoatsFromFile());
+            subMenu.addOption("Replace current data", Commands.replaceBoatsFromFile());
+
+            subMenu.addOption("Back", subMenu.stopLoop());
+
+            subMenu.startLoop();
+        }
+    }
+
     public static class openManageActivitiesMenu implements Command
     {
         @Override
@@ -143,6 +179,8 @@ public class MenuUtils {
             subMenu.addOption("Show Activities", Commands.printActivities());
             subMenu.addOption("Edit Activity", Commands.chooseAndEditActivity());
             subMenu.addOption("Delete Activity", Commands.deleteActivity());
+            subMenu.addOption("Import data from file", new openImportActivitiesMenu());
+            subMenu.addOption("Export data to file", Commands.exportActivitiesToFile());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -165,6 +203,20 @@ public class MenuUtils {
             subMenu.addOption("Edit Activity Finish Time", Commands.editActivityFinishTime(id));
             subMenu.addOption("Edit Activity Boat Type", Commands.editActivityBoatType(id));
 
+            subMenu.addOption("Back", subMenu.stopLoop());
+
+            subMenu.startLoop();
+        }
+    }
+
+    public static class openImportActivitiesMenu implements Command
+    {
+        @Override
+        public void execute() {
+            Menu subMenu = new Menu("Import activities from file ");
+
+            subMenu.addOption("Add to current data", Commands.addActivitiesFromFile());
+            subMenu.addOption("Replace current data", Commands.replaceActivitiesFromFile());
 
             subMenu.addOption("Back", subMenu.stopLoop());
 
@@ -179,13 +231,12 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Manage Reservations");
 
-            //subMenu.addOption("Add Reservation", Commands.addReservation());
             subMenu.addOption("Show All Reservation", new openShowDatesForReservationsMenu());
             subMenu.addOption("Show Unapproved Reservation", new openShowDatesForUnapprovedReservationsMenu());
             subMenu.addOption("Edit Unapproved Reservations", Commands.chooseAndEditReservationForManager());
             subMenu.addOption("Unapprove reservation", Commands.chooseAndUnapproveReservationForManager());
-
-            //subMenu.addOption("Delete Reservation", Commands.deleteReservation());
+            subMenu.addOption("Delete Reservation", Commands.chooseAndDeleteReservationForManager());
+            subMenu.addOption("View available boats", Commands.viewAvailableBoats());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -255,9 +306,8 @@ public class MenuUtils {
             subMenu.addOption("Edit Reservation participants", new openAddOrRemoveReservationParticipentsMenu(id));
 
             if(forManager && Commands.user.getManager()){
-                subMenu.addOption("View available boats", Commands.test());
-                subMenu.addOption("Split reservation participants", Commands.test());
-                subMenu.addOption("Allocate Boat and confirm reservation", Commands.test());
+                subMenu.addOption("Split reservation participants", Commands.splitReservationParticipants(id));
+                subMenu.addOption("Allocate Boat and confirm reservation", Commands.allocateBoatAndConfirm(id));
             }
 
             subMenu.addOption("Back", subMenu.stopLoop());

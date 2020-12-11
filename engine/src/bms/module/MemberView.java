@@ -7,7 +7,7 @@ public interface MemberView {
 
     String getName();
 
-    int getAge();
+    Integer getAge();
 
     String getNotes();
 
@@ -19,7 +19,7 @@ public interface MemberView {
 
     boolean getHasPrivateBoat();
 
-    int getBoatSerialNumber();
+    Integer getBoatSerialNumber();
 
     String getPhoneNumber();
 
@@ -29,5 +29,25 @@ public interface MemberView {
 
     boolean getManager();
 
-    public enum Level { BEGINNER, MODERATE, PROFESSIONAL }
+    enum Level {
+        BEGINNER("Beginner"), INTERMEDIATE("Intermediate"), ADVANCED("Advanced");
+
+        private String name;
+
+        Level(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+        public static MemberView.Level fromName(String name) {
+            for (MemberView.Level level: MemberView.Level.values()) {
+                if (level.getName().equals(name)) {
+                    return level;
+                }
+            }
+            throw new IllegalArgumentException(name);
+        }
+    }
 }

@@ -21,6 +21,7 @@ public class Reservation implements ReservationView {
     private LocalDateTime orderDate;
     private int orderedMemberID;
     private boolean isApproved;
+    private Integer allocatedBoatID;
 
 
 
@@ -33,19 +34,8 @@ public class Reservation implements ReservationView {
         this.setApproved(false);
         this.participants = new ArrayList<Integer>();
         this.boatType = new ArrayList<Boat.Rowers>();
+        this.setAllocatedBoatID(null);
     }
-
-//    public Reservation(Activity activity, LocalDate activityDate, List<BoatView.Rowers> boatType,
-//                       List<Integer> participants, LocalDateTime orderDate, int orderedMemberID) {
-//        this.setId(counter++);
-//        this.setActivity(activity);
-//        this.setActivityDate(activityDate);
-//        this.setOrderDate(orderDate);
-//        this.setOrderedMemberID(orderedMemberID);
-//        this.setApproved(false);
-//        this.participants = new ArrayList<Integer>();
-//        this.boatType = new ArrayList<Boat.Rowers>();
-//    }
 
     public Reservation(ReservationView other){
         this.setId(other.getId());
@@ -56,6 +46,7 @@ public class Reservation implements ReservationView {
         this.setApproved(other.getIsApproved());
         this.setBoatType(other.getBoatType());
         this.setParticipants(other.getParticipants());
+        this.setAllocatedBoatID(other.getAllocatedBoatID());
     }
 
     @Override
@@ -72,6 +63,9 @@ public class Reservation implements ReservationView {
                 '}';
     }
 
+    public Integer getAllocatedBoatID() {
+        return allocatedBoatID;
+    }
     public int getId() {
         return id;
     }
@@ -107,14 +101,28 @@ public class Reservation implements ReservationView {
         return isTimeOverlapping;
     }
 
+
+    public void setAllocatedBoatID(Integer boatID){
+        this.allocatedBoatID = boatID;
+        if(boatID == null)
+            this.setApproved(false);
+        else
+            this.setApproved(true);
+    }
+    public void allocateNewId() { this.setId(counter++); }
     private void setId(int id) {this.id = id;}
     public void setActivity(Activity activity) {this.activity = activity;}
     public void setActivityDate(LocalDate activityDate) {this.activityDate = activityDate;}
     public void setBoatType(List<Boat.Rowers> boatType) {this.boatType = new ArrayList<Boat.Rowers>(boatType);}
-    public void setParticipants(List<Integer> participants) {this.participants = new ArrayList<Integer>(participants);}
+    public void setParticipants(List<Integer> participants) {
+        this.participants = new ArrayList<Integer>();
+        for (Integer memberID : participants)
+            addParticipant(memberID);
+    }
     public void setOrderDate(LocalDateTime orderDate) {this.orderDate = orderDate;}
     public void setOrderedMemberID(int orderedMemberID) {this.orderedMemberID = orderedMemberID;}
-    public void setApproved(boolean approved) {isApproved = approved;}
+    private void setApproved(boolean approved) {isApproved = approved;}
+
 
     public void addParticipant(Integer memberID){
         if (participants.contains(memberID))

@@ -6,35 +6,54 @@ public class Member implements MemberView {
 
     private int serialNumber;
     private String name;
-    private int age;
+    private Integer age;
     private String notes;
     private Level level;
     private LocalDate joinDate;
     private LocalDate expireDate;
     private boolean hasPrivateBoat;
-    private int boatSerialNumber;
+    private Integer boatSerialNumber;
     private String phoneNumber;
     private String email;
     private String password;
     private boolean isManager;
 
-    public Member(int serialNumber, String name, int age, String notes, Level level, LocalDate joinDate,
-                  LocalDate expireDate, boolean hasPrivateBoat, int boatSerialNumber, String phoneNumber,
-                  String email, String password, boolean isManager) {
+
+    public Member(int serialNumber, String name, String email, String password) {
         this.setSerialNumber(serialNumber);
         this.setName(name);
-        this.setAge(age);
-        this.setNotes(notes);
-        this.setLevel(level);
-        this.setJoinDate(joinDate);
-        this.setExpireDate(expireDate);
-        this.setHasPrivateBoat(hasPrivateBoat);
-        this.setBoatSerialNumber(boatSerialNumber);
-        this.setPhoneNumber(phoneNumber);
-        this.setEmail(email);
         this.setPassword(password);
-        this.setManager(isManager);
+        this.setEmail(email);
+
+        this.setBoatSerialNumber(null);
+        this.setAge(null);
+        this.setLevel(Level.BEGINNER);
+        this.setManager(false);
+        this.setHasPrivateBoat(false);
+        this.setPhoneNumber(null);
+        this.setNotes(null);
+        this.setJoinDate(LocalDate.now());
+        this.setExpireDate(LocalDate.now().plusYears(1));
     }
+
+//
+//    public Member(int serialNumber, String name, int age, String notes, Level level, LocalDate joinDate,
+//                  LocalDate expireDate, boolean hasPrivateBoat, int boatSerialNumber, String phoneNumber,
+//                  String email, String password, boolean isManager) {
+//        this.setSerialNumber(serialNumber);
+//        this.setName(name);
+//        this.setAge(age);
+//        this.setNotes(notes);
+//        this.setLevel(level);
+//        this.setJoinDate(joinDate);
+//        this.setExpireDate(expireDate);
+//        this.setHasPrivateBoat(hasPrivateBoat);
+//        this.setBoatSerialNumber(boatSerialNumber);
+//        this.setPhoneNumber(phoneNumber);
+//        this.setEmail(email);
+//        this.setPassword(password);
+//        this.setManager(isManager);
+//    }
 
     public Member(MemberView other) {
         this.setSerialNumber(other.getSerialNumber());
@@ -80,7 +99,7 @@ public class Member implements MemberView {
         return name;
     }
     @Override
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
     @Override
@@ -104,7 +123,7 @@ public class Member implements MemberView {
         return hasPrivateBoat;
     }
     @Override
-    public int getBoatSerialNumber() {
+    public Integer getBoatSerialNumber() {
         return boatSerialNumber;
     }
     @Override
@@ -132,7 +151,7 @@ public class Member implements MemberView {
     public void setName(String name) {
         this.name = name;
     }
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
     public void setNotes(String notes) {
@@ -150,7 +169,7 @@ public class Member implements MemberView {
     public void setHasPrivateBoat(boolean hasPrivateBoat) {
         this.hasPrivateBoat = hasPrivateBoat;
     }
-    public void setBoatSerialNumber(int boatSerialNumber) {
+    public void setBoatSerialNumber(Integer boatSerialNumber) {
         this.boatSerialNumber = boatSerialNumber;
     }
     public void setPhoneNumber(String phoneNumber) {

@@ -9,53 +9,53 @@ import java.util.List;
 import bms.engine.list.manager.Exceptions;
 import bms.module.*;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+
 
 public interface BMSEngine {
 
+    List<String> getXmlImportErrors();
     MemberView getCurrentUser();
     void setCurrentUser(MemberView currentUser);
 
-    void addBoat(int serialNumber, String name, Boat.Rowers numOfRowers, Boat.Paddles numOfPaddles, boolean isPrivate,
-                 boolean isWide, boolean hasCoxswain, boolean isMarine, boolean isDisabled)
-            throws Exceptions.BoatAlreadyExistsException, Exceptions.IllegalBoatValueException;
+
+    void addBoat(Boat newBoat) throws Exceptions.BoatAlreadyExistsException, Exceptions.IllegalBoatValueException;
     void deleteBoat(int serialNumber) throws Exceptions.BoatNotFoundException;
     Collection<BoatView> getBoats();
+    Collection<BoatView> getAvailableBoats();
+    Collection<BoatView> getAvailableBoats(LocalDate date, Activity activity);
     BoatView getBoat(int serialNumber);
     BoatView getBoat(String name);
-
     void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException;
+    void loadBoatsFromFile(String filePath);
+    void eraseAndLoadBoatsFromFile(String filePath);
+    void saveBoatsToFile(String filePath);
 
 
-
-
-    void addMember(int serialNumber, String name, int age, String notes, Member.Level level,
-                   LocalDate joinDate, LocalDate expireDate, boolean hasPrivateBoat,
-                   int boatSerialNumber, String phoneNumber, String email, String password,
-                   boolean isManager) throws Exceptions.MemberAlreadyExistsException;
+    void addMember(Member newMember) throws Exceptions.MemberAlreadyExistsException;
     void deleteMember(int serialNumber) throws Exceptions.MemberNotFoundException;
     Collection<MemberView> getMembers();
     Collection<MemberView> getMembers(String name);
     MemberView getMember(int serialNumber);
     MemberView getMember(String email);
     void updateMember(Member newMember) throws Exceptions.MemberNotFoundException;
+    void loadMembersFromFile(String filePath);
+    void eraseAndLoadMembersFromFile(String filePath);
+    void saveMembersToFile(String filePath) throws DatatypeConfigurationException;
 
 
-
-
-
-    void addActivity(String name, LocalTime startTime, LocalTime finishTime, String boatType)
-            throws Exceptions.ActivityAlreadyExistsException;
-    void addActivity(String name, LocalTime startTime, LocalTime finishTime)
-            throws Exceptions.ActivityAlreadyExistsException;
-    void deleteActivity(int id)
-            throws Exceptions.ActivityNotFoundException;
+    void addActivity(Activity newActivity) throws Exceptions.ActivityAlreadyExistsException;
+    void deleteActivity(int id) throws Exceptions.ActivityNotFoundException;
     Collection<ActivityView> getActivities();
     ActivityView getActivity(int id);
     void updateActivity(Activity newActivity) throws Exceptions.ActivityNotFoundException;
-
+    void loadActivitiesFromFile(String filePath);
+    void eraseAndLoadActivitiesFromFile(String filePath);
+    void saveActivitiesToFile(String filePath);
 
 
     void addReservation(Reservation newReservation);
+    void splitReservation(int id, List<Integer> newParticipantList);
     void deleteReservation(int id);
     Collection<ReservationView> getReservations();
     Collection<ReservationView> getFutureUnapprovedReservationsForCurrentUser();
@@ -70,7 +70,7 @@ public interface BMSEngine {
     void unapproveReservation(int id);
     ReservationView getReservation(int id);
     public void updateReservation(Reservation newReservation) throws Exceptions.ReservationNotFoundException;
+    public void approveReservation(int reservationID, int boatID);
 
 
-
-    }
+}

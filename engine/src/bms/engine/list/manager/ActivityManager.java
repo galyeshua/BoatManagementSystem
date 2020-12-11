@@ -8,7 +8,14 @@ import java.util.*;
 public class ActivityManager {
     private List<Activity> activities = new ArrayList<Activity>();
 
-    public void addActivity(Activity activity) {
+    public void addActivity(Activity activity) throws Exceptions.IllegalActivityValueException{
+
+        Activity tmpActivity = getActivity(activity.getName(), activity.getStartTime(), activity.getFinishTime());
+
+        if (tmpActivity != null)
+            throw new Exceptions.ActivityAlreadyExistsException("Activity already exists: '" + activity.getName() +
+                    "' for time " + activity.getStartTime() + " - " + activity.getFinishTime());
+
         activities.add(activity);
         Collections.sort(activities, ((a1, a2) -> a1.getStartTime().compareTo(a2.getStartTime())));
     }
@@ -61,7 +68,7 @@ public class ActivityManager {
         if (!(isNameEquals && isStartTimeEquals && isFinishTimeEquals))
             validateActivityParameters(newActivity.getName(), newActivity.getStartTime(), newActivity.getFinishTime());
 
-        activities.set(id, newActivity);
+        activities.set(activities.indexOf(getActivity(id)), newActivity);
     }
 
     private void validateActivityParameters(String name, LocalTime startTime, LocalTime finishTime) {
@@ -69,5 +76,8 @@ public class ActivityManager {
             throw new Exceptions.IllegalActivityValueException("Activity with same name, start time and finish time already exists.");
     }
 
+    public void eraseAll(){
+        activities.clear();
+    }
 
 }
