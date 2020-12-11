@@ -236,7 +236,8 @@ public class MenuUtils {
             subMenu.addOption("Edit Unapproved Reservations", Commands.chooseAndEditReservationForManager());
             subMenu.addOption("Unapprove reservation", Commands.chooseAndUnapproveReservationForManager());
             subMenu.addOption("Delete Reservation", Commands.chooseAndDeleteReservationForManager());
-            subMenu.addOption("View available boats", Commands.viewAvailableBoats());
+            subMenu.addOption("View available (not disabled) boats", Commands.viewAvailableBoats());
+            subMenu.addOption("Allocate Boat and confirm reservation", Commands.chooseReservationToAllocateBoat());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -305,10 +306,8 @@ public class MenuUtils {
             subMenu.addOption("Edit Reservation Boat Type", new openAddOrRemoveReservationBoatTypeMenu(id));
             subMenu.addOption("Edit Reservation participants", new openAddOrRemoveReservationParticipentsMenu(id));
 
-            if(forManager && Commands.user.getManager()){
+            if(forManager && Commands.user.getManager())
                 subMenu.addOption("Split reservation participants", Commands.splitReservationParticipants(id));
-                subMenu.addOption("Allocate Boat and confirm reservation", Commands.allocateBoatAndConfirm(id));
-            }
 
             subMenu.addOption("Back", subMenu.stopLoop());
 

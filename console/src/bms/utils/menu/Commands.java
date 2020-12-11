@@ -1299,11 +1299,13 @@ public class Commands {
                     engine.updateReservation(newReservation);
                 }catch (Exceptions.ReservationNotFoundException e){
                     System.out.println("Reservation Not Found" );
-                } catch (Exceptions.IllegalReservationValueException | Exceptions.MemberAccessDeniedException |
-                        Exceptions.MemberAlreadyExistsException | Exceptions.IllegalBoatValueException e){
-                    System.out.println("Error: " + e.getMessage());
+                } catch (Exceptions.IllegalReservationValueException | Exceptions.MemberAlreadyExistsException |
+                        Exceptions.IllegalBoatValueException e){
+                        System.out.println("Error: " + e.getMessage());
                 } catch (Exceptions.ReservationAlreadyApprovedException e){
                     System.out.println("Cannot edit Approved Reservation" );
+                } catch (Exceptions.MemberAccessDeniedException e ){
+                    System.out.println("You dont have perrmissions to do that");
                 }
             }
         };
@@ -1608,7 +1610,7 @@ public class Commands {
                 } catch (Exceptions.ReservationNotFoundException e){
                     System.out.println("Reservation not found");
                 } catch (Exceptions.EmptyReservationListException e){
-                    System.out.println("No Reservations found");
+                    System.out.println("There are no unapproved reservations for this week");
                 }
             }
         };
@@ -1667,7 +1669,7 @@ public class Commands {
             @Override
             public void execute() {
                 System.out.println("All the boats that not Disabled and not private:");
-                for(BoatView boat : engine.getAvailableBoats())
+                for(BoatView boat : engine.getAllAvailableBoats())
                     System.out.println(boat);
             }
         };
@@ -1679,8 +1681,8 @@ public class Commands {
             int boatID;
 
             private void chooseBoat(){
-                System.out.println("All available boats for reservation at this time:");
-                List<BoatView> availableBoats = new ArrayList<BoatView>(engine.getAvailableBoats(currentReservation.getActivityDate(), currentReservation.getActivity()));
+                System.out.println("All available and boats for reservation at this time:");
+                List<BoatView> availableBoats = new ArrayList<BoatView>(engine.getUnprivateAvailableBoats(currentReservation.getActivityDate(), currentReservation.getActivity()));
 
                 if(availableBoats.isEmpty())
                     throw new Exceptions.EmptyReservationListException();
@@ -1704,6 +1706,42 @@ public class Commands {
                     System.out.println(e.getMessage());
                 } catch (Exceptions.EmptyReservationListException e){
                     System.out.println("There are no available boats fot this time.");
+                }
+            }
+        };
+    }
+
+    public static Command chooseReservationToAllocateBoat() {
+        return new Command() {
+            int id;
+            ReservationView reservation;
+
+            private void chooseReservation() throws Exceptions.ReservationNotFoundException {
+                System.out.println("Choose reservation:");
+                ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getUnapprovedReservationsForWeek(LocalDate.now()));
+                if (reservations.isEmpty())
+                    throw new Exceptions.EmptyReservationListException();
+
+                for (ReservationView reservation : reservations)
+                    System.out.println(reservation);
+
+                System.out.println("choose reservation to Allocate Boat");
+                int reservationIndex = getNumberFromUser(0, reservations.size() - 1);
+                id = reservations.get(reservationIndex).getId();
+                reservation = engine.getReservation(id);
+
+                if (reservation == null)
+                    throw new Exceptions.ReservationNotFoundException();
+            }
+            @Override
+            public void execute() {
+                try{
+                    chooseReservation();
+                    allocateBoatAndConfirm(id).execute();
+                } catch (Exceptions.ReservationNotFoundException e){
+                    System.out.println("Reservation not found");
+                } catch (Exceptions.EmptyReservationListException e){
+                    System.out.println("There are no unapproved reservations for this week");
                 }
             }
         };

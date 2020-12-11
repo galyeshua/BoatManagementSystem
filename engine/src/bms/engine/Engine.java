@@ -118,7 +118,9 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void deleteBoat(int serialNumber) throws Exceptions.BoatNotFoundException {
+    public void deleteBoat(int serialNumber) throws Exceptions.BoatNotFoundException, Exceptions.BoatAlreadyAllocatedException {
+        if(boatHaveFutureReservations(serialNumber))
+            throw new Exceptions.BoatAlreadyAllocatedException();
         boats.deleteBoat(serialNumber);
     }
 
@@ -128,32 +130,69 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public Collection<BoatView> getAvailableBoats(){
+    public Collection<BoatView> getAllAvailableBoats(){
         return Collections.unmodifiableCollection(
                 boats.getBoats()
                         .stream()
                         .filter(b -> !b.getDisabled())
-                        .filter(b -> !b.getPrivate())
+                        .collect(Collectors.toList())
+        );
+    }
+
+
+    @Override
+    public Collection<BoatView> getAllAvailableBoats(LocalDate date, Activity activity){
+        return Collections.unmodifiableCollection(
+                getAllAvailableBoats()
+                        .stream()
+                        .filter(b -> boatIsAvailable(b.getSerialNumber(), date, activity))
                         .collect(Collectors.toList())
         );
     }
 
     @Override
-    public Collection<BoatView> getAvailableBoats(LocalDate date, Activity activity){
+    public Collection<BoatView> getUnprivateAvailableBoats(LocalDate date, Activity activity){
+        return Collections.unmodifiableCollection(
+                getAllAvailableBoats(date, activity)
+                        .stream()
+                        .filter(b -> !b.getPrivate())
+                        .collect(Collectors.toList())
+        );
+    }
+
+//    @Override
+//    public Collection<BoatView> getAvailableBoats(LocalDate date, Activity activity){
+//        List<ReservationView> approvedReservations = getApprovedReservationsByDate(date)
+//                .stream()
+//                .filter(r -> r.getAllocatedBoatID() != null)
+//                .filter(r -> r.getActivity().isOverlapping(activity))
+//                .collect(Collectors.toList());
+//
+//        List<BoatView> availableBoats = new ArrayList<BoatView>(getAvailableBoats());
+//        for(BoatView boat : getAvailableBoats()){
+//            for (ReservationView res : approvedReservations)
+//                if(boat.getSerialNumber() == res.getAllocatedBoatID())
+//                    availableBoats.remove(boat);
+//        }
+//
+//        return availableBoats;
+//    }
+
+    @Override
+    public boolean boatIsAvailable(int boatSerialNumber, LocalDate date, Activity activity){
+        // return true is boat is undisabled and Available at specific time
+
         List<ReservationView> approvedReservations = getApprovedReservationsByDate(date)
                 .stream()
                 .filter(r -> r.getAllocatedBoatID() != null)
                 .filter(r -> r.getActivity().isOverlapping(activity))
                 .collect(Collectors.toList());
 
-        List<BoatView> availableBoats = new ArrayList<BoatView>(getAvailableBoats());
-        for(BoatView boat : getAvailableBoats()){
-            for (ReservationView res : approvedReservations)
-                if(boat.getSerialNumber() == res.getAllocatedBoatID())
-                    availableBoats.remove(boat);
-        }
+        for(ReservationView reservation : approvedReservations)
+            if(reservation.getAllocatedBoatID() == boatSerialNumber)
+                return false;
 
-        return availableBoats;
+        return true;
     }
 
     @Override
@@ -166,7 +205,9 @@ public class Engine implements BMSEngine{
         return boats.getBoat(name);
     }
 
-    public void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException {
+    public void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException, Exceptions.BoatAlreadyAllocatedException {
+        if(boatHaveFutureReservations(newBoat.getSerialNumber()))
+            throw new Exceptions.BoatAlreadyAllocatedException();
         boats.updateBoat(newBoat);
     }
 
@@ -204,6 +245,14 @@ public class Engine implements BMSEngine{
         createXmlFromObjects(filePath, Boats.class, boatsRootElement);
     }
 
+    @Override
+    public boolean boatHaveFutureReservations(int boatSerialNumber){
+        for(ReservationView reservation : getAllFutureApprovedReservations())
+            if(reservation.getAllocatedBoatID() == boatSerialNumber)
+                return true;
+
+        return false;
+    }
 
 
 
@@ -217,7 +266,9 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void deleteMember(int serialNumber) throws Exceptions.MemberNotFoundException {
+    public void deleteMember(int serialNumber) throws Exceptions.MemberNotFoundException, Exceptions.MemberHaveApprovedReservationsException {
+        if(memberHaveFutureReservations(serialNumber))
+            throw new Exceptions.MemberHaveApprovedReservationsException();
         members.deleteMember(serialNumber);
     }
 
@@ -282,6 +333,15 @@ public class Engine implements BMSEngine{
             membersRootElement.getMember().add(schemaMemberFromMember(systemMember));
 
         createXmlFromObjects(filePath, Members.class, membersRootElement);
+    }
+
+    @Override
+    public boolean memberHaveFutureReservations(int memberSerialNumber){
+        for(ReservationView reservation : getAllFutureApprovedReservations())
+            if(reservation.isMemberInReservation(memberSerialNumber) || reservation.getOrderedMemberID()==memberSerialNumber)
+                return true;
+
+        return false;
     }
 
 
@@ -351,17 +411,33 @@ public class Engine implements BMSEngine{
 
 
 
-    private void allocatePrivateBoatIfExist(Reservation reservation){
-        // need to be change to stream and to boat type
 
-        for(Integer memberID : reservation.getParticipants()){
+
+
+    private BoatView findSuitPrivateBoatOfParticipents(Reservation reservation){
+        List<BoatView> suitPrivateBoats = getAllAvailableBoats()
+                .stream()
+                .filter(BoatView::getPrivate)
+                .filter(b -> b.getAllowedNumOfRowers() == reservation.getParticipants().size())
+                .filter(b -> reservation.getBoatType().contains(b.getNumOfRowers()))
+                .collect(Collectors.toList());
+
+        for (Integer memberID : reservation.getParticipants()){
             MemberView member = getMember(memberID);
-            if(member.getHasPrivateBoat()){
+            if (member.getHasPrivateBoat()){
                 BoatView boat = getBoat(member.getBoatSerialNumber());
-                if (boat.getAllowedNumOfRowers() == reservation.getParticipants().size())
-                    reservation.setAllocatedBoatID(boat.getSerialNumber());
+                if(suitPrivateBoats.contains(boat))
+                    return boat;
             }
         }
+        return null;
+    }
+
+
+    private void allocatePrivateBoatIfExist(Reservation reservation){
+        BoatView boat = findSuitPrivateBoatOfParticipents(reservation);
+        if (boat != null)
+            reservation.setAllocatedBoatID(boat.getSerialNumber());
     }
 
     @Override
@@ -396,6 +472,15 @@ public class Engine implements BMSEngine{
         reservations.deleteReservation(id);
     }
 
+
+    @Override
+    public Collection<ReservationView> getAllFutureApprovedReservations(){
+        return Collections.unmodifiableCollection(
+                reservations.getReservations().stream()
+                .filter(r -> r.getActivityDate().isEqual(LocalDate.now()) || r.getActivityDate().isAfter(LocalDate.now()))
+                .filter(ReservationView::getIsApproved)
+                .collect(Collectors.toList()));
+    }
 
     @Override
     public Collection<ReservationView> getReservations() {
@@ -521,13 +606,10 @@ public class Engine implements BMSEngine{
     @Override
     public void updateReservation(Reservation newReservation) throws Exceptions.ReservationNotFoundException{
         Reservation safeReservation = newReservation;
-
         int reservationID = newReservation.getId();
         Reservation oldReservation = reservations.getReservation(reservationID);
 
         validateUserRole();
-        if (!oldReservation.isMemberInReservation(currentUser.getSerialNumber()))
-            throw new Exceptions.MemberAccessDeniedException();
 
         if (!currentUser.getManager()){
             safeReservation = new Reservation(oldReservation);
@@ -557,9 +639,6 @@ public class Engine implements BMSEngine{
         Boat boat = boats.getBoat(boatID);
 
         int allowedNumOfRowers = boat.getAllowedNumOfRowers();
-
-//        if(!getAvailableBoats(currentReservation.getActivityDate(), currentReservation.getActivity()).contains(boatID))
-//            throw new Exceptions.BoatAlreadyAllocatedException();
 
         if (currentReservation.getParticipants().size() != allowedNumOfRowers)
             throw new Exceptions.IllegalReservationValueException("incorrect number of rowers. you have " +

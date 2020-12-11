@@ -1,8 +1,6 @@
 package bms.engine;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,14 +20,18 @@ public interface BMSEngine {
     void addBoat(Boat newBoat) throws Exceptions.BoatAlreadyExistsException, Exceptions.IllegalBoatValueException;
     void deleteBoat(int serialNumber) throws Exceptions.BoatNotFoundException;
     Collection<BoatView> getBoats();
-    Collection<BoatView> getAvailableBoats();
-    Collection<BoatView> getAvailableBoats(LocalDate date, Activity activity);
+    Collection<BoatView> getAllAvailableBoats();
+    Collection<BoatView> getAllAvailableBoats(LocalDate date, Activity activity);
+    Collection<BoatView> getUnprivateAvailableBoats(LocalDate date, Activity activity);
+    boolean boatIsAvailable(int boatSerialNumber, LocalDate date, Activity activity);
     BoatView getBoat(int serialNumber);
     BoatView getBoat(String name);
     void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException;
     void loadBoatsFromFile(String filePath);
     void eraseAndLoadBoatsFromFile(String filePath);
     void saveBoatsToFile(String filePath);
+    boolean boatHaveFutureReservations(int boatSerialNumber);
+
 
 
     void addMember(Member newMember) throws Exceptions.MemberAlreadyExistsException;
@@ -42,6 +44,8 @@ public interface BMSEngine {
     void loadMembersFromFile(String filePath);
     void eraseAndLoadMembersFromFile(String filePath);
     void saveMembersToFile(String filePath) throws DatatypeConfigurationException;
+    boolean memberHaveFutureReservations(int memberSerialNumber);
+
 
 
     void addActivity(Activity newActivity) throws Exceptions.ActivityAlreadyExistsException;
@@ -52,6 +56,7 @@ public interface BMSEngine {
     void loadActivitiesFromFile(String filePath);
     void eraseAndLoadActivitiesFromFile(String filePath);
     void saveActivitiesToFile(String filePath);
+
 
 
     void addReservation(Reservation newReservation);
@@ -65,6 +70,7 @@ public interface BMSEngine {
     Collection<ReservationView> getReservationsForWeek(LocalDate startDate);
     Collection<ReservationView> getApprovedReservationsByDate(LocalDate date);
     Collection<ReservationView> getApprovedReservationsForWeek(LocalDate startDate);
+    Collection<ReservationView> getAllFutureApprovedReservations();
     Collection<ReservationView> getUnapprovedReservationsByDate(LocalDate date);
     Collection<ReservationView> getUnapprovedReservationsForWeek(LocalDate startDate);
     void unapproveReservation(int id);

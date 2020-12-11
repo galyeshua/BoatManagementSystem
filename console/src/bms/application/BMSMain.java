@@ -26,7 +26,14 @@ public class BMSMain {
         BMSEngine engine = new Engine();
 
 
-        engine.addBoat(new Boat(1,"dsfsf", BoatView.BoatType.SINGLE) );
+        Boat b1 = new Boat(1,"dsfsf", BoatView.BoatType.SINGLE);
+        b1.setPrivate(true);
+
+        engine.addBoat(b1);
+
+        engine.addBoat(new Boat(2,"hjyjuyj", Boat.Rowers.TWO, Boat.Paddles.DOUBLE, false, true,
+                false, true, false ));
+
 
         Member member1 = new Member(123, "Gal", "gal@gmail.com", "1234");
         member1.setManager(true);
@@ -38,8 +45,8 @@ public class BMSMain {
         engine.addMember(member2);
 
 
-        engine.addBoat(new Boat(2,"hjyjuyj", Boat.Rowers.TWO, Boat.Paddles.DOUBLE, false, true,
-                false, true, false ));
+
+
 
         Activity ac3 = new Activity("a2", LocalTime.of(10, 40), LocalTime.of(11, 30));
         ac3.setBoatType(BoatView.BoatType.COXED_FOUR);
@@ -74,6 +81,7 @@ public class BMSMain {
 
         Reservation r2 = new Reservation(new Activity(LocalTime.of(7, 00), LocalTime.of(9, 50)),
                 LocalDate.of(2020, 12, 12), LocalDateTime.now(), 123);
+        r2.addBoatType(BoatView.Rowers.ONE);
         r2.addBoatType(BoatView.Rowers.FOUR);
         r2.addParticipant(123);
         //r2.setAllocatedBoatID(1);
@@ -85,11 +93,14 @@ public class BMSMain {
         r3.addParticipant(1276);
         engine.addReservation(r3);
 
-//        for(BoatView boat : engine.getAvailableBoats()){
+
+
+
+//        for(BoatView boat : engine.getAllAvailableBoats()){
 //            System.out.println(boat);
 //        }
 
-//        for(BoatView boat : engine.getAvailableBoats(LocalDate.of(2020, 12, 13), new Activity(LocalTime.of(6, 50), LocalTime.of(7, 50)))){
+//        for(BoatView boat : engine.getAllAvailableBoats(LocalDate.of(2020, 12, 12), new Activity(LocalTime.of(6, 50), LocalTime.of(7, 50)))){
 //            System.out.println(boat);
 //        }
 

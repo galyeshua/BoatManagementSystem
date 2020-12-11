@@ -27,9 +27,8 @@ public class Exceptions {
             super(message);
         }
     }
-    public static class MemberAccessDeniedException extends RuntimeException{
-
-    }
+    public static class MemberAccessDeniedException extends RuntimeException{ }
+    public static class MemberHaveApprovedReservationsException extends RuntimeException{}
 
 
 
