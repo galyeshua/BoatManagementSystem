@@ -63,6 +63,26 @@ public class Reservation implements ReservationView {
                 '}';
     }
 
+    public void printReservation(){
+        System.out.println("Reservation id: "+ id +
+                ", activity at: " +
+                 activity.getStartTime() + " - " +
+                activity.getStartTime() +
+                ", activityDate: " + activityDate +
+                ", boatType: " + boatType +
+                ", participants: " + participants +
+                ", orderDate: " + orderDate +
+                ", orderedMemberID: " + orderedMemberID +
+                ", isApproved: " + printYesOrNo(isApproved));
+    }
+
+    public String printYesOrNo(boolean attribute){
+        if (attribute)
+            return "Yes";
+        return "No";
+    }
+
+
     public Integer getAllocatedBoatID() {
         return allocatedBoatID;
     }

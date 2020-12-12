@@ -2,18 +2,29 @@ package bms.module;
 
 import bms.engine.list.manager.Exceptions;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import java.util.stream.Stream;
 
 public class Boat implements BoatView {
+    @XmlAttribute
     private int serialNumber;
+    @XmlAttribute
     private String name;
+    @XmlAttribute
     private Rowers numOfRowers;
+    @XmlAttribute
     private Paddles numOfPaddles;
-    private boolean isPrivate;
-    private boolean isWide;
-    private boolean hasCoxswain;
-    private boolean isMarine;
-    private boolean isDisabled;
+    @XmlAttribute
+    private Boolean isPrivate;
+    @XmlAttribute
+    private Boolean isWide;
+    @XmlAttribute
+    private Boolean hasCoxswain;
+    @XmlAttribute
+    private Boolean isMarine;
+    @XmlAttribute
+    private Boolean isDisabled;
+
 
 
     public Boat(int serialNumber, String name, BoatType boatType) throws Exceptions.IllegalBoatValueException{
@@ -52,20 +63,42 @@ public class Boat implements BoatView {
         this.setDisabled(other.getDisabled());
     }
 
-    @Override
-    public String toString() {
-        return "Boat{" +
-                "serialNumber=" + serialNumber +
-                ", name='" + name + '\'' +
-                ", numOfRowers=" + numOfRowers +
-                ", numOfPaddles=" + numOfPaddles +
-                ", isPrivate=" + isPrivate +
-                ", isWide=" + isWide +
-                ", hasCoxswain=" + hasCoxswain +
-                ", isMarine=" + isMarine +
-                ", isDisabled=" + isDisabled +
-                '}';
+//    @Override
+//    public String toString() {
+//        return "Boat{" +
+//                "serialNumber=" + serialNumber +
+//                ", name='" + name + '\'' +
+//                ", numOfRowers=" + numOfRowers +
+//                ", numOfPaddles=" + numOfPaddles +
+//                ", isPrivate=" + isPrivate +
+//                ", isWide=" + isWide +
+//                ", hasCoxswain=" + hasCoxswain +
+//                ", isMarine=" + isMarine +
+//                ", isDisabled=" + isDisabled +
+//                '}';
+//    }
+
+    public void printBoat(){
+        System.out.println("Boat S/N: " + serialNumber + ", Name: " + name +
+                ", numOfRowers: " + numOfRowers +
+                ", numOfPaddles: " + numOfPaddles +
+                ((isPrivate != null) ? ", isPrivate: " + printYesOrNo(isPrivate) : "") +
+                ((isWide != null) ? ", isWide: " + printYesOrNo(isWide) : "") +
+                ((hasCoxswain != null) ? ", hasCoxswain: " + printYesOrNo(hasCoxswain) : "") +
+                ((isMarine != null) ? ", isMarine: " + printYesOrNo(isMarine) : "") +
+                ((isDisabled != null) ? ", isDisabled: " + printYesOrNo(isDisabled) : "") );
     }
+
+
+
+    public String printYesOrNo(boolean attribute){
+        if (attribute)
+            return "Yes";
+        return "No";
+    }
+
+
+
 
     @Override
     public int getSerialNumber() {

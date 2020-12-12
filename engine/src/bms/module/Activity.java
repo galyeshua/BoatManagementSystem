@@ -38,16 +38,27 @@ public class Activity implements ActivityView {
         this.setBoatType(other.getBoatType());
     }
 
-    @Override
-    public String toString() {
-        return "Activity{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", startTime=" + startTime +
-                ", finishTime=" + finishTime +
-                ", boatType='" + boatType + '\'' +
-                '}';
+//    @Override
+//    public String toString() {
+//        return "Activity{" +
+//                "id=" + id +
+//                ", name='" + name + '\'' +
+//                ", startTime=" + startTime +
+//                ", finishTime=" + finishTime +
+//                ", boatType='" + boatType + '\'' +
+//                '}';
+//    }
+
+    public void printActivity()
+    {
+        System.out.println("Activity Name: (" + name + ") at " + startTime + "-" + finishTime +
+                ((boatType != null) ? " BoatTye: " + boatType : ""));
+
+
+
     }
+
+
 
     @Override
     public int getId() {

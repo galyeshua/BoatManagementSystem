@@ -45,13 +45,22 @@ public class Commands {
         return new Command() {
             @Override
             public void execute() {
-                for (BoatView boat : engine.getBoats()){
-                    //System.out.println(boat);
-                    System.out.println("Name: " + boat.getName() + ". Type: " + boat.getFormattedCode() +
-                            ". Serial Number: " + boat.getSerialNumber() + ". Private: " + boat.getPrivate() +
-                            ". Disabled: " + boat.getDisabled());
-                }
+                if (engine.getBoats().isEmpty())
+                    System.out.println("No Boats");
+                else {
+                    int i = 0;
+                    for (BoatView boat : engine.getBoats()) {
+//                        //System.out.println(boat);
+//                        System.out.println("Name: " + boat.getName() + ". Type: " + boat.getFormattedCode() +
+//                                ". Serial Number: " + boat.getSerialNumber() + ". Private: " + boat.getPrivate() +
+//                                ". Disabled: " + boat.getDisabled());
+                        System.out.print("[" + i + "] ");
+                        boat.printBoat();
+                        i++;
 
+                    }
+
+                }
             }
         };
     }
@@ -110,7 +119,10 @@ public class Commands {
                     engine.deleteBoat(serialNumber);
                 } catch (Exceptions.BoatNotFoundException e){
                     System.out.println("Boat not found");
+                }catch (Exceptions.BoatAlreadyAllocatedException e){
+                    System.out.println("The boat is allocated for an approved reservation");
                 }
+
             }
         };
     }
@@ -124,7 +136,7 @@ public class Commands {
             private void chooseBoatToUpdate() throws Exceptions.BoatNotFoundException {
                 System.out.println("All the boats:");
                 printBoats().execute();
-                System.out.println("choose boat to edit");
+                System.out.println("choose boat to edit by entering a serial number ");
                 serialNumber = getNumberFromUser();
                 boat = engine.getBoat(serialNumber);
                 if (boat == null)
@@ -196,6 +208,7 @@ public class Commands {
             public void execute() {
                 try{
                     newBoat = new Boat(engine.getBoat(serialNumber));
+                    System.out.println("Does the boat private?");
                     isPrivate = getBoolFromUser();
                     newBoat.setPrivate(isPrivate);
                     engine.updateBoat(newBoat);
@@ -203,7 +216,13 @@ public class Commands {
                     System.out.println("Boat not found");
                 } catch (Exceptions.IllegalBoatValueException e){
                     System.out.println("Error: " + e.getMessage());
+                }catch (Exceptions.BoatAlreadyAllocatedException e){
+                    System.out.println("The boat is allocated for an approved reservation");
+                } catch (Exceptions.BoatBelongsToMember e){
+                    System.out.println("The boat belongs to a member, please edit member's private boat first");
                 }
+
+
             }
         };
     }
@@ -280,7 +299,7 @@ public class Commands {
             private void chooseMemberToUpdate() throws Exceptions.MemberNotFoundException {
                 System.out.println("All the members:");
                 printMembers().execute();
-                System.out.println("choose member to edit");
+                System.out.println("choose member to edit by entering a serial number");
                 serialNumber = getNumberFromUser();
                 member = engine.getMember(serialNumber);
                 if (member == null)
@@ -362,8 +381,17 @@ public class Commands {
         return new Command() {
             @Override
             public void execute() {
-                for (MemberView member : engine.getMembers())
-                    System.out.println(member);
+                if (engine.getMembers().isEmpty())
+                    System.out.println("No Members");
+                else {
+                    int i = 0;
+                    for (MemberView member : engine.getMembers()) {
+                        // System.out.println(member);
+                        System.out.print("[" + i + "] ");
+                        member.printMember();
+                        i++;
+                    }
+                }
             }
         };
     }
@@ -483,13 +511,25 @@ public class Commands {
             public void execute() {
                 try{
                     newMember = new Member(engine.getMember(serialNumber));
-                    hasPrivateBoat = getBoolFromUser();
-                    newMember.setHasPrivateBoat(hasPrivateBoat);
-                    if (hasPrivateBoat){
-                        System.out.println("Enter Boat Serial Number:");
-                        boatSerialNumber = getNumberFromUser(1);
+                    System.out.println("Does member have private boat?");
+                    newMember.setHasPrivateBoat(getBoolFromUser());
+
+                     if (newMember.getHasPrivateBoat()){
+                    System.out.println("Enter Boat Serial Number:");
+                    int boatSerialNumber = getNumberFromUser(1);
+                    BoatView boat = engine.getBoat(boatSerialNumber);
+
+                    if (boat != null && boat.getPrivate())
                         newMember.setBoatSerialNumber(boatSerialNumber);
+                    else{
+                        newMember.setHasPrivateBoat(false);
+                        System.out.println("boat doesn't exist or its not private. please check and try again.");
                     }
+                }
+
+
+
+
                     engine.updateMember(newMember);
                 } catch (Exceptions.MemberNotFoundException e){
                     System.out.println("Member not found");
@@ -647,6 +687,8 @@ public class Commands {
                     engine.addActivity(activity);
                 } catch (Exceptions.ActivityAlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Exceptions.IllegalActivityValueException e){
+                    System.out.println("Finish time is before start time, please try again");
                 }
             }
         };
@@ -656,11 +698,18 @@ public class Commands {
         return new Command() {
             @Override
             public void execute() {
-                int i =0;
-                for (ActivityView activity : engine.getActivities()){
-                    System.out.println("[" + i + "] " + activity.getStartTime() + " - " + activity.getFinishTime()
-                            + " : " + activity.getName() + " : " + activity.getBoatType());
-                    i++;
+                if (engine.getActivities().isEmpty())
+                    System.out.println("No Activities");
+                else {
+                    int i = 0;
+                    for (ActivityView activity : engine.getActivities()) {
+//                        System.out.println("[" + i + "] " + activity.getStartTime() + " - " + activity.getFinishTime()
+//                                + " : " + activity.getName() + " : " + activity.getBoatType());
+
+                        System.out.print("[" + i + "] ");
+                        activity.printActivity();
+                        i++;
+                    }
                 }
             }
         };
@@ -737,7 +786,7 @@ public class Commands {
                 try{
                     newActivity = new Activity(engine.getActivity(id));
                     finishTime = getLocalTimeFromUser();
-                    newActivity.setStartTime(finishTime);
+                    newActivity.setFinishTime(finishTime);
                     engine.updateActivity(newActivity);
                 } catch (Exceptions.ActivityNotFoundException e){
                     System.out.println("Boat not found");
@@ -1001,9 +1050,13 @@ public class Commands {
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getReservationsByDate(date));
                 if (reservations.isEmpty())
                     System.out.println("No reservations for this date");
-
-                for (ReservationView reservation : reservations)
-                    System.out.println(reservation);
+                int i = 0;
+                for (ReservationView reservation : reservations) {
+                 //   System.out.println(reservation);
+                    System.out.print("[" + i + "] ");
+                    reservation.printReservation();
+                    i++;
+                }
             }
         };
     }
@@ -1016,9 +1069,13 @@ public class Commands {
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getReservationsForWeek(startDate));
                 if (reservations.isEmpty())
                     System.out.println("No reservations for this week");
-
-                for (ReservationView reservation : reservations)
-                    System.out.println(reservation);
+                int i = 0;
+                for (ReservationView reservation : reservations) {
+                    //System.out.println(reservation);
+                    System.out.print("[" + i + "] ");
+                    reservation.printReservation();
+                    i++;
+                }
             }
         };
     }
@@ -1031,9 +1088,13 @@ public class Commands {
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getUnapprovedReservationsByDate(date));
                 if (reservations.isEmpty())
                     System.out.println("No Unapproved reservations for this date");
-
-                for (ReservationView reservation : reservations)
-                    System.out.println(reservation);
+                int i = 0;
+                for (ReservationView reservation : reservations) {
+                    // System.out.println(reservation);
+                    System.out.print("[" + i + "] ");
+                    reservation.printReservation();
+                    i++;
+                }
             }
         };
     }
@@ -1046,9 +1107,13 @@ public class Commands {
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getUnapprovedReservationsForWeek(startDate));
                 if (reservations.isEmpty())
                     System.out.println("No Unapproved reservations for this week");
-
-                for (ReservationView reservation : reservations)
-                    System.out.println(reservation);
+                int i = 0;
+                for (ReservationView reservation : reservations) {
+                 //   System.out.println(reservation);
+                    System.out.print("[" + i + "] ");
+                    reservation.printReservation();
+                    i++;
+                }
             }
         };
     }
@@ -1060,9 +1125,13 @@ public class Commands {
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getApprovedReservationsByDate(date));
                 if (reservations.isEmpty())
                     System.out.println("No Approved reservations for today");
-
-                for (ReservationView reservation : reservations)
-                    System.out.println(reservation);
+                int i = 0;
+                for (ReservationView reservation : reservations) {
+                   // System.out.println(reservation);
+                    System.out.print("[" + i + "] ");
+                    reservation.printReservation();
+                    i++;
+                }
             }
         };
     }
@@ -1074,9 +1143,13 @@ public class Commands {
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getFutureReservationsForCurrentUser());
                 if (reservations.isEmpty())
                     System.out.println("No reservations");
-
-                for (ReservationView reservation : reservations)
-                    System.out.println(reservation);
+                int i = 0;
+                for (ReservationView reservation : reservations) {
+                    // System.out.println(reservation);
+                    System.out.print("[" + i + "] ");
+                    reservation.printReservation();
+                    i++;
+                }
             }
         };
     }
@@ -1088,9 +1161,13 @@ public class Commands {
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getReservationsHistoryForCurrentUser());
                 if (reservations.isEmpty())
                     System.out.println("No reservations");
-
-                for (ReservationView reservation : reservations)
-                    System.out.println(reservation);
+                int i = 0;
+                for (ReservationView reservation : reservations) {
+                    //   System.out.println(reservation);
+                    System.out.print("[" + i + "] ");
+                    reservation.printReservation();
+                    i++;
+                }
             }
         };
     }

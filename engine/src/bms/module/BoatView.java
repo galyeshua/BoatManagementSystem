@@ -18,7 +18,7 @@ public interface BoatView {
     String getFormattedCode();
     BoatType getType();
     int getAllowedNumOfRowers();
-
+    void printBoat();
 
     public enum Paddles {SINGLE, DOUBLE}
 

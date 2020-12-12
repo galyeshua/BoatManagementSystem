@@ -21,12 +21,19 @@ import bms.schema.generated.activity.Activities;
 import bms.schema.generated.activity.Timeframe;
 import bms.schema.generated.boat.Boats;
 import bms.schema.generated.member.Members;
+import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import static bms.schema.convertor.activityConvertor.activityFromSchemaActivity;
 import static bms.schema.convertor.activityConvertor.schemaActivityFromActivity;
@@ -35,14 +42,19 @@ import static bms.schema.convertor.boatConvertor.schemaBoatFromBoat;
 import static bms.schema.convertor.memberConvertor.memberFromSchemaMember;
 import static bms.schema.convertor.memberConvertor.schemaMemberFromMember;
 
-
+@XmlRootElement
 public class Engine implements BMSEngine{
+    //@XmlElement
     Member currentUser = null;
+    @XmlElement
     BoatManager boats = new BoatManager();
+    //@XmlElement
     MemberManager members = new MemberManager();
+    //@XmlElement
     ActivityManager activities = new ActivityManager();
+    //@XmlElement
     ReservationManager reservations = new ReservationManager();
-
+    //@XmlAttribute
     List<String> xmlImportErrorList;
 
     private static void checkIfFileIsXml(File file){
@@ -53,7 +65,7 @@ public class Engine implements BMSEngine{
             throw new Exceptions.IllegalFileTypeException();
     }
 
-    private void createXmlFromObjects(String filePath, Class schemaClass, Object rootElement){
+    public void createXmlFromObjects(String filePath, Class schemaClass, Object rootElement){
         File file = new File(filePath);
         if (file.exists())
             throw new Exceptions.FileAlreadyExistException();
@@ -64,8 +76,14 @@ public class Engine implements BMSEngine{
 
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
+            //load schema for validation
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+            //Schema schema = schemaFactory.newSchema(file);
+            //jaxbMarshaller.setSchema(schema);
+
             jaxbMarshaller.marshal(rootElement, file);
-        } catch (JAXBException e) {
+        } catch (JAXBException  e) {
+            //| SAXException
             e.printStackTrace();
         }
     }
@@ -80,9 +98,13 @@ public class Engine implements BMSEngine{
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 
             //Load schema for validation
+            //SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+            //Schema schema = schemaFactory.newSchema(file);
+           // jaxbUnmarshaller.setSchema(schema);
 
             objects = jaxbUnmarshaller.unmarshal(file);
         } catch (JAXBException e) {
+            //| SAXException
             e.printStackTrace();
         }
         return objects;
@@ -205,9 +227,17 @@ public class Engine implements BMSEngine{
         return boats.getBoat(name);
     }
 
-    public void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException, Exceptions.BoatAlreadyAllocatedException {
+    public void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException, Exceptions.BoatAlreadyAllocatedException, Exceptions.BoatBelongsToMember{
         if(boatHaveFutureReservations(newBoat.getSerialNumber()))
             throw new Exceptions.BoatAlreadyAllocatedException();
+
+        members.getMembers()
+                .stream()
+                .filter(Member::getHasPrivateBoat)
+                .filter(member -> member.getBoatSerialNumber() == newBoat.getSerialNumber())
+                .forEach(member -> {
+            throw new Exceptions.BoatBelongsToMember();
+        });
         boats.updateBoat(newBoat);
     }
 

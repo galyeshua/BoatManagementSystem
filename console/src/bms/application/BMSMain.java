@@ -44,7 +44,8 @@ public class BMSMain {
         Member member2 = new Member(1276, "Maya", "Maya@gmail.com", "1235");
         engine.addMember(member2);
 
-
+        Member member3 = new Member(444, "Meshi", "Meshi@gmail.com", "777");
+        engine.addMember(member3);
 
 
 
@@ -84,13 +85,15 @@ public class BMSMain {
         r2.addBoatType(BoatView.Rowers.ONE);
         r2.addBoatType(BoatView.Rowers.FOUR);
         r2.addParticipant(123);
-        //r2.setAllocatedBoatID(1);
+        r2.setAllocatedBoatID(1);
         engine.addReservation(r2);
 
         Reservation r3 = new Reservation(new Activity(LocalTime.of(6, 50), LocalTime.of(7, 50)),
                 LocalDate.of(2020, 12, 12), LocalDateTime.now(), 123);
         r3.addBoatType(BoatView.Rowers.FOUR);
         r3.addParticipant(1276);
+        r3.addParticipant(444);
+
         engine.addReservation(r3);
 
 

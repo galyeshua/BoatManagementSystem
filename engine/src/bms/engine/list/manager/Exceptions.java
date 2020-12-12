@@ -13,7 +13,7 @@ public class Exceptions {
         }
     }
     public static class BoatAlreadyAllocatedException extends RuntimeException { }
-
+    public static class BoatBelongsToMember extends RuntimeException { }
 
 
     public static class MemberNotFoundException extends RuntimeException { }

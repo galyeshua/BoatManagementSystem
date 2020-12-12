@@ -26,7 +26,7 @@ public interface BMSEngine {
     boolean boatIsAvailable(int boatSerialNumber, LocalDate date, Activity activity);
     BoatView getBoat(int serialNumber);
     BoatView getBoat(String name);
-    void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException;
+    void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException, Exceptions.BoatAlreadyAllocatedException, Exceptions.BoatBelongsToMember;
     void loadBoatsFromFile(String filePath);
     void eraseAndLoadBoatsFromFile(String filePath);
     void saveBoatsToFile(String filePath);

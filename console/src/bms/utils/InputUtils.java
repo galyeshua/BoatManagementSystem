@@ -3,6 +3,8 @@ package bms.utils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -116,23 +118,34 @@ public class InputUtils {
 
 
     public static LocalTime getLocalTimeFromUser() {
-        System.out.println("Enter hour:");
-        int hour = getNumberFromUser(0, 23);
-        System.out.println("Enter minute:");
-        int minute = getNumberFromUser(0,59);
-        return LocalTime.of(hour,minute);
+        while (true) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                System.out.println("please enter Time on format HH:mm");
+                Scanner scanner = new Scanner(System.in);
+                String time = scanner.nextLine();
+                return(LocalTime.parse(time, formatter));
+
+
+            } catch (DateTimeParseException e) {}
+
+        }
     }
+
+
 
     public static LocalDate getLocalDateFromUser() {
-        System.out.println("Enter day:");
-        int dayOfMonth = getNumberFromUser(1, 31);
-        System.out.println("Enter month:");
-        int month = getNumberFromUser(1, 12);
-        System.out.println("Enter year:");
-        int year = getNumberFromUser(2020);
-        return LocalDate.of(year,month,dayOfMonth);
-    }
+        while (true) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yyyy");
+                System.out.println("please enter Date on format d/M/yyyy");
+                Scanner scanner = new Scanner(System.in);
+                String time = scanner.nextLine();
+                return((LocalDate.parse(time, formatter)));
 
+            } catch (DateTimeParseException e) {}
+        }
+    }
     public static LocalDateTime getLocalDateTimeFromUser(){
         LocalTime time = getLocalTimeFromUser();
         LocalDate date = getLocalDateFromUser();

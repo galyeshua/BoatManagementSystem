@@ -72,22 +72,43 @@ public class Member implements MemberView {
     }
 
     @Override
-    public String toString() {
-        return "Member{" +
-                "serialNumber=" + serialNumber +
-                ", name='" + name + '\'' +
-                ", age=" + age +
-                ", notes='" + notes + '\'' +
-                ", level='" + level + '\'' +
-                ", joinDate='" + joinDate + '\'' +
-                ", expireDate='" + expireDate + '\'' +
-                ", hasPrivateBoat=" + hasPrivateBoat +
-                ", boatSerialNumber=" + boatSerialNumber +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", isManager=" + isManager +
-                '}';
+//    public String toString() {
+//        return "Member{" +
+//                "serialNumber=" + serialNumber +
+//                ", name='" + name + '\'' +
+//                ", age=" + age +
+//                ", notes='" + notes + '\'' +
+//                ", level='" + level + '\'' +
+//                ", joinDate='" + joinDate + '\'' +
+//                ", expireDate='" + expireDate + '\'' +
+//                ", hasPrivateBoat=" + hasPrivateBoat +
+//                ", boatSerialNumber=" + boatSerialNumber +
+//                ", phoneNumber='" + phoneNumber + '\'' +
+//                ", email='" + email + '\'' +
+//                ", password='" + password + '\'' +
+//                ", isManager=" + isManager +
+//                '}';
+//    }
+
+    public void printMember(){
+        System.out.println("Member S/N: " +serialNumber +
+                ", name: " + name +
+                ((age != null) ? ", age: " + age : "")+
+                ((notes != null) ? ", notes: " + notes : "")+
+                ((level != null) ? ", level: " + level : "")+
+                ((joinDate != null) ? ", joinDate: " + joinDate : "")+
+                ((expireDate != null) ? ", expireDate: " + expireDate : "")+
+                ", hasPrivateBoat: " + printYesOrNo(hasPrivateBoat) +
+                ((hasPrivateBoat)? ", boatSerialNumber: " + boatSerialNumber : "")+
+                ((phoneNumber != null) ? ", phoneNumber: " + phoneNumber : "")+
+                ((email != null) ? ", email: " + email : "")+
+                ((password != null) ? ", password: " + password : "")+
+                ", isManager: " + printYesOrNo(isManager));
+    }
+    public String printYesOrNo(boolean attribute){
+        if (attribute)
+            return "Yes";
+        return "No";
     }
 
     @Override

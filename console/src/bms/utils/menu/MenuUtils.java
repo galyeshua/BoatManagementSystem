@@ -83,7 +83,6 @@ public class MenuUtils {
             subMenu.addOption("Edit Member Age", Commands.editMemberAge(memberSerialNumber));
             subMenu.addOption("Edit Member Notes", Commands.editMemberNotes(memberSerialNumber));
             subMenu.addOption("Edit Member Level", Commands.editMemberLevel(memberSerialNumber));
-            //subMenu.addOption("Edit Member expire Date", Commands.editBoatMarine(memberSerialNumber));
             subMenu.addOption("Edit Member Private Boat", Commands.editMemberPrivateBoat(memberSerialNumber));
             subMenu.addOption("Edit Member Phone number", Commands.editMemberPhone(memberSerialNumber));
             subMenu.addOption("Edit Member Email", Commands.editMemberEmail(memberSerialNumber));
@@ -304,7 +303,7 @@ public class MenuUtils {
             subMenu.addOption("Edit Reservation activity", Commands.editReservationActivity(id));
             subMenu.addOption("Edit Reservation activity Date", Commands.editReservationActivityDate(id));
             subMenu.addOption("Edit Reservation Boat Type", new openAddOrRemoveReservationBoatTypeMenu(id));
-            subMenu.addOption("Edit Reservation participants", new openAddOrRemoveReservationParticipentsMenu(id));
+            subMenu.addOption("Edit Reservation participants", new openAddOrRemoveReservationParticipantsMenu(id));
 
             if(forManager && Commands.user.getManager())
                 subMenu.addOption("Split reservation participants", Commands.splitReservationParticipants(id));
@@ -341,12 +340,12 @@ public class MenuUtils {
     }
 
 
-    public static class openAddOrRemoveReservationParticipentsMenu implements Command
+    public static class openAddOrRemoveReservationParticipantsMenu implements Command
     {
         int id;
         ReservationView reservation;
 
-        public openAddOrRemoveReservationParticipentsMenu(int id) {
+        public openAddOrRemoveReservationParticipantsMenu(int id) {
             this.id = id;
             this.reservation = Commands.engine.getReservation(id);
         }
@@ -356,9 +355,9 @@ public class MenuUtils {
 
             Menu subMenu = new Menu("Edit Perticipents for Reservation");
 
-            subMenu.addOption("Show Perticipents", Commands.showReservationPerticipents(id));
-            subMenu.addOption("Add Perticipent", Commands.addReservationPerticipent(id));
-            subMenu.addOption("delete Perticipent", Commands.deleteReservationPerticipent(id));
+            subMenu.addOption("Show Participants", Commands.showReservationPerticipents(id));
+            subMenu.addOption("Add Participants", Commands.addReservationPerticipent(id));
+            subMenu.addOption("delete Participants", Commands.deleteReservationPerticipent(id));
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();

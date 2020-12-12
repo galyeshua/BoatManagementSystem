@@ -28,20 +28,34 @@ public class ReservationManager {
 
         List<Integer> participantsForRes = reservation.getParticipants();
 
-        for (int memberID : participantsForRes){
-            for (Reservation overlapRes : overlapReservations){
-
-                if ( overlapRes.isMemberInReservation(memberID)){
-                    validateIfOldReservationsAlreadyApproved(overlapRes, memberID);
-
-                    try{
-                        overlapRes.deleteParticipant(memberID);
-                    } catch ( Exceptions.ListCannotBeEmptyException e){
-                        deleteReservation(overlapRes.getId());
-                    }
-                }
+        participantsForRes
+                .forEach(memberID -> overlapReservations
+                        .stream()
+                        .filter(overlapRes -> overlapRes.isMemberInReservation(memberID))
+                        .forEach(overlapRes -> {
+            validateIfOldReservationsAlreadyApproved(overlapRes, memberID);
+            try {
+                overlapRes.deleteParticipant(memberID);
+            } catch (Exceptions.ListCannotBeEmptyException e) {
+                deleteReservation(overlapRes.getId());
             }
-        }
+        }));
+
+//        for (int memberID : participantsForRes){
+//            for (Reservation overlapRes : overlapReservations){
+//
+//                if ( overlapRes.isMemberInReservation(memberID)){
+//                    validateIfOldReservationsAlreadyApproved(overlapRes, memberID);
+//
+//                    try{
+//                        overlapRes.deleteParticipant(memberID);
+//                    } catch ( Exceptions.ListCannotBeEmptyException e){
+//                        deleteReservation(overlapRes.getId());
+//                    }
+//                }
+//            }
+//        }
+
     }
 
     private void validateIfOldReservationsAlreadyApproved(Reservation overlapRes, int memberID)
