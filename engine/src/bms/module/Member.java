@@ -1,23 +1,64 @@
 package bms.module;
 
-import java.time.LocalDate;
+import bms.engine.list.manager.Exceptions;
+import bms.module.adapter.LocalDateAdapter;
+import bms.module.adapter.LocalTimeAdapter;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.LocalDate;
+import java.util.regex.Pattern;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "member")
 public class Member implements MemberView {
 
+
+    @XmlAttribute(required = true)
     private int serialNumber;
+
+    @XmlAttribute(required = true)
     private String name;
+
+    @XmlAttribute
     private Integer age;
+
+    @XmlAttribute
     private String notes;
+
+    @XmlAttribute
     private Level level;
+
+    @XmlJavaTypeAdapter(value = LocalDateAdapter.class)
+    @XmlAttribute(required = true)
     private LocalDate joinDate;
+
+    @XmlJavaTypeAdapter(value = LocalDateAdapter.class)
+    @XmlAttribute(required = true)
     private LocalDate expireDate;
+
+    @XmlAttribute
     private boolean hasPrivateBoat;
+
+    @XmlAttribute
     private Integer boatSerialNumber;
+
+    @XmlAttribute
     private String phoneNumber;
+
+    @XmlAttribute(required = true)
     private String email;
+
+    @XmlAttribute(required = true)
     private String password;
+
+    @XmlAttribute
     private boolean isManager;
 
+    private Member() {}
 
     public Member(int serialNumber, String name, String email, String password) {
         this.setSerialNumber(serialNumber);
@@ -29,7 +70,7 @@ public class Member implements MemberView {
         this.setAge(null);
         this.setLevel(Level.BEGINNER);
         this.setManager(false);
-        this.setHasPrivateBoat(false);
+        //this.setHasPrivateBoat(false);
         this.setPhoneNumber(null);
         this.setNotes(null);
         this.setJoinDate(LocalDate.now());
@@ -63,7 +104,7 @@ public class Member implements MemberView {
         this.setLevel(other.getLevel());
         this.setJoinDate(other.getJoinDate());
         this.setExpireDate(other.getExpireDate());
-        this.setHasPrivateBoat(other.getHasPrivateBoat());
+        //this.setHasPrivateBoat(other.getHasPrivateBoat());
         this.setBoatSerialNumber(other.getBoatSerialNumber());
         this.setPhoneNumber(other.getPhoneNumber());
         this.setEmail(other.getEmail());
@@ -72,23 +113,23 @@ public class Member implements MemberView {
     }
 
     @Override
-//    public String toString() {
-//        return "Member{" +
-//                "serialNumber=" + serialNumber +
-//                ", name='" + name + '\'' +
-//                ", age=" + age +
-//                ", notes='" + notes + '\'' +
-//                ", level='" + level + '\'' +
-//                ", joinDate='" + joinDate + '\'' +
-//                ", expireDate='" + expireDate + '\'' +
-//                ", hasPrivateBoat=" + hasPrivateBoat +
-//                ", boatSerialNumber=" + boatSerialNumber +
-//                ", phoneNumber='" + phoneNumber + '\'' +
-//                ", email='" + email + '\'' +
-//                ", password='" + password + '\'' +
-//                ", isManager=" + isManager +
-//                '}';
-//    }
+    public String toString() {
+        return "Member{" +
+                "serialNumber=" + serialNumber +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", notes='" + notes + '\'' +
+                ", level='" + level + '\'' +
+                ", joinDate='" + joinDate + '\'' +
+                ", expireDate='" + expireDate + '\'' +
+                ", hasPrivateBoat=" + hasPrivateBoat +
+                ", boatSerialNumber=" + boatSerialNumber +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", isManager=" + isManager +
+                '}';
+    }
 
     public void printMember(){
         System.out.println("Member S/N: " +serialNumber +
@@ -170,7 +211,9 @@ public class Member implements MemberView {
         this.serialNumber = serialNumber;
     }
     public void setName(String name) {
-        this.name = name;
+        if (name.trim().isEmpty())
+            throw new Exceptions.IllegalMemberValueException("Name cannot be empty");
+        this.name = name.trim();
     }
     public void setAge(Integer age) {
         this.age = age;
@@ -182,25 +225,47 @@ public class Member implements MemberView {
         this.level = level;
     }
     public void setJoinDate(LocalDate joinDate) {
+        if (getExpireDate() != null)
+            if(joinDate.isAfter(getExpireDate()) || joinDate.isEqual(getExpireDate()))
+                throw new Exceptions.IllegalMemberValueException("Join date must be before Expired date");
         this.joinDate = joinDate;
     }
     public void setExpireDate(LocalDate expireDate) {
+
+        if (getJoinDate() != null)
+            if(expireDate.isBefore(getJoinDate()) || expireDate.isEqual(getJoinDate())){
+                throw new Exceptions.IllegalMemberValueException("Expired date must be after Join date");
+            }
         this.expireDate = expireDate;
     }
-    public void setHasPrivateBoat(boolean hasPrivateBoat) {
+    private void setHasPrivateBoat(boolean hasPrivateBoat) {
+        if(hasPrivateBoat==true && getBoatSerialNumber() == null)
+            throw new Exceptions.IllegalMemberValueException("Private boat serial number not specified");
         this.hasPrivateBoat = hasPrivateBoat;
     }
     public void setBoatSerialNumber(Integer boatSerialNumber) {
         this.boatSerialNumber = boatSerialNumber;
+        if(boatSerialNumber == null)
+            setHasPrivateBoat(false);
+        else
+            setHasPrivateBoat(true);
     }
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
     public void setEmail(String email) {
+        String regex = "^(.+)@(.+)$";
+        Pattern pattern = Pattern.compile(regex);
+
+        if (!pattern.matcher(email).matches())
+            throw new Exceptions.IllegalMemberValueException("Email address is not valid");
+
         this.email = email;
     }
     public void setPassword(String password) {
-        this.password = password;
+        if (password.trim().isEmpty())
+            throw new Exceptions.IllegalMemberValueException("Password cannot be empty");
+        this.password = password.trim();
     }
     public void setManager(boolean manager) {
         isManager = manager;

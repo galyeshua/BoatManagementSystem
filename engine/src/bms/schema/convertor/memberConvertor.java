@@ -1,5 +1,6 @@
 package bms.schema.convertor;
 
+import bms.engine.list.manager.Exceptions;
 import bms.module.Member;
 import bms.schema.generated.member.RowingLevel;
 
@@ -14,6 +15,15 @@ import java.util.GregorianCalendar;
 
 public class memberConvertor {
 
+    private static int parseInteger(String number){
+        try{
+            return Integer.parseInt(number);
+        } catch (NumberFormatException e){
+            throw new Exceptions.IllegalMemberValueException("cannot read number '" + number + "' (it must be a number)");
+        }
+    }
+
+
     private static LocalDate localDateFromXMLGregorianCalendar(XMLGregorianCalendar time){
         return LocalDate.of(time.getYear(), time.getMonth(), time.getDay());
     }
@@ -27,15 +37,12 @@ public class memberConvertor {
     public static Member memberFromSchemaMember(bms.schema.generated.member.Member schemaMember){
         Member newMember;
 
-        int SerialNumber = Integer.parseInt(schemaMember.getId());
+        int SerialNumber = parseInteger(schemaMember.getId());
         String name = schemaMember.getName();
         String email = schemaMember.getEmail();
         String password = schemaMember.getPassword();
 
         newMember = new Member(SerialNumber, name, email, password);
-
-        if(schemaMember.isHasPrivateBoat() != null)
-            newMember.setHasPrivateBoat(schemaMember.isHasPrivateBoat());
 
         if(schemaMember.getAge() != null)
             newMember.setAge(schemaMember.getAge());
@@ -47,7 +54,7 @@ public class memberConvertor {
             newMember.setManager(schemaMember.isManager());
 
         if(schemaMember.getPrivateBoatId() != null)
-            newMember.setBoatSerialNumber(Integer.parseInt(schemaMember.getPrivateBoatId()));
+            newMember.setBoatSerialNumber(parseInteger(schemaMember.getPrivateBoatId()));
 
         if(schemaMember.getPhone() != null)
             newMember.setPhoneNumber(schemaMember.getPhone());
@@ -55,11 +62,11 @@ public class memberConvertor {
         if(schemaMember.getComments() != null)
             newMember.setNotes(schemaMember.getComments());
 
-        if(schemaMember.getMembershipExpiration() != null)
-            newMember.setExpireDate(localDateFromXMLGregorianCalendar(schemaMember.getMembershipExpiration()));
-
         if(schemaMember.getJoined() != null)
             newMember.setJoinDate(localDateFromXMLGregorianCalendar(schemaMember.getJoined()));
+
+        if(schemaMember.getMembershipExpiration() != null)
+            newMember.setExpireDate(localDateFromXMLGregorianCalendar(schemaMember.getMembershipExpiration()));
 
         return newMember;
     }

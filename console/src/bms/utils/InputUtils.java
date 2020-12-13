@@ -1,5 +1,7 @@
 package bms.utils;
 
+import bms.module.Member;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -150,6 +152,14 @@ public class InputUtils {
         LocalTime time = getLocalTimeFromUser();
         LocalDate date = getLocalDateFromUser();
         return LocalDateTime.of(date,time);
-
     }
+
+
+//    public static Member getUserByEmailAndPassword() {
+//
+//
+//
+//    }
+
+
 }

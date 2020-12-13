@@ -2,10 +2,12 @@ package bms.engine.list.manager;
 
 import bms.module.Activity;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.time.LocalTime;
 import java.util.*;
 
 public class ActivityManager {
+    @XmlElement(name="activity", required = true)
     private List<Activity> activities = new ArrayList<Activity>();
 
     public void addActivity(Activity activity) throws Exceptions.IllegalActivityValueException{

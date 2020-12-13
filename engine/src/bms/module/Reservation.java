@@ -1,7 +1,11 @@
 package bms.module;
 
 import bms.engine.list.manager.Exceptions;
+import bms.module.adapter.LocalDateAdapter;
+import bms.module.adapter.LocalDateTimeAdapter;
 
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -10,20 +14,42 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlRootElement(name = "reservation")
 public class Reservation implements ReservationView {
     private static int counter = 0;
 
+    //@XmlAttribute(required = true)
     private int id;
+
+    @XmlElement
     private Activity activity;
+
+    @XmlJavaTypeAdapter(value = LocalDateAdapter.class)
+    @XmlAttribute(required = true)
     private LocalDate activityDate;
+
+    @XmlAttribute(required = true)
     private List<Boat.Rowers> boatType;
+
+    @XmlAttribute(required = true)
     private List<Integer> participants;
+
+    @XmlJavaTypeAdapter(value = LocalDateTimeAdapter.class)
+    @XmlAttribute(required = true)
     private LocalDateTime orderDate;
+
+    @XmlAttribute(required = true)
     private int orderedMemberID;
+
+    @XmlAttribute(required = true)
     private boolean isApproved;
+
+    @XmlAttribute(required = true)
     private Integer allocatedBoatID;
 
 
+    private Reservation(){ }
 
     public Reservation(Activity activity, LocalDate activityDate, LocalDateTime orderDate, int orderedMemberID) {
         this.setId(counter++);

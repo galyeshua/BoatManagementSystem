@@ -6,12 +6,13 @@ import bms.engine.list.manager.Exceptions.MemberAlreadyExistsException;
 import bms.module.Boat;
 import bms.module.Member;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import javax.xml.bind.annotation.XmlElement;
+import java.util.*;
 
 public class MemberManager {
-    private Map<Integer, Member> members = new HashMap<Integer, Member>();
+    @XmlElement(name="member", required = true)
+    private List<Member> members = new ArrayList<Member>();
+    //private Map<Integer, Member> members = new HashMap<Integer, Member>();
 
     public void addMember(Member member){
         String email = member.getEmail();
@@ -20,7 +21,8 @@ public class MemberManager {
         validateMemberSerialNumber(serialNumber);
         validateMemberEmail(email);
 
-        members.put(member.getSerialNumber(), member);
+        //members.put(member.getSerialNumber(), member);
+        members.add(member);
     }
 
     public void deleteMember(int serialNumber){
@@ -31,11 +33,16 @@ public class MemberManager {
     }
 
     public Collection<Member> getMembers() {
-        return members.values();
+        //return members.values();
+        return members;
     }
 
     public Member getMember(int serialNumber) {
-        return members.get(serialNumber);
+        //return members.get(serialNumber);
+        for(Member member : getMembers())
+            if(member.getSerialNumber()==serialNumber)
+                return member;
+        return null;
     }
 
     public Member getMember(String email) {
@@ -55,7 +62,8 @@ public class MemberManager {
         if (!currentMember.getEmail().equals(newMember.getEmail()))
             validateMemberEmail(newMember.getEmail());
 
-        members.replace(serialNumber, newMember);
+        //members.replace(serialNumber, newMember);
+        members.set(members.indexOf(getMember(serialNumber)), newMember);
     }
 
     private void validateMemberSerialNumber(int serialNumber) {

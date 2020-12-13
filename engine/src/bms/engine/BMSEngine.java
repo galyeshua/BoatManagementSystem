@@ -6,16 +6,23 @@ import java.util.List;
 
 import bms.engine.list.manager.Exceptions;
 import bms.module.*;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 
 public interface BMSEngine {
 
     List<String> getXmlImportErrors();
-    MemberView getCurrentUser();
-    void setCurrentUser(MemberView currentUser);
+//    MemberView getCurrentUser();
 
+    boolean validateUserLogin(String email, String password);
+    void loginUser(MemberView currentUser);
+
+
+    void saveState() throws JAXBException;
+    void loadState() throws JAXBException, SAXException;
 
     void addBoat(Boat newBoat) throws Exceptions.BoatAlreadyExistsException, Exceptions.IllegalBoatValueException;
     void deleteBoat(int serialNumber) throws Exceptions.BoatNotFoundException;
@@ -27,9 +34,9 @@ public interface BMSEngine {
     BoatView getBoat(int serialNumber);
     BoatView getBoat(String name);
     void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException, Exceptions.BoatAlreadyAllocatedException, Exceptions.BoatBelongsToMember;
-    void loadBoatsFromFile(String filePath);
-    void eraseAndLoadBoatsFromFile(String filePath);
-    void saveBoatsToFile(String filePath);
+    void loadBoatsFromFile(String filePath) throws JAXBException, SAXException;
+    void eraseAndLoadBoatsFromFile(String filePath) throws JAXBException, SAXException;
+    void saveBoatsToFile(String filePath) throws JAXBException, SAXException;
     boolean boatHaveFutureReservations(int boatSerialNumber);
 
 
@@ -41,9 +48,9 @@ public interface BMSEngine {
     MemberView getMember(int serialNumber);
     MemberView getMember(String email);
     void updateMember(Member newMember) throws Exceptions.MemberNotFoundException;
-    void loadMembersFromFile(String filePath);
-    void eraseAndLoadMembersFromFile(String filePath);
-    void saveMembersToFile(String filePath) throws DatatypeConfigurationException;
+    void loadMembersFromFile(String filePath) throws JAXBException, SAXException;
+    void eraseAndLoadMembersFromFile(String filePath) throws JAXBException, SAXException;
+    void saveMembersToFile(String filePath) throws DatatypeConfigurationException, JAXBException, SAXException;
     boolean memberHaveFutureReservations(int memberSerialNumber);
 
 
@@ -53,9 +60,9 @@ public interface BMSEngine {
     Collection<ActivityView> getActivities();
     ActivityView getActivity(int id);
     void updateActivity(Activity newActivity) throws Exceptions.ActivityNotFoundException;
-    void loadActivitiesFromFile(String filePath);
-    void eraseAndLoadActivitiesFromFile(String filePath);
-    void saveActivitiesToFile(String filePath);
+    void loadActivitiesFromFile(String filePath) throws JAXBException, SAXException;
+    void eraseAndLoadActivitiesFromFile(String filePath) throws JAXBException, SAXException;
+    void saveActivitiesToFile(String filePath) throws JAXBException, SAXException;
 
 
 
@@ -73,7 +80,7 @@ public interface BMSEngine {
     Collection<ReservationView> getAllFutureApprovedReservations();
     Collection<ReservationView> getUnapprovedReservationsByDate(LocalDate date);
     Collection<ReservationView> getUnapprovedReservationsForWeek(LocalDate startDate);
-    void unapproveReservation(int id);
+    void unapprovedReservation(int id);
     ReservationView getReservation(int id);
     public void updateReservation(Reservation newReservation) throws Exceptions.ReservationNotFoundException;
     public void approveReservation(int reservationID, int boatID);

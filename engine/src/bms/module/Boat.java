@@ -2,30 +2,44 @@ package bms.module;
 
 import bms.engine.list.manager.Exceptions;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.stream.Stream;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "boat")
 public class Boat implements BoatView {
-    @XmlAttribute
+    @XmlAttribute(required = true)
     private int serialNumber;
-    @XmlAttribute
+
+    @XmlAttribute(required = true)
     private String name;
-    @XmlAttribute
+
+    @XmlAttribute(required = true)
     private Rowers numOfRowers;
+
     @XmlAttribute
     private Paddles numOfPaddles;
+
     @XmlAttribute
     private Boolean isPrivate;
+
     @XmlAttribute
     private Boolean isWide;
-    @XmlAttribute
+
+    @XmlAttribute(required = true)
     private Boolean hasCoxswain;
+
     @XmlAttribute
     private Boolean isMarine;
+
     @XmlAttribute
     private Boolean isDisabled;
 
 
+    private Boat(){}
 
     public Boat(int serialNumber, String name, BoatType boatType) throws Exceptions.IllegalBoatValueException{
         this.setSerialNumber(serialNumber);
@@ -63,20 +77,6 @@ public class Boat implements BoatView {
         this.setDisabled(other.getDisabled());
     }
 
-//    @Override
-//    public String toString() {
-//        return "Boat{" +
-//                "serialNumber=" + serialNumber +
-//                ", name='" + name + '\'' +
-//                ", numOfRowers=" + numOfRowers +
-//                ", numOfPaddles=" + numOfPaddles +
-//                ", isPrivate=" + isPrivate +
-//                ", isWide=" + isWide +
-//                ", hasCoxswain=" + hasCoxswain +
-//                ", isMarine=" + isMarine +
-//                ", isDisabled=" + isDisabled +
-//                '}';
-//    }
 
     public void printBoat(){
         System.out.println("Boat S/N: " + serialNumber + ", Name: " + name +
@@ -90,6 +90,20 @@ public class Boat implements BoatView {
     }
 
 
+    @Override
+    public String toString() {
+        return "Boat{" +
+                "serialNumber=" + serialNumber +
+                ", name='" + name + '\'' +
+                ", numOfRowers=" + numOfRowers +
+                ", numOfPaddles=" + numOfPaddles +
+                ", isPrivate=" + isPrivate +
+                ", isWide=" + isWide +
+                ", hasCoxswain=" + hasCoxswain +
+                ", isMarine=" + isMarine +
+                ", isDisabled=" + isDisabled +
+                '}';
+    }
 
     public String printYesOrNo(boolean attribute){
         if (attribute)
@@ -179,7 +193,9 @@ public class Boat implements BoatView {
         this.serialNumber = serialNumber;
     }
     public void setName(String name) {
-        this.name = name;
+        if (name.trim().isEmpty())
+            throw new Exceptions.IllegalBoatValueException("Name cannot be empty");
+        this.name = name.trim();
     }
     public void setNumOfRowers(Rowers numOfRowers) {
         this.numOfRowers = numOfRowers;

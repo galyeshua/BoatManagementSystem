@@ -1,19 +1,16 @@
 package bms.utils.menu;
 
-import bms.application.Menu;
 import bms.engine.BMSEngine;
 import bms.engine.list.manager.Exceptions;
 import bms.module.*;
-import com.sun.javaws.exceptions.InvalidArgumentException;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static bms.utils.InputUtils.*;
@@ -336,32 +333,23 @@ public class Commands {
             }
 
             private void askForOptionalValues(){
-                System.out.println("Enter Notes:");
-                member.setNotes(getStringFromUser());
-                System.out.println("Does member have private boat?");
-                member.setHasPrivateBoat(getBoolFromUser());
-
-                if (member.getHasPrivateBoat()){
-                    System.out.println("Enter Boat Serial Number:");
-                    int boatSerialNumber = getNumberFromUser(1);
-                    BoatView boat = engine.getBoat(boatSerialNumber);
-
-                    if (boat != null && boat.getPrivate())
-                        member.setBoatSerialNumber(boatSerialNumber);
-                    else{
-                        member.setHasPrivateBoat(false);
-                        System.out.println("boat doesn't exist or its not private. please check and try again.");
-                    }
-                }
-
-                System.out.println("Enter phone number:");
-                member.setPhoneNumber(getStringFromUser());
-                System.out.println("is manager?");
-                member.setManager(getBoolFromUser());
                 System.out.println("Enter Age:");
                 member.setAge(getNumberFromUser(1));
                 System.out.println("Enter Level:");
                 member.setLevel((Member.Level) chooseFromOptions(Member.Level.values()));
+                System.out.println("is manager?");
+                member.setManager(getBoolFromUser());
+                System.out.println("Enter Notes:");
+                member.setNotes(getStringFromUser());
+                System.out.println("Enter phone number:");
+                member.setPhoneNumber(getStringFromUser());
+                System.out.println("Does member have private boat?");
+                if (getBoolFromUser()){
+                    System.out.println("Enter Boat Serial Number:");
+                    int boatSerialNumber = getNumberFromUser(1);
+                    member.setBoatSerialNumber(boatSerialNumber);
+                } else
+                    member.setBoatSerialNumber(null);
             }
 
             @Override
@@ -512,20 +500,15 @@ public class Commands {
                 try{
                     newMember = new Member(engine.getMember(serialNumber));
                     System.out.println("Does member have private boat?");
-                    newMember.setHasPrivateBoat(getBoolFromUser());
 
-                     if (newMember.getHasPrivateBoat()){
-                    System.out.println("Enter Boat Serial Number:");
-                    int boatSerialNumber = getNumberFromUser(1);
-                    BoatView boat = engine.getBoat(boatSerialNumber);
-
-                    if (boat != null && boat.getPrivate())
+                    if (getBoolFromUser()){
+                        System.out.println("Enter Boat Serial Number:");
+                        int boatSerialNumber = getNumberFromUser(1);
                         newMember.setBoatSerialNumber(boatSerialNumber);
-                    else{
-                        newMember.setHasPrivateBoat(false);
-                        System.out.println("boat doesn't exist or its not private. please check and try again.");
-                    }
-                }
+                    } else
+                        newMember.setBoatSerialNumber(null);
+
+
 
 
 
@@ -685,10 +668,8 @@ public class Commands {
                     Activity activity = new Activity(name,startTime,finishTime);
                     activity.setBoatType(boatType);
                     engine.addActivity(activity);
-                } catch (Exceptions.ActivityAlreadyExistsException e){
+                } catch (Exceptions.ActivityAlreadyExistsException | Exceptions.IllegalActivityValueException e){
                     System.out.println("Error: " + e.getMessage());
-                } catch (Exceptions.IllegalActivityValueException e){
-                    System.out.println("Finish time is before start time, please try again");
                 }
             }
         };
@@ -928,7 +909,7 @@ public class Commands {
             public void execute() {
                 try{
                     chooseReservationToUnapprove();
-                    engine.unapproveReservation(id);
+                    engine.unapprovedReservation(id);
                     System.out.println("successfully unapproved reservation");
                 } catch (Exceptions.ReservationNotFoundException e){
                     System.out.println("Reservation not found");
@@ -1444,6 +1425,10 @@ public class Commands {
                     System.out.println("File must be in xml format");
                 } catch (Exceptions.FileNotFoundException e){
                     System.out.println("Cant find file " + filePath);
+                } catch (JAXBException e) {
+                    System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
+                } catch (SAXException e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -1468,6 +1453,10 @@ public class Commands {
                         System.out.println("File must be in xml format");
                     } catch (Exceptions.FileNotFoundException e){
                         System.out.println("Cant find file " + filePath);
+                    } catch (JAXBException e) {
+                        e.getLinkedException().getMessage();
+                    } catch (SAXException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -1487,6 +1476,10 @@ public class Commands {
                     System.out.println("successfully saved");
                 } catch (Exceptions.FileAlreadyExistException e){
                     System.out.println("Error: File with the same name already exist at this location. cannot export data.");
+                } catch (JAXBException e) {
+                    System.out.println(e.getLinkedException().getMessage());
+                } catch (SAXException e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -1507,6 +1500,10 @@ public class Commands {
                     System.out.println("File must be in xml format");
                 } catch (Exceptions.FileNotFoundException e){
                     System.out.println("Cant find file " + filePath);
+                } catch (JAXBException e) {
+                    e.getLinkedException().getMessage();
+                } catch (SAXException e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -1531,6 +1528,10 @@ public class Commands {
                         System.out.println("File must be in xml format");
                     } catch (Exceptions.FileNotFoundException e){
                         System.out.println("Cant find file " + filePath);
+                    } catch (JAXBException e) {
+                        e.getLinkedException().getMessage();
+                    } catch (SAXException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -1549,6 +1550,10 @@ public class Commands {
                     System.out.println("successfully saved");
                 } catch (Exceptions.FileAlreadyExistException e){
                     System.out.println("Error: File with the same name already exist at this location. cannot export data.");
+                } catch (JAXBException e) {
+                    System.out.println(e.getLinkedException().getMessage());
+                } catch (SAXException e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -1568,6 +1573,10 @@ public class Commands {
                     System.out.println("File must be in xml format");
                 } catch (Exceptions.FileNotFoundException e){
                     System.out.println("Cant find file " + filePath);
+                } catch (JAXBException e) {
+                    e.getLinkedException().getMessage();
+                } catch (SAXException e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -1592,6 +1601,10 @@ public class Commands {
                         System.out.println("File must be in xml format");
                     } catch (Exceptions.FileNotFoundException e){
                         System.out.println("Cant find file " + filePath);
+                    } catch (JAXBException e) {
+                        e.getLinkedException().getMessage();
+                    } catch (SAXException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -1612,6 +1625,10 @@ public class Commands {
                     System.out.println("Error: File with the same name already exist at this location. cannot export data.");
                 } catch (DatatypeConfigurationException e){
                     System.out.println(e.getMessage());
+                } catch (JAXBException e) {
+                    System.out.println(e.getLinkedException().getMessage());
+                } catch (SAXException e) {
+                    e.printStackTrace();
                 }
 
             }
