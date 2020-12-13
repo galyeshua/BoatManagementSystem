@@ -5,6 +5,7 @@ import bms.engine.Engine;
 import bms.module.*;
 
 
+import static bms.utils.InputUtils.getStringFromUser;
 import static bms.utils.menu.MenuUtils.getMainMenuForUser;
 
 
@@ -25,23 +26,21 @@ public class BMSMain {
             e.printStackTrace();
         }
 
-//        String email, password;
-//        boolean isValid;
-//        do{
-//            System.out.println("Enter your email");
-//            email = getStringFromUser();
-//            System.out.println("Enter your password");
-//            password = getStringFromUser();
-//
-//            isValid = engine.validateUserLogin(email, password);
-//            if(!isValid)
-//                System.out.println("Wrong email or password");
-//
-//        } while(!isValid);
-//
-//        MemberView user = engine.getMember(email);
+        String email, password;
+        boolean isValid;
+        do{
+            System.out.println("Enter your email");
+            email = getStringFromUser();
+            System.out.println("Enter your password");
+            password = getStringFromUser();
 
-        MemberView user = engine.getMember("gal@gmail.com");
+            isValid = engine.validateUserLogin(email, password);
+            if(!isValid)
+                System.out.println("Wrong email or password");
+
+        } while(!isValid);
+
+        MemberView user = engine.getMember(email);
 
         engine.loginUser(user);
 
