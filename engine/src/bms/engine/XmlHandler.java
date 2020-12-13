@@ -22,8 +22,7 @@ public class XmlHandler {
 
     static void createXmlFromObjects(String filePath, Class schemaClass, Object rootElement, String schemaFileName) throws JAXBException, SAXException {
         File xmlFile = new File(filePath);
-        //File schemaFile = new File("engine\\src\\bms\\schema\\" + schemaFileName);
-        File schemaFile = new File("engine\\resources\\" + schemaFileName);
+        File schemaFile = new File("..\\engine\\resources\\" + schemaFileName);
 
 
         if (xmlFile.exists())
@@ -55,7 +54,7 @@ public class XmlHandler {
 
         //Load schema for validation
         if(schemaFileName != null){
-            File schemaFile = new File("engine\\src\\bms\\schema\\" + schemaFileName);
+            File schemaFile = new File("..\\engine\\resources\\" + schemaFileName);
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = schemaFactory.newSchema(schemaFile);
             jaxbUnmarshaller.setSchema(schema);
