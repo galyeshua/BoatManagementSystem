@@ -10,16 +10,16 @@ public class ActivityManager {
     @XmlElement(name="activity", required = true)
     private List<Activity> activities = new ArrayList<Activity>();
 
-    public void addActivity(Activity activity) throws Exceptions.IllegalActivityValueException{
+    public void addActivity(Activity activity) throws Activity.AlreadyExistsException {
 
         Activity tmpActivity = getActivity(activity.getName(), activity.getStartTime(), activity.getFinishTime());
 
         if (tmpActivity != null)
-            throw new Exceptions.ActivityAlreadyExistsException("Activity already exists: '" + activity.getName() +
+            throw new Activity.AlreadyExistsException("Activity already exists: '" + activity.getName() +
                     "' for time " + activity.getStartTime() + " - " + activity.getFinishTime());
 
         activities.add(activity);
-        Collections.sort(activities, ((a1, a2) -> a1.getStartTime().compareTo(a2.getStartTime())));
+        Collections.sort(activities, (Comparator.comparing(Activity::getStartTime)));
     }
 
     public void deleteActivity(int id) {
@@ -55,13 +55,12 @@ public class ActivityManager {
         return null;
     }
 
-    public void updateActivity(Activity newActivity)
-            throws Exceptions.ActivityNotFoundException, Exceptions.IllegalActivityValueException {
+    public void updateActivity(Activity newActivity) throws Activity.NotFoundException, Activity.AlreadyExistsException {
         int id = newActivity.getId();
         Activity currentActivity = getActivity(id);
 
         if (currentActivity == null)
-            throw new Exceptions.ActivityNotFoundException();
+            throw new Activity.NotFoundException();
 
         boolean isNameEquals = currentActivity.getName().equals(newActivity.getName());
         boolean isStartTimeEquals = currentActivity.getStartTime().equals(newActivity.getStartTime());
@@ -73,9 +72,10 @@ public class ActivityManager {
         activities.set(activities.indexOf(getActivity(id)), newActivity);
     }
 
-    private void validateActivityParameters(String name, LocalTime startTime, LocalTime finishTime) {
+    private void validateActivityParameters(String name, LocalTime startTime, LocalTime finishTime)
+            throws Activity.AlreadyExistsException {
         if (getActivity(name, startTime, finishTime) != null)
-            throw new Exceptions.IllegalActivityValueException("Activity with same name, start time and finish time already exists.");
+            throw new Activity.AlreadyExistsException("Activity with the same name, start time and finish time already exists.");
     }
 
     public void eraseAll(){

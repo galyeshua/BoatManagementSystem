@@ -1,7 +1,5 @@
 package bms.module;
 
-import bms.engine.list.manager.Exceptions;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -41,7 +39,7 @@ public class Boat implements BoatView {
 
     private Boat(){}
 
-    public Boat(int serialNumber, String name, BoatType boatType) throws Exceptions.IllegalBoatValueException{
+    public Boat(int serialNumber, String name, BoatType boatType) throws IllegalValueException {
         this.setSerialNumber(serialNumber);
         this.setName(name);
         this.setType(boatType);
@@ -53,7 +51,7 @@ public class Boat implements BoatView {
 
     public Boat(int serialNumber, String name, Rowers numOfRowers, Paddles numOfPaddles,
                 Boolean isPrivate, Boolean isWide, Boolean hasCoxswain, Boolean isMarine,
-                Boolean isDisabled) throws Exceptions.IllegalBoatValueException{
+                Boolean isDisabled) throws IllegalValueException {
         this.setSerialNumber(serialNumber);
         this.setName(name);
         this.setNumOfRowers(numOfRowers);
@@ -65,7 +63,7 @@ public class Boat implements BoatView {
         this.setDisabled(isDisabled);
     }
 
-    public Boat(BoatView other) throws Exceptions.IllegalBoatValueException{
+    public Boat(BoatView other) throws IllegalValueException {
         this.setSerialNumber(other.getSerialNumber());
         this.setName(other.getName());
         this.setNumOfRowers(other.getNumOfRowers());
@@ -76,42 +74,6 @@ public class Boat implements BoatView {
         this.setMarine(other.getMarine());
         this.setDisabled(other.getDisabled());
     }
-
-
-    public void printBoat(){
-        System.out.println("Boat S/N: " + serialNumber + ", Name: " + name +
-                ", numOfRowers: " + numOfRowers +
-                ", numOfPaddles: " + numOfPaddles +
-                ((isPrivate != null) ? ", isPrivate: " + printYesOrNo(isPrivate) : "") +
-                ((isWide != null) ? ", isWide: " + printYesOrNo(isWide) : "") +
-                ((hasCoxswain != null) ? ", hasCoxswain: " + printYesOrNo(hasCoxswain) : "") +
-                ((isMarine != null) ? ", isMarine: " + printYesOrNo(isMarine) : "") +
-                ((isDisabled != null) ? ", isDisabled: " + printYesOrNo(isDisabled) : "") );
-    }
-
-
-    @Override
-    public String toString() {
-        return "Boat{" +
-                "serialNumber=" + serialNumber +
-                ", name='" + name + '\'' +
-                ", numOfRowers=" + numOfRowers +
-                ", numOfPaddles=" + numOfPaddles +
-                ", isPrivate=" + isPrivate +
-                ", isWide=" + isWide +
-                ", hasCoxswain=" + hasCoxswain +
-                ", isMarine=" + isMarine +
-                ", isDisabled=" + isDisabled +
-                '}';
-    }
-
-    public String printYesOrNo(boolean attribute){
-        if (attribute)
-            return "Yes";
-        return "No";
-    }
-
-
 
 
     @Override
@@ -192,18 +154,18 @@ public class Boat implements BoatView {
     public void setSerialNumber(int serialNumber) {
         this.serialNumber = serialNumber;
     }
-    public void setName(String name) {
+    public void setName(String name) throws IllegalValueException {
         if (name.trim().isEmpty())
-            throw new Exceptions.IllegalBoatValueException("Name cannot be empty");
+            throw new IllegalValueException("Name cannot be empty");
         this.name = name.trim();
     }
     public void setNumOfRowers(Rowers numOfRowers) {
         this.numOfRowers = numOfRowers;
     }
-    public void setNumOfPaddles(Paddles numOfPaddles) throws Exceptions.IllegalBoatValueException{
+    public void setNumOfPaddles(Paddles numOfPaddles) throws IllegalValueException {
         if (getNumOfRowers().equals(Rowers.ONE))
             if (numOfPaddles.equals(Paddles.SINGLE))
-                throw new Exceptions.IllegalBoatValueException("Boat with size ONE cannot have Single Paddles");
+                throw new IllegalValueException("Boat with size ONE cannot have Single Paddles");
         this.numOfPaddles = numOfPaddles;
     }
     public void setPrivate(boolean aPrivate) {
@@ -213,14 +175,14 @@ public class Boat implements BoatView {
         isWide = wide;
     }
 
-    public void setHasCoxswain(boolean hasCoxswain) throws Exceptions.IllegalBoatValueException{
+    public void setHasCoxswain(boolean hasCoxswain) throws IllegalValueException {
         if (getNumOfRowers().equals(Rowers.ONE))
             if (hasCoxswain)
-                throw new Exceptions.IllegalBoatValueException("Boat with size ONE cannot have coxswain");
+                throw new IllegalValueException("Boat with size ONE cannot have coxswain");
 
         if (getNumOfRowers().equals(Rowers.EIGHT))
             if (!hasCoxswain)
-                throw new Exceptions.IllegalBoatValueException("Boat with size EIGHT must have coxswain");
+                throw new IllegalValueException("Boat with size EIGHT must have coxswain");
 
         this.hasCoxswain = hasCoxswain;
     }
@@ -230,10 +192,29 @@ public class Boat implements BoatView {
     public void setDisabled(boolean disabled) {
         isDisabled = disabled;
     }
-    public void setType(BoatType type){
+    public void setType(BoatType type) throws IllegalValueException {
         this.setNumOfRowers(type.getNumOfRowers());
         this.setNumOfPaddles(type.getNumOfPaddles());
         this.setHasCoxswain(type.HasCoxswain());
     }
 
+
+
+    public static class NotFoundException extends Exception { }
+
+    public static class AlreadyExistsException extends Exception {
+        public AlreadyExistsException(String message) {
+            super(message);
+        }
+    }
+
+    public static class IllegalValueException extends Exception{
+        public IllegalValueException(String message) {
+            super(message);
+        }
+    }
+
+    public static class AlreadyAllocatedException extends Exception { }
+
+    public static class BelongsToMember extends Exception { }
 }

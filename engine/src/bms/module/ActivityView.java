@@ -15,6 +15,4 @@ public interface ActivityView {
 
     boolean isOverlapping(ActivityView other);
 
-    void printActivity();
-
 }

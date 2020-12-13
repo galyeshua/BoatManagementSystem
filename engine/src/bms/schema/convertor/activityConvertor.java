@@ -1,6 +1,5 @@
 package bms.schema.convertor;
 
-import bms.engine.list.manager.Exceptions;
 import bms.module.Activity;
 import bms.module.BoatView;
 import bms.schema.generated.activity.Timeframe;
@@ -11,15 +10,15 @@ import java.time.format.DateTimeParseException;
 
 public class activityConvertor {
 
-    private static LocalTime parseLocalTime(String time){
+    private static LocalTime parseLocalTime(String time) throws Activity.IllegalValueException {
         try{
             return LocalTime.parse(time);
         } catch (DateTimeParseException e){
-            throw new Exceptions.IllegalActivityValueException("cannot read time '" + time + "' (Time Format should be HH:mm)");
+            throw new Activity.IllegalValueException("cannot read time '" + time + "' (Time Format should be HH:mm)");
         }
     }
 
-    public static Activity activityFromSchemaActivity(bms.schema.generated.activity.Timeframe schemaActivity){
+    public static Activity activityFromSchemaActivity(bms.schema.generated.activity.Timeframe schemaActivity) throws Activity.IllegalValueException {
         Activity newActivity;
         LocalTime startTime, finishTime;
 

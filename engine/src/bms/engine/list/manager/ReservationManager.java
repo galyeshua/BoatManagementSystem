@@ -1,7 +1,9 @@
 package bms.engine.list.manager;
 
+import bms.engine.Exceptions;
 import bms.module.Member;
 import bms.module.Reservation;
+import bms.module.ReservationView;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
@@ -15,10 +17,11 @@ public class ReservationManager
     @XmlElement(name="reservation", required = true)
     private List<Reservation> reservations = new ArrayList<Reservation>();
 
-    public void addReservation(Reservation reservation) throws Exceptions.MemberAlreadyInApprovedReservationsException{
+    public void addReservation(Reservation reservation) throws Member.AlreadyHaveApprovedReservationsException,
+            Reservation.AlreadyExistsException, Reservation.NotFoundException, Reservation.AlreadyApprovedException {
 
         if (getReservation(reservation.getId()) != null)
-            throw new Exceptions.ReservationAlreadyExistsException("Reservation " + reservation.getId() + " already exist");
+            throw new Reservation.AlreadyExistsException("Reservation " + reservation.getId() + " already exist");
 
         removeParticipantsFromOlderReservations(reservation);
 
@@ -27,45 +30,34 @@ public class ReservationManager
 
 
     private void removeParticipantsFromOlderReservations(Reservation reservation)
-            throws Exceptions.MemberAlreadyInApprovedReservationsException {
-        List<Reservation> overlapReservations = (ArrayList<Reservation>)getOverlapReservations(reservation);
+            throws Member.AlreadyHaveApprovedReservationsException, Reservation.NotFoundException, Reservation.AlreadyApprovedException {
+
+        List<Reservation> overlapReservations = (ArrayList<Reservation>)getOverlapReservations(reservation)
+                .stream().filter(r -> r.getId() != reservation.getId()).collect(Collectors.toList());
 
         List<Integer> participantsForRes = reservation.getParticipants();
 
-        participantsForRes
-                .forEach(memberID -> overlapReservations
-                        .stream()
-                        .filter(overlapRes -> overlapRes.isMemberInReservation(memberID))
-                        .forEach(overlapRes -> {
-            validateIfOldReservationsAlreadyApproved(overlapRes, memberID);
-            try {
-                overlapRes.deleteParticipant(memberID);
-            } catch (Exceptions.ListCannotBeEmptyException e) {
-                deleteReservation(overlapRes.getId());
-            }
-        }));
+        for (int memberID : participantsForRes){
+            for (Reservation overlapRes : overlapReservations){
 
-//        for (int memberID : participantsForRes){
-//            for (Reservation overlapRes : overlapReservations){
-//
-//                if ( overlapRes.isMemberInReservation(memberID)){
-//                    validateIfOldReservationsAlreadyApproved(overlapRes, memberID);
-//
-//                    try{
-//                        overlapRes.deleteParticipant(memberID);
-//                    } catch ( Exceptions.ListCannotBeEmptyException e){
-//                        deleteReservation(overlapRes.getId());
-//                    }
-//                }
-//            }
-//        }
+                if ( overlapRes.isMemberInReservation(memberID)){
+                    validateIfOldReservationsAlreadyApproved(overlapRes, memberID);
+
+                    try{
+                        overlapRes.deleteParticipant(memberID);
+                    } catch ( Exceptions.ListCannotBeEmptyException e){
+                        deleteReservation(overlapRes.getId());
+                    }
+                }
+            }
+        }
 
     }
 
     private void validateIfOldReservationsAlreadyApproved(Reservation overlapRes, int memberID)
-            throws Exceptions.MemberAlreadyInApprovedReservationsException{
+            throws Member.AlreadyHaveApprovedReservationsException{
         if (overlapRes.getIsApproved())
-            throw new Exceptions.MemberAlreadyInApprovedReservationsException(memberID);
+            throw new Member.AlreadyHaveApprovedReservationsException(memberID);
     }
 
 
@@ -74,12 +66,14 @@ public class ReservationManager
                 .stream()
                 .filter(r -> r.getActivityDate().equals(reservation.getActivityDate()))
                 .filter(r -> r.isCollide(reservation))
-                //.filter(r -> r.getId() != reservation.getId())
                 .collect(Collectors.toList());
     }
 
-    public void deleteReservation(int id) {
+    public void deleteReservation(int id) throws Reservation.NotFoundException, Reservation.AlreadyApprovedException {
         Reservation reservation = getReservation(id);
+        if(reservation == null)
+            throw new Reservation.NotFoundException();
+        validateApproved(reservation);
         reservations.remove(reservation);
     }
 
@@ -96,20 +90,22 @@ public class ReservationManager
     }
 
     public void updateReservation(Reservation newReservation)
-            throws Exceptions.MemberAlreadyInApprovedReservationsException{
-        int serialNumber = newReservation.getId();
+            throws Member.AlreadyHaveApprovedReservationsException,
+            Reservation.AlreadyApprovedException, Reservation.NotFoundException {
+
+        int id = newReservation.getId();
 
         validateApproved(newReservation);
 
         removeParticipantsFromOlderReservations(newReservation);
 
-        reservations.set(serialNumber, newReservation);
+        reservations.set(reservations.indexOf(getReservation(id)), newReservation);
     }
 
 
-    private void validateApproved(Reservation reservation){
+    private void validateApproved(Reservation reservation) throws Reservation.AlreadyApprovedException {
         if(reservation.getIsApproved())
-            throw new Exceptions.ReservationAlreadyApprovedException("Regular User cannot change approved reservation");
+            throw new Reservation.AlreadyApprovedException("Cannot change approved reservation");
     }
 
     public void eraseAll(){

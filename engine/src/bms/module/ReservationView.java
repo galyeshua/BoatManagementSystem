@@ -30,5 +30,4 @@ public interface ReservationView {
 
     boolean isCollide(ReservationView other);
 
-    void printReservation();
 }

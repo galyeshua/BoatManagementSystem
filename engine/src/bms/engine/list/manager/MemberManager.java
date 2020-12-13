@@ -1,9 +1,5 @@
 package bms.engine.list.manager;
 
-import bms.engine.list.manager.Exceptions.MemberNotFoundException;
-import bms.engine.list.manager.Exceptions.MemberAlreadyExistsException;
-
-import bms.module.Boat;
 import bms.module.Member;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -12,33 +8,29 @@ import java.util.*;
 public class MemberManager {
     @XmlElement(name="member", required = true)
     private List<Member> members = new ArrayList<Member>();
-    //private Map<Integer, Member> members = new HashMap<Integer, Member>();
 
-    public void addMember(Member member){
+    public void addMember(Member member) throws Member.AlreadyExistsException {
         String email = member.getEmail();
         int serialNumber = member.getSerialNumber();
 
         validateMemberSerialNumber(serialNumber);
         validateMemberEmail(email);
 
-        //members.put(member.getSerialNumber(), member);
         members.add(member);
     }
 
-    public void deleteMember(int serialNumber){
+    public void deleteMember(int serialNumber) throws Member.NotFoundException {
         Member member = getMember(serialNumber);
         if (member == null)
-            throw new MemberNotFoundException();
+            throw new Member.NotFoundException();
         members.remove(serialNumber);
     }
 
     public Collection<Member> getMembers() {
-        //return members.values();
         return members;
     }
 
     public Member getMember(int serialNumber) {
-        //return members.get(serialNumber);
         for(Member member : getMembers())
             if(member.getSerialNumber()==serialNumber)
                 return member;
@@ -52,28 +44,27 @@ public class MemberManager {
         return null;
     }
 
-    public void updateMember(Member newMember) {
+    public void updateMember(Member newMember) throws Member.NotFoundException, Member.AlreadyExistsException {
         int serialNumber = newMember.getSerialNumber();
         Member currentMember = getMember(serialNumber);
 
         if (currentMember == null)
-            throw new Exceptions.MemberNotFoundException();
+            throw new Member.NotFoundException();
 
         if (!currentMember.getEmail().equals(newMember.getEmail()))
             validateMemberEmail(newMember.getEmail());
 
-        //members.replace(serialNumber, newMember);
         members.set(members.indexOf(getMember(serialNumber)), newMember);
     }
 
-    private void validateMemberSerialNumber(int serialNumber) {
+    private void validateMemberSerialNumber(int serialNumber) throws Member.AlreadyExistsException {
         if (getMember(serialNumber) != null)
-            throw new Exceptions.MemberAlreadyExistsException("Member with Serial Number '" + serialNumber + "' already exist");
+            throw new Member.AlreadyExistsException("Member with Serial Number '" + serialNumber + "' already exist");
     }
 
-    private void validateMemberEmail(String email) {
+    private void validateMemberEmail(String email) throws Member.AlreadyExistsException {
         if (getMember(email) != null)
-            throw new Exceptions.MemberAlreadyExistsException("Member with email '" + email + "' already exist");
+            throw new Member.AlreadyExistsException("Member with email '" + email + "' already exist");
     }
 
     public void eraseAll(){

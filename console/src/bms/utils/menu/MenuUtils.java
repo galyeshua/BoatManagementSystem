@@ -5,10 +5,7 @@ import bms.engine.BMSEngine;
 import bms.module.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 public class MenuUtils {
 
@@ -20,9 +17,9 @@ public class MenuUtils {
 
     private static Menu createMainMenu(boolean isManager){
         Menu mainMenu = new Menu("Boat House Main Menu");
-        //mainMenu.addOption("Edit my profile", Commands.test());
-        mainMenu.addOption("New reservation", Commands.addReservation());
-        mainMenu.addOption("Show my reservations", Commands.printFutureReservationForCurrentUser());
+        mainMenu.addOption("Edit my profile", new editProfileForUser());
+        mainMenu.addOption("Create new reservation", Commands.addReservation());
+        mainMenu.addOption("Show my future reservations", Commands.printFutureReservationForCurrentUser());
         mainMenu.addOption("Edit my reservations", Commands.chooseAndEditReservationForCurrentUser());
         mainMenu.addOption("Remove unapproved reservation", Commands.chooseAndDeleteReservationForCurrentUser());
         mainMenu.addOption("Reservation history", Commands.printReservationHistoryForCurrentUser());
@@ -298,7 +295,8 @@ public class MenuUtils {
         @Override
         public void execute() {
 
-            Menu subMenu = new Menu("Edit Reservation for " + id + " (Approved: " + reservation.getIsApproved() + ")");
+            Menu subMenu = new Menu("Edit Reservation. Ordered by: " +
+                    Commands.engine.getMember(reservation.getOrderedMemberID()).getName());
 
             subMenu.addOption("Edit Reservation activity", Commands.editReservationActivity(id));
             subMenu.addOption("Edit Reservation activity Date", Commands.editReservationActivityDate(id));
@@ -365,25 +363,21 @@ public class MenuUtils {
     }
 
 
+    public static class editProfileForUser implements Command
+    {
+        @Override
+        public void execute() {
+            Menu subMenu = new Menu("Edit Profile");
 
+            subMenu.addOption("Edit Name", Commands.editMemberName(Commands.user.getSerialNumber()));
+            subMenu.addOption("Edit Phone number", Commands.editMemberPhone(Commands.user.getSerialNumber()));
+            subMenu.addOption("Edit Email", Commands.editMemberEmail(Commands.user.getSerialNumber()));
+            subMenu.addOption("Edit Password", Commands.editMemberPassword(Commands.user.getSerialNumber()));
 
+            subMenu.addOption("Back", subMenu.stopLoop());
 
-
-//    public static class openManageTimesMenu implements Command
-//    {
-//        @Override
-//        public void execute() {
-//            Menu subMenu = new Menu("Manage Boats");
-//
-//            subMenu.addOption("Back", new exitMenu(subMenu));
-//            subMenu.addOption("Add Boat", Commands.test());
-//            subMenu.addOption("Show Boats", Commands.test());
-//            subMenu.addOption("Edit Boat", Commands.test());
-//            subMenu.addOption("Delete Boat", Commands.test());
-//
-//            subMenu.startLoop();
-//        }
-//    }
-
+            subMenu.startLoop();
+        }
+    }
 
 }

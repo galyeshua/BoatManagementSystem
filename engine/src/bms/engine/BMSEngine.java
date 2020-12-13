@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
-import bms.engine.list.manager.Exceptions;
 import bms.module.*;
 import org.xml.sax.SAXException;
 
@@ -15,17 +14,17 @@ import javax.xml.datatype.DatatypeConfigurationException;
 public interface BMSEngine {
 
     List<String> getXmlImportErrors();
-//    MemberView getCurrentUser();
 
     boolean validateUserLogin(String email, String password);
     void loginUser(MemberView currentUser);
 
 
     void saveState() throws JAXBException;
-    void loadState() throws JAXBException, SAXException;
+    void loadState() throws Member.IllegalValueException, Member.AlreadyExistsException;
 
-    void addBoat(Boat newBoat) throws Exceptions.BoatAlreadyExistsException, Exceptions.IllegalBoatValueException;
-    void deleteBoat(int serialNumber) throws Exceptions.BoatNotFoundException;
+
+    void addBoat(Boat newBoat) throws Boat.AlreadyExistsException, Boat.IllegalValueException;
+    void deleteBoat(int serialNumber) throws Boat.NotFoundException, Boat.AlreadyAllocatedException;
     Collection<BoatView> getBoats();
     Collection<BoatView> getAllAvailableBoats();
     Collection<BoatView> getAllAvailableBoats(LocalDate date, Activity activity);
@@ -33,7 +32,7 @@ public interface BMSEngine {
     boolean boatIsAvailable(int boatSerialNumber, LocalDate date, Activity activity);
     BoatView getBoat(int serialNumber);
     BoatView getBoat(String name);
-    void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException, Exceptions.BoatAlreadyAllocatedException, Exceptions.BoatBelongsToMember;
+    void updateBoat(Boat newBoat) throws Boat.NotFoundException, Boat.AlreadyAllocatedException, Boat.BelongsToMember, Boat.AlreadyExistsException;
     void loadBoatsFromFile(String filePath) throws JAXBException, SAXException;
     void eraseAndLoadBoatsFromFile(String filePath) throws JAXBException, SAXException;
     void saveBoatsToFile(String filePath) throws JAXBException, SAXException;
@@ -41,13 +40,13 @@ public interface BMSEngine {
 
 
 
-    void addMember(Member newMember) throws Exceptions.MemberAlreadyExistsException;
-    void deleteMember(int serialNumber) throws Exceptions.MemberNotFoundException;
+    void addMember(Member newMember) throws Member.AlreadyExistsException, Member.IllegalValueException;
+    void deleteMember(int serialNumber) throws Member.NotFoundException, Member.AlreadyHaveApprovedReservationsException;
     Collection<MemberView> getMembers();
     Collection<MemberView> getMembers(String name);
     MemberView getMember(int serialNumber);
     MemberView getMember(String email);
-    void updateMember(Member newMember) throws Exceptions.MemberNotFoundException;
+    void updateMember(Member newMember) throws Member.NotFoundException, Member.IllegalValueException, Member.AlreadyExistsException;
     void loadMembersFromFile(String filePath) throws JAXBException, SAXException;
     void eraseAndLoadMembersFromFile(String filePath) throws JAXBException, SAXException;
     void saveMembersToFile(String filePath) throws DatatypeConfigurationException, JAXBException, SAXException;
@@ -55,20 +54,20 @@ public interface BMSEngine {
 
 
 
-    void addActivity(Activity newActivity) throws Exceptions.ActivityAlreadyExistsException;
-    void deleteActivity(int id) throws Exceptions.ActivityNotFoundException;
+    void addActivity(Activity newActivity) throws Activity.AlreadyExistsException, Activity.IllegalValueException;
+    void deleteActivity(int id) throws Activity.NotFoundException;
     Collection<ActivityView> getActivities();
     ActivityView getActivity(int id);
-    void updateActivity(Activity newActivity) throws Exceptions.ActivityNotFoundException;
+    void updateActivity(Activity newActivity) throws Activity.NotFoundException, Activity.AlreadyExistsException;
     void loadActivitiesFromFile(String filePath) throws JAXBException, SAXException;
     void eraseAndLoadActivitiesFromFile(String filePath) throws JAXBException, SAXException;
     void saveActivitiesToFile(String filePath) throws JAXBException, SAXException;
 
 
 
-    void addReservation(Reservation newReservation);
-    void splitReservation(int id, List<Integer> newParticipantList);
-    void deleteReservation(int id);
+    void addReservation(Reservation newReservation) throws Reservation.IllegalValueException, Reservation.AlreadyExistsException, Reservation.NotFoundException, Reservation.AlreadyApprovedException;
+    void splitReservation(int id, List<Integer> newParticipantList) throws Member.AlreadyExistsException, Reservation.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.NotFoundException, Reservation.AlreadyExistsException;
+    void deleteReservation(int id) throws Reservation.NotFoundException, Reservation.AlreadyApprovedException;
     Collection<ReservationView> getReservations();
     Collection<ReservationView> getFutureUnapprovedReservationsForCurrentUser();
     Collection<ReservationView> getFutureReservationsForCurrentUser();
@@ -80,10 +79,10 @@ public interface BMSEngine {
     Collection<ReservationView> getAllFutureApprovedReservations();
     Collection<ReservationView> getUnapprovedReservationsByDate(LocalDate date);
     Collection<ReservationView> getUnapprovedReservationsForWeek(LocalDate startDate);
-    void unapprovedReservation(int id);
+    void unapprovedReservation(int id) throws Member.AccessDeniedException, Reservation.NotFoundException;
     ReservationView getReservation(int id);
-    public void updateReservation(Reservation newReservation) throws Exceptions.ReservationNotFoundException;
-    public void approveReservation(int reservationID, int boatID);
+    public void updateReservation(Reservation newReservation) throws Reservation.NotFoundException, Member.AccessDeniedException, Member.AlreadyExistsException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException;
+    public void approveReservation(int reservationID, int boatID) throws Reservation.IllegalValueException, Boat.AlreadyAllocatedException;
 
 
 }

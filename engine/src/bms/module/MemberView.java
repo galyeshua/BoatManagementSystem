@@ -29,8 +29,6 @@ public interface MemberView {
 
     boolean getManager();
 
-    void printMember();
-
     enum Level {
         BEGINNER("Beginner"), INTERMEDIATE("Intermediate"), ADVANCED("Advanced");
 

@@ -2,21 +2,9 @@ package bms.application;
 
 import bms.engine.BMSEngine;
 import bms.engine.Engine;
-import bms.engine.list.manager.Exceptions;
 import bms.module.*;
-import org.xml.sax.SAXException;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.time.*;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.List;
 
 
-import static bms.utils.InputUtils.getStringFromUser;
 import static bms.utils.menu.MenuUtils.getMainMenuForUser;
 
 
@@ -31,25 +19,30 @@ public class BMSMain {
 
         try {
             engine.loadState();
-        } catch (JAXBException | SAXException e) {
+        } catch (Member.IllegalValueException e) {
+            e.printStackTrace();
+        } catch (Member.AlreadyExistsException e) {
             e.printStackTrace();
         }
 
-        String email, password;
-        boolean isValid;
-        do{
-            System.out.println("Enter your email");
-            email = getStringFromUser();
-            System.out.println("Enter your password");
-            password = getStringFromUser();
+//        String email, password;
+//        boolean isValid;
+//        do{
+//            System.out.println("Enter your email");
+//            email = getStringFromUser();
+//            System.out.println("Enter your password");
+//            password = getStringFromUser();
+//
+//            isValid = engine.validateUserLogin(email, password);
+//            if(!isValid)
+//                System.out.println("Wrong email or password");
+//
+//        } while(!isValid);
+//
+//        MemberView user = engine.getMember(email);
 
-            isValid = engine.validateUserLogin(email, password);
-            if(!isValid)
-                System.out.println("Wrong email or password");
+        MemberView user = engine.getMember("gal@gmail.com");
 
-        } while(!isValid);
-
-        MemberView user = engine.getMember(email);
         engine.loginUser(user);
 
         System.out.println("Welcome " + user.getName());

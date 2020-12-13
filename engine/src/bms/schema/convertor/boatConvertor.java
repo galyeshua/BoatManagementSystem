@@ -1,23 +1,19 @@
 package bms.schema.convertor;
 
-import bms.engine.list.manager.Exceptions;
 import bms.module.Boat;
 import bms.module.BoatView;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
-
 public class boatConvertor {
 
-    private static int parseInteger(String number){
+    private static int parseInteger(String number) throws Boat.IllegalValueException {
         try{
             return Integer.parseInt(number);
         } catch (NumberFormatException e){
-            throw new Exceptions.IllegalBoatValueException("cannot read number '" + number + "' (it must be a number)");
+            throw new Boat.IllegalValueException("cannot read number '" + number + "' (it must be a number)");
         }
     }
 
-    public static Boat boatFromSchemaBoat(bms.schema.generated.boat.Boat schemaBoat){
+    public static Boat boatFromSchemaBoat(bms.schema.generated.boat.Boat schemaBoat) throws Boat.IllegalValueException {
         Boat newBoat;
 
         int SerialNumber = parseInteger(schemaBoat.getId());

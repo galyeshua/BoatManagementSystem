@@ -1,17 +1,11 @@
 package bms.engine;
 
-import java.io.File;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import bms.engine.list.manager.*;
@@ -23,15 +17,13 @@ import bms.schema.generated.boat.Boats;
 import bms.schema.generated.member.Members;
 import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
 import javax.xml.bind.*;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 
+import static bms.engine.XmlHandler.ObjectsFromXml;
+import static bms.engine.XmlHandler.createXmlFromObjects;
 import static bms.schema.convertor.activityConvertor.activityFromSchemaActivity;
 import static bms.schema.convertor.activityConvertor.schemaActivityFromActivity;
 import static bms.schema.convertor.boatConvertor.boatFromSchemaBoat;
@@ -57,58 +49,30 @@ public class Engine implements BMSEngine{
 
     List<String> xmlImportErrorList = new ArrayList<String>();
 
-    private static void checkIfFileIsXml(File file){
-        if (!file.exists())
-            throw new Exceptions.FileNotFoundException();
 
-        if (!file.getName().endsWith(".xml"))
-            throw new Exceptions.IllegalFileTypeException();
-    }
-
-    public void createXmlFromObjects(String filePath, Class schemaClass, Object rootElement, String schemaFileName) throws JAXBException, SAXException {
-        File xmlFile = new File(filePath);
-        //File schemaFile = new File("engine\\src\\bms\\schema\\" + schemaFileName);
-        File schemaFile = new File("engine\\src\\main\\resources\\" + schemaFileName);
-
-
-        if (xmlFile.exists())
-            throw new Exceptions.FileAlreadyExistException();
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(schemaClass);
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        //Load schema for validation
-        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = schemaFactory.newSchema(schemaFile);
-        jaxbMarshaller.setSchema(schema);
-
-        jaxbMarshaller.marshal(rootElement, xmlFile);
-    }
-
-    private Object ObjectsFromXml(String filePath, Class schemaClass, String schemaFileName) throws JAXBException, SAXException{
-        File xmlFile = new File(filePath);
-
-        checkIfFileIsXml(xmlFile);
-
-        Object objects = null;
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(schemaClass);
-        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-
-        //Load schema for validation
-        if(schemaFileName != null){
-            File schemaFile = new File("engine\\src\\bms\\schema\\" + schemaFileName);
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = schemaFactory.newSchema(schemaFile);
-            jaxbUnmarshaller.setSchema(schema);
+    @Override
+    public void saveState() {
+        try{
+            XmlHandler.saveSystemState(this, "database.xml");
+        } catch (JAXBException e) {
+            e.printStackTrace();
         }
-
-        objects = jaxbUnmarshaller.unmarshal(xmlFile);
-
-        return objects;
     }
+
+    @Override
+    public void loadState() throws Member.IllegalValueException, Member.AlreadyExistsException {
+        try{
+            XmlHandler.loadSystemState(this, "database.xml");
+        } catch (Exceptions.ListCannotBeEmptyException e){
+            Member firstMember = new Member(1, "admin", "admin@bms.com", "admin");
+            firstMember.setManager(true);
+            addMember(firstMember);
+        }
+    }
+
+
+
+
 
     @Override
     public List<String> getXmlImportErrors(){
@@ -117,73 +81,6 @@ public class Engine implements BMSEngine{
 
 
 
-    @Override
-    public void saveState() {
-        File xmlFile = new File("state.xml");
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(Engine.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            jaxbMarshaller.marshal(this, xmlFile);
-        } catch (PropertyException e) {
-            e.printStackTrace();
-        } catch (JAXBException e){
-            e.printStackTrace();
-        }
-    }
-
-
-
-    @Override
-    public void loadState() throws JAXBException, SAXException {
-        Engine engineFromFile;
-        try {
-            engineFromFile = (Engine) ObjectsFromXml("state.xml", Engine.class, null);
-
-            for(BoatView boat : engineFromFile.getBoats())
-                addBoat(new Boat(boat));
-
-            for(MemberView member : engineFromFile.getMembers())
-                addMember(new Member(member));
-
-            for(ActivityView activity : engineFromFile.getActivities()){
-                Activity newActivity = new Activity(activity.getName(), activity.getStartTime(), activity.getFinishTime());
-
-                newActivity.setBoatType(activity.getBoatType());
-
-                addActivity(newActivity);
-            }
-
-            for(ReservationView reservation : engineFromFile.getReservations())
-            {
-                Reservation newReservation = new Reservation(reservation.getActivity(), reservation.getActivityDate(),
-                        reservation.getOrderDate(), reservation.getOrderedMemberID());
-
-                newReservation.setParticipants(new ArrayList<Integer>(reservation.getParticipants()));
-                newReservation.setBoatType(new ArrayList<Boat.Rowers>(reservation.getBoatType()));
-                newReservation.setAllocatedBoatID(reservation.getAllocatedBoatID());
-
-                addReservation(newReservation);
-            }
-        } catch (Exception e){
-            Member firstMember = new Member(1, "admin", "admin@bms.com", "admin");
-            firstMember.setManager(true);
-            addMember(firstMember);
-        }
-
-    }
-
-
-
-
-
-
-//    @Override
-//    public MemberView getCurrentUser() {
-//        return currentUser;
-//    }
 
 
     @Override
@@ -194,25 +91,27 @@ public class Engine implements BMSEngine{
 
     @Override
     public void loginUser(MemberView currentUser) {
-        this.currentUser = new Member(currentUser);
+        this.currentUser = members.getMember(currentUser.getSerialNumber());
+    }
+
+    private void validateUserRole() throws Member.AccessDeniedException {
+        if (!currentUser.getManager())
+            throw new Member.AccessDeniedException();
     }
 
 
 
 
-
-
-
     @Override
-    public void addBoat(Boat newBoat) throws Exceptions.BoatAlreadyExistsException, Exceptions.IllegalBoatValueException {
+    public void addBoat(Boat newBoat) throws Boat.AlreadyExistsException, Boat.IllegalValueException {
         boats.addBoat(newBoat);
         saveState();
     }
 
     @Override
-    public void deleteBoat(int serialNumber) throws Exceptions.BoatNotFoundException, Exceptions.BoatAlreadyAllocatedException {
+    public void deleteBoat(int serialNumber) throws Boat.NotFoundException, Boat.AlreadyAllocatedException {
         if(boatHaveFutureReservations(serialNumber))
-            throw new Exceptions.BoatAlreadyAllocatedException();
+            throw new Boat.AlreadyAllocatedException();
         boats.deleteBoat(serialNumber);
         saveState();
     }
@@ -281,17 +180,16 @@ public class Engine implements BMSEngine{
         return boats.getBoat(name);
     }
 
-    public void updateBoat(Boat newBoat) throws Exceptions.BoatNotFoundException, Exceptions.BoatAlreadyAllocatedException, Exceptions.BoatBelongsToMember{
+    public void updateBoat(Boat newBoat) throws Boat.NotFoundException, Boat.AlreadyAllocatedException, Boat.BelongsToMember, Boat.AlreadyExistsException {
         if(boatHaveFutureReservations(newBoat.getSerialNumber()))
-            throw new Exceptions.BoatAlreadyAllocatedException();
+            throw new Boat.AlreadyAllocatedException();
 
-        members.getMembers()
-                .stream()
-                .filter(Member::getHasPrivateBoat)
-                .filter(member -> member.getBoatSerialNumber() == newBoat.getSerialNumber())
-                .forEach(member -> {
-            throw new Exceptions.BoatBelongsToMember();
-        });
+        for (Member member : members.getMembers()) {
+            if (member.getHasPrivateBoat()) {
+                if (member.getBoatSerialNumber() == newBoat.getSerialNumber())
+                    throw new Boat.BelongsToMember();
+            }
+        }
         boats.updateBoat(newBoat);
         saveState();
     }
@@ -307,7 +205,7 @@ public class Engine implements BMSEngine{
             try{
                 Boat newBoat = boatFromSchemaBoat(schemaBoat);
                 addBoat(newBoat);
-            } catch (Exceptions.BoatAlreadyExistsException | Exceptions.IllegalBoatValueException e) {
+            } catch (Boat.AlreadyExistsException | Boat.IllegalValueException e) {
                 int elementNumber = (int)boats.getBoat().indexOf(schemaBoat) + 1;
                 xmlImportErrorList.add("Element " + elementNumber + ": " + e.getMessage());
             }
@@ -346,27 +244,27 @@ public class Engine implements BMSEngine{
 
 
 
-    private void validateMemberPrivateBoat(Member newMember){
+    private void validateMemberPrivateBoat(Member newMember) throws Member.IllegalValueException {
         if (newMember.getHasPrivateBoat()){
             Boat boat = boats.getBoat(newMember.getBoatSerialNumber());
             if(boat == null )
-                throw new Exceptions.IllegalMemberValueException("Boat with id '" + newMember.getBoatSerialNumber() + "' does not exist");
+                throw new Member.IllegalValueException("Boat with id '" + newMember.getBoatSerialNumber() + "' does not exist");
             if(!boat.getPrivate())
-                throw new Exceptions.IllegalMemberValueException("Boat with id '" + newMember.getBoatSerialNumber() + "' is not private");
+                throw new Member.IllegalValueException("Boat with id '" + newMember.getBoatSerialNumber() + "' is not private");
         }
     }
 
     @Override
-    public void addMember(Member newMember) throws Exceptions.MemberAlreadyExistsException{
+    public void addMember(Member newMember) throws Member.AlreadyExistsException, Member.IllegalValueException {
         validateMemberPrivateBoat(newMember);
         members.addMember(newMember);
         saveState();
     }
 
     @Override
-    public void deleteMember(int serialNumber) throws Exceptions.MemberNotFoundException, Exceptions.MemberHaveApprovedReservationsException {
+    public void deleteMember(int serialNumber) throws Member.NotFoundException, Member.AlreadyHaveApprovedReservationsException {
         if(memberHaveFutureReservations(serialNumber))
-            throw new Exceptions.MemberHaveApprovedReservationsException();
+            throw new Member.AlreadyHaveApprovedReservationsException();
         members.deleteMember(serialNumber);
         saveState();
     }
@@ -397,7 +295,7 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void updateMember(Member newMember) throws Exceptions.MemberNotFoundException{
+    public void updateMember(Member newMember) throws Member.NotFoundException, Member.IllegalValueException, Member.AlreadyExistsException {
         validateMemberPrivateBoat(newMember);
         members.updateMember(newMember);
         saveState();
@@ -413,7 +311,7 @@ public class Engine implements BMSEngine{
             try{
                 Member newMember = memberFromSchemaMember(schemaMember);
                 addMember(newMember);
-            } catch (Exceptions.MemberAlreadyExistsException | Exceptions.IllegalMemberValueException e) {
+            } catch (Member.AlreadyExistsException | Member.IllegalValueException e) {
                 int elementNumber = (int)members.getMember().indexOf(schemaMember) + 1;
                 xmlImportErrorList.add("Element " + elementNumber + ": " + e.getMessage());
             }
@@ -453,13 +351,13 @@ public class Engine implements BMSEngine{
 
 
     @Override
-    public void addActivity(Activity activity) throws Exceptions.ActivityAlreadyExistsException {
+    public void addActivity(Activity activity) throws Activity.AlreadyExistsException {
         activities.addActivity(activity);
         saveState();
     }
 
     @Override
-    public void deleteActivity(int id) throws Exceptions.ActivityAlreadyExistsException {
+    public void deleteActivity(int id) throws Activity.NotFoundException {
         activities.deleteActivity(id);
         saveState();
     }
@@ -475,14 +373,13 @@ public class Engine implements BMSEngine{
     }
 
 
-    public void updateActivity(Activity newActivity)
-            throws Exceptions.ActivityNotFoundException  {
+    public void updateActivity(Activity newActivity) throws Activity.NotFoundException, Activity.AlreadyExistsException {
         activities.updateActivity(newActivity);
         saveState();
     }
 
     @Override
-    public void loadActivitiesFromFile(String filePath) throws Exceptions.IllegalFileTypeException, JAXBException, SAXException {
+    public void loadActivitiesFromFile(String filePath) throws JAXBException, SAXException {
         xmlImportErrorList = new ArrayList<String>();
 
         Activities activities = (Activities) ObjectsFromXml(filePath, Activities.class, "activities.xsd");
@@ -490,7 +387,7 @@ public class Engine implements BMSEngine{
             try{
                 Activity newActivity = activityFromSchemaActivity(timeframe);
                 addActivity(newActivity);
-            } catch (Exceptions.ActivityAlreadyExistsException | Exceptions.IllegalActivityValueException e) {
+            } catch (Activity.AlreadyExistsException | Activity.IllegalValueException e) {
                 int elementNumber = (int)activities.getTimeframe().indexOf(timeframe) + 1;
                 xmlImportErrorList.add("Element " + elementNumber + ": " + e.getMessage());
             }
@@ -546,41 +443,44 @@ public class Engine implements BMSEngine{
         BoatView boat = findSuitPrivateBoatOfParticipents(reservation);
         if (boat != null) {
             reservation.setAllocatedBoatID(boat.getSerialNumber());
-            saveState();
         }
+        saveState();
     }
 
     @Override
     public void addReservation(Reservation newReservation)
-            throws Exceptions.IllegalReservationValueException, Exceptions.ReservationAlreadyExistsException{
+            throws Reservation.IllegalValueException, Reservation.AlreadyExistsException,
+            Reservation.NotFoundException, Reservation.AlreadyApprovedException {
         try{
             reservations.addReservation(newReservation);
             allocatePrivateBoatIfExist(newReservation);
-            saveState();
-        } catch (Exceptions.MemberAlreadyInApprovedReservationsException e){
+        } catch (Member.AlreadyHaveApprovedReservationsException e){
             MemberView member = getMember(e.getMemberID());
-            throw new Exceptions.IllegalReservationValueException("Member '" + member.getName() + "' already have an approved reservation for this time");
+            throw new Reservation.IllegalValueException("Member '" + member.getName() + "' already have an approved reservation for this time");
         }
+        saveState();
     }
 
     @Override
-    public void splitReservation(int id, List<Integer> newParticipantList){
+    public void splitReservation(int id, List<Integer> newParticipantList) throws Member.AlreadyExistsException,
+            Reservation.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.NotFoundException,
+            Reservation.AlreadyExistsException {
+
         try{
             Reservation newReservation = new Reservation(getReservation(id));
             newReservation.setParticipants(newParticipantList);
             newReservation.allocateNewId();
             reservations.addReservation(newReservation);
-            saveState();
-        } catch (Exceptions.MemberAlreadyInApprovedReservationsException e){
+        } catch (Member.AlreadyHaveApprovedReservationsException e){
             MemberView member = getMember(e.getMemberID());
-            throw new Exceptions.IllegalReservationValueException("Member '" + member.getName() + "' already have an approved reservation for this time");
+            throw new Reservation.IllegalValueException("Member '" + member.getName() + "' already have an approved reservation for this time");
         }
+        saveState();
     }
 
 
     @Override
-    public void deleteReservation(int id)
-    throws Exceptions.ReservationAlreadyExistsException{
+    public void deleteReservation(int id) throws Reservation.NotFoundException, Reservation.AlreadyApprovedException {
         reservations.deleteReservation(id);
         saveState();
     }
@@ -702,24 +602,28 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void unapprovedReservation(int id){
+    public void unapprovedReservation(int id) throws Member.AccessDeniedException, Reservation.NotFoundException {
         Reservation reservation = reservations.getReservation(id);
         validateUserRole();
 
         if(reservation==null)
-            throw new Exceptions.ReservationNotFoundException();
+            throw new Reservation.NotFoundException();
 
         if (reservation.getIsApproved()){
             reservation.setAllocatedBoatID(null);
-            saveState();
         }
+
+        saveState();
     }
 
     @Override
     public ReservationView getReservation(int id) { return reservations.getReservation(id);    }
 
     @Override
-    public void updateReservation(Reservation newReservation) throws Exceptions.ReservationNotFoundException{
+    public void updateReservation(Reservation newReservation) throws Reservation.NotFoundException,
+            Member.AccessDeniedException, Member.AlreadyExistsException, Reservation.AlreadyApprovedException,
+            Reservation.IllegalValueException {
+
         Reservation safeReservation = newReservation;
         int reservationID = newReservation.getId();
         Reservation oldReservation = reservations.getReservation(reservationID);
@@ -736,28 +640,29 @@ public class Engine implements BMSEngine{
         }
 
         if (!safeReservation.equals(newReservation))
-            throw new Exceptions.MemberAccessDeniedException();
+            throw new Member.AccessDeniedException();
 
         try{
             reservations.updateReservation(safeReservation);
-            saveState();
-        } catch (Exceptions.MemberAlreadyInApprovedReservationsException e){
+        } catch (Member.AlreadyHaveApprovedReservationsException e){
             MemberView member = getMember(e.getMemberID());
-            throw new Exceptions.IllegalReservationValueException("Member '" + member.getName() + "' already have an approved reservation for this time");
+            throw new Reservation.IllegalValueException("Member '" + member.getName() + "' already have an approved reservation for this time");
         }
+        saveState();
     }
 
 
     @Override
     public void approveReservation(int reservationID, int boatID)
-            throws Exceptions.BoatAlreadyAllocatedException, Exceptions.IllegalReservationValueException{
+            throws Boat.AlreadyAllocatedException, Reservation.IllegalValueException {
+
         Reservation currentReservation= reservations.getReservation(reservationID);
         Boat boat = boats.getBoat(boatID);
 
         int allowedNumOfRowers = boat.getAllowedNumOfRowers();
 
         if (currentReservation.getParticipants().size() != allowedNumOfRowers)
-            throw new Exceptions.IllegalReservationValueException("incorrect number of rowers. you have " +
+            throw new Reservation.IllegalValueException("incorrect number of rowers. you have " +
                     currentReservation.getParticipants().size() + " rowers and you need " + allowedNumOfRowers +
                     " rowers for this boat");
 
@@ -765,9 +670,5 @@ public class Engine implements BMSEngine{
         saveState();
     }
 
-    private void validateUserRole(){
-        if (!currentUser.getManager())
-            throw new Exceptions.MemberAccessDeniedException();
-    }
 
 }

@@ -1,6 +1,6 @@
 package bms.module;
 
-import bms.engine.list.manager.Exceptions;
+import bms.engine.Exceptions;
 import bms.module.adapter.LocalDateAdapter;
 import bms.module.adapter.LocalDateTimeAdapter;
 
@@ -8,9 +8,7 @@ import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +17,6 @@ import java.util.List;
 public class Reservation implements ReservationView {
     private static int counter = 0;
 
-    //@XmlAttribute(required = true)
     private int id;
 
     @XmlElement
@@ -63,7 +60,7 @@ public class Reservation implements ReservationView {
         this.setAllocatedBoatID(null);
     }
 
-    public Reservation(ReservationView other){
+    public Reservation(ReservationView other) throws Member.AlreadyExistsException {
         this.setId(other.getId());
         this.setActivity(other.getActivity());
         this.setActivityDate(other.getActivityDate());
@@ -74,40 +71,6 @@ public class Reservation implements ReservationView {
         this.setParticipants(other.getParticipants());
         this.setAllocatedBoatID(other.getAllocatedBoatID());
     }
-
-    @Override
-    public String toString() {
-        return "Reservation{" +
-                "id=" + id +
-                ", activity=" + activity +
-                ", activityDate=" + activityDate +
-                ", boatType=" + boatType +
-                ", participants=" + participants +
-                ", orderDate=" + orderDate +
-                ", orderedMemberID=" + orderedMemberID +
-                ", isApproved=" + isApproved +
-                '}';
-    }
-
-    public void printReservation(){
-        System.out.println("Reservation id: "+ id +
-                ", activity at: " +
-                 activity.getStartTime() + " - " +
-                activity.getStartTime() +
-                ", activityDate: " + activityDate +
-                ", boatType: " + boatType +
-                ", participants: " + participants +
-                ", orderDate: " + orderDate +
-                ", orderedMemberID: " + orderedMemberID +
-                ", isApproved: " + printYesOrNo(isApproved));
-    }
-
-    public String printYesOrNo(boolean attribute){
-        if (attribute)
-            return "Yes";
-        return "No";
-    }
-
 
     public Integer getAllocatedBoatID() {
         return allocatedBoatID;
@@ -160,7 +123,7 @@ public class Reservation implements ReservationView {
     public void setActivity(Activity activity) {this.activity = activity;}
     public void setActivityDate(LocalDate activityDate) {this.activityDate = activityDate;}
     public void setBoatType(List<Boat.Rowers> boatType) {this.boatType = new ArrayList<Boat.Rowers>(boatType);}
-    public void setParticipants(List<Integer> participants) {
+    public void setParticipants(List<Integer> participants) throws Member.AlreadyExistsException {
         this.participants = new ArrayList<Integer>();
         for (Integer memberID : participants)
             addParticipant(memberID);
@@ -170,26 +133,48 @@ public class Reservation implements ReservationView {
     private void setApproved(boolean approved) {isApproved = approved;}
 
 
-    public void addParticipant(Integer memberID){
+    public void addParticipant(Integer memberID) throws Member.AlreadyExistsException {
         if (participants.contains(memberID))
-            throw new Exceptions.MemberAlreadyExistsException("Member already exist in list");
+            throw new Member.AlreadyExistsException("Member already exist in list");
         participants.add(memberID);
     }
-    public void deleteParticipant(Integer memberID){
+    public void deleteParticipant(Integer memberID) throws Exceptions.ListCannotBeEmptyException {
         if (participants.size() == 1)
             throw new Exceptions.ListCannotBeEmptyException();
         participants.remove(memberID);
     }
 
-    public void addBoatType(Boat.Rowers type){
+    public void addBoatType(Boat.Rowers type) throws Boat.IllegalValueException {
         if (boatType.contains(type))
-            throw new Exceptions.IllegalBoatValueException("Boat type already exist in list");
+            throw new Boat.IllegalValueException("Boat type already exist in list");
         boatType.add(type);
     }
-    public void deleteBoatType(Boat.Rowers type){
+    public void deleteBoatType(Boat.Rowers type) throws Exceptions.ListCannotBeEmptyException {
         if (boatType.size() == 1)
             throw new Exceptions.ListCannotBeEmptyException();
         boatType.remove(type);
+    }
+
+
+
+    public static class NotFoundException extends Exception { }
+
+    public static class AlreadyExistsException extends Exception {
+        public AlreadyExistsException(String message) {
+            super(message);
+        }
+    }
+
+    public static class IllegalValueException extends Exception{
+        public IllegalValueException(String message) {
+            super(message);
+        }
+    }
+
+    public static class AlreadyApprovedException extends Exception {
+        public AlreadyApprovedException(String message) {
+            super(message);
+        }
     }
 
 }

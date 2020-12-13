@@ -1,6 +1,5 @@
 package bms.module;
 
-import bms.engine.list.manager.Exceptions;
 import bms.module.adapter.LocalTimeAdapter;
 
 import javax.xml.bind.annotation.*;
@@ -13,7 +12,6 @@ import java.time.LocalTime;
 public class Activity implements ActivityView {
     private static int counter = 0;
 
-    //@XmlAttribute
     private int id;
 
     @XmlAttribute(required = true)
@@ -32,7 +30,7 @@ public class Activity implements ActivityView {
 
     private Activity(){}
 
-    public Activity(LocalTime startTime, LocalTime finishTime) {
+    public Activity(LocalTime startTime, LocalTime finishTime) throws IllegalValueException {
         this.setId(0);
         this.setName(null);
         this.setBoatType(null);
@@ -40,7 +38,7 @@ public class Activity implements ActivityView {
         this.setFinishTime(finishTime);
     }
 
-    public Activity(String name, LocalTime startTime, LocalTime finishTime) {
+    public Activity(String name, LocalTime startTime, LocalTime finishTime) throws IllegalValueException {
         this.setId(counter++);
         this.setName(name);
         this.setStartTime(startTime);
@@ -48,7 +46,7 @@ public class Activity implements ActivityView {
         this.setBoatType(null);
     }
 
-    public Activity(ActivityView other) {
+    public Activity(ActivityView other) throws IllegalValueException {
         this.setId(other.getId());
         this.setName(other.getName());
         this.setStartTime(other.getStartTime());
@@ -56,23 +54,6 @@ public class Activity implements ActivityView {
         this.setBoatType(other.getBoatType());
     }
 
-
-    public void printActivity()
-    {
-        System.out.println("Activity Name: (" + name + ") at " + startTime + "-" + finishTime +
-                ((boatType != null) ? " BoatTye: " + boatType : "") );
-    }
-
-    @Override
-    public String toString() {
-        return "Activity{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", startTime=" + startTime +
-                ", finishTime=" + finishTime +
-                ", boatType=" + boatType +
-                '}';
-    }
 
     public static int getCounter() {
         return counter;
@@ -106,30 +87,29 @@ public class Activity implements ActivityView {
         return !(otherIsBefore || otherIsAfter);
     }
 
-
     public void setId(int id) {
         this.id = id;
     }
-    public void setName(String name) {
+    public void setName(String name) throws IllegalValueException {
         if (name != null) {
             if(name.trim().isEmpty())
-                throw new Exceptions.IllegalActivityValueException("Name cannot be empty");
+                throw new IllegalValueException("Name cannot be empty");
             this.name = name.trim();
         }
         this.name = name;
     }
 
-    public void setStartTime(LocalTime startTime) {
+    public void setStartTime(LocalTime startTime) throws IllegalValueException {
         if (getFinishTime() != null)
             if(startTime.isAfter(getFinishTime()) || startTime.equals(getFinishTime()))
-                throw new Exceptions.IllegalActivityValueException("Start time must be before finish time");
+                throw new IllegalValueException("Start time must be before finish time");
         this.startTime = startTime;
     }
 
-    public void setFinishTime(LocalTime finishTime) {
+    public void setFinishTime(LocalTime finishTime) throws IllegalValueException {
         if (getStartTime() != null)
             if(finishTime.isBefore(getStartTime()) || finishTime.equals(getStartTime()))
-                throw new Exceptions.IllegalActivityValueException("Finish time must be after start time");
+                throw new IllegalValueException("Finish time must be after start time");
         this.finishTime = finishTime;
     }
 
@@ -137,4 +117,18 @@ public class Activity implements ActivityView {
         this.boatType = boatType;
     }
 
+
+
+
+    public static class IllegalValueException extends Exception{
+        public IllegalValueException(String message) {
+            super(message);
+        }
+    }
+    public static class NotFoundException extends Exception { }
+    public static class AlreadyExistsException extends Exception {
+        public AlreadyExistsException(String message) {
+            super(message);
+        }
+    }
 }

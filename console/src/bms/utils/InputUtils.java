@@ -90,13 +90,12 @@ public class InputUtils {
     }
 
     public static Object chooseFromOptions(Object[] options) {
-        System.out.println("Choose from the options:");
+        System.out.println("Choose number from the options below:");
         int res = 0;
         int i = 0;
         for (Object obj :options) {
             System.out.println("[" + i++ + "] " + obj);
         }
-        System.out.println("choose");
         res = getNumberFromUser(0, options.length - 1);
         return options[res];
     }
@@ -123,7 +122,7 @@ public class InputUtils {
         while (true) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-                System.out.println("please enter Time on format HH:mm");
+                System.out.println("please enter Time (format HH:mm)");
                 Scanner scanner = new Scanner(System.in);
                 String time = scanner.nextLine();
                 return(LocalTime.parse(time, formatter));
@@ -140,7 +139,7 @@ public class InputUtils {
         while (true) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yyyy");
-                System.out.println("please enter Date on format d/M/yyyy");
+                System.out.println("please enter Date (format dd/MM/yyyy)");
                 Scanner scanner = new Scanner(System.in);
                 String time = scanner.nextLine();
                 return((LocalDate.parse(time, formatter)));

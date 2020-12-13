@@ -1,6 +1,5 @@
 package bms.schema.convertor;
 
-import bms.engine.list.manager.Exceptions;
 import bms.module.Member;
 import bms.schema.generated.member.RowingLevel;
 
@@ -15,11 +14,11 @@ import java.util.GregorianCalendar;
 
 public class memberConvertor {
 
-    private static int parseInteger(String number){
+    private static int parseInteger(String number) throws Member.IllegalValueException {
         try{
             return Integer.parseInt(number);
         } catch (NumberFormatException e){
-            throw new Exceptions.IllegalMemberValueException("cannot read number '" + number + "' (it must be a number)");
+            throw new Member.IllegalValueException("cannot read number '" + number + "' (it must be a number)");
         }
     }
 
@@ -34,7 +33,7 @@ public class memberConvertor {
         return xcal;
     }
 
-    public static Member memberFromSchemaMember(bms.schema.generated.member.Member schemaMember){
+    public static Member memberFromSchemaMember(bms.schema.generated.member.Member schemaMember) throws Member.IllegalValueException {
         Member newMember;
 
         int SerialNumber = parseInteger(schemaMember.getId());
