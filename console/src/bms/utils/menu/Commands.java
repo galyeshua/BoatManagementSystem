@@ -1843,6 +1843,7 @@ public class Commands {
                 try{
                     chooseBoat();
                     engine.approveReservation(id, boatID);
+                    System.out.println("boat allocated successfully");
                 } catch (Boat.AlreadyAllocatedException e){
                     System.out.println("Error: boat already allocated to another reservation");
                 } catch (Reservation.IllegalValueException e){

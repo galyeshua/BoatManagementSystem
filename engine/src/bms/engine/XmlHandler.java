@@ -10,6 +10,8 @@ import javax.xml.validation.SchemaFactory;
 import java.io.File;
 import java.util.ArrayList;
 
+import static com.sun.javafx.scene.control.skin.Utils.getResource;
+
 public class XmlHandler {
 
     private static void checkIfFileIsXml(File file){
@@ -22,8 +24,10 @@ public class XmlHandler {
 
     static void createXmlFromObjects(String filePath, Class schemaClass, Object rootElement, String schemaFileName) throws JAXBException, SAXException {
         File xmlFile = new File(filePath);
-        File schemaFile = new File("..\\engine\\resources\\" + schemaFileName);
+        File schemaFile = new File(schemaFileName);
 
+        //System.out.println(schemaFile.exists());
+        //System.out.println(schemaFile.getAbsoluteFile());
 
         if (xmlFile.exists())
             throw new Exceptions.FileAlreadyExistException();
@@ -54,7 +58,7 @@ public class XmlHandler {
 
         //Load schema for validation
         if(schemaFileName != null){
-            File schemaFile = new File("..\\engine\\resources\\" + schemaFileName);
+            File schemaFile = new File(schemaFileName);
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = schemaFactory.newSchema(schemaFile);
             jaxbUnmarshaller.setSchema(schema);
@@ -81,7 +85,8 @@ public class XmlHandler {
     protected static void loadSystemState(Engine systemEngine, String filename) throws Exceptions.ListCannotBeEmptyException {
         Engine engineFromFile;
         try {
-            engineFromFile = (Engine) ObjectsFromXml("state.xml", Engine.class, null);
+            engineFromFile = (Engine) ObjectsFromXml(filename, Engine.class, null);
+
 
             for(BoatView boat : engineFromFile.getBoats())
                 systemEngine.addBoat(new Boat(boat));

@@ -199,7 +199,7 @@ public class Engine implements BMSEngine{
     public void loadBoatsFromFile(String filePath) throws Exceptions.IllegalFileTypeException, JAXBException, SAXException {
         xmlImportErrorList = new ArrayList<String>();
 
-        Boats boats = (Boats) ObjectsFromXml(filePath, Boats.class, "boats.xsd");
+        Boats boats = (Boats) ObjectsFromXml(filePath, Boats.class, "resources/boats.xsd");
 
         for (bms.schema.generated.boat.Boat schemaBoat : boats.getBoat()){
             try{
@@ -228,7 +228,7 @@ public class Engine implements BMSEngine{
         for (Boat systemBoat : boats.getBoats())
             boatsRootElement.getBoat().add(schemaBoatFromBoat(systemBoat));
 
-        createXmlFromObjects(filePath, Boats.class, boatsRootElement, "boats.xsd");
+        createXmlFromObjects(filePath, Boats.class, boatsRootElement, "resources/boats.xsd");
     }
 
     @Override
@@ -305,7 +305,7 @@ public class Engine implements BMSEngine{
     public void loadMembersFromFile(String filePath) throws JAXBException, SAXException {
         xmlImportErrorList = new ArrayList<String>();
 
-        Members members = (Members) ObjectsFromXml(filePath, Members.class, "members.xsd");
+        Members members = (Members) ObjectsFromXml(filePath, Members.class, "resources/members.xsd");
 
         for (bms.schema.generated.member.Member schemaMember : members.getMember()){
             try{
@@ -333,7 +333,7 @@ public class Engine implements BMSEngine{
         for (Member systemMember : members.getMembers())
             membersRootElement.getMember().add(schemaMemberFromMember(systemMember));
 
-        createXmlFromObjects(filePath, Members.class, membersRootElement, "members.xsd");
+        createXmlFromObjects(filePath, Members.class, membersRootElement, "resources/members.xsd");
     }
 
     @Override
@@ -382,7 +382,7 @@ public class Engine implements BMSEngine{
     public void loadActivitiesFromFile(String filePath) throws JAXBException, SAXException {
         xmlImportErrorList = new ArrayList<String>();
 
-        Activities activities = (Activities) ObjectsFromXml(filePath, Activities.class, "activities.xsd");
+        Activities activities = (Activities) ObjectsFromXml(filePath, Activities.class, "resources/activities.xsd");
         for (Timeframe timeframe : activities.getTimeframe()){
             try{
                 Activity newActivity = activityFromSchemaActivity(timeframe);
@@ -410,7 +410,7 @@ public class Engine implements BMSEngine{
         for (Activity activity : activities.getActivities())
             activitiesRootElement.getTimeframe().add(schemaActivityFromActivity(activity));
 
-        createXmlFromObjects(filePath, Activities.class, activitiesRootElement, "activities.xsd");
+        createXmlFromObjects(filePath, Activities.class, activitiesRootElement, "resources/activities.xsd");
     }
 
 
