@@ -242,7 +242,16 @@ public class Engine implements BMSEngine{
 
 
 
+    private void validatePrivateBoatDoesntChangedForUser(Member newMember) throws Boat.AlreadyAllocatedException {
+        if(memberHaveFutureReservations(newMember.getSerialNumber())){
+            Member originalMember = members.getMember(newMember.getSerialNumber());
+            boolean isHasPrivateChanged = originalMember.getHasPrivateBoat() != newMember.getHasPrivateBoat();
+            boolean isBoatSerialNumberChanged = originalMember.getBoatSerialNumber() != newMember.getBoatSerialNumber();
 
+            if(isHasPrivateChanged || isBoatSerialNumberChanged)
+                throw new Boat.AlreadyAllocatedException();
+        }
+    }
 
     private void validateMemberPrivateBoat(Member newMember) throws Member.IllegalValueException {
         if (newMember.getHasPrivateBoat()){
@@ -262,9 +271,11 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void deleteMember(int serialNumber) throws Member.NotFoundException, Member.AlreadyHaveApprovedReservationsException {
+    public void deleteMember(int serialNumber) throws Member.NotFoundException, Member.AlreadyHaveApprovedReservationsException, Member.AccessDeniedException {
         if(memberHaveFutureReservations(serialNumber))
             throw new Member.AlreadyHaveApprovedReservationsException();
+        if(currentUser.getSerialNumber()==serialNumber)
+            throw new Member.AccessDeniedException();
         members.deleteMember(serialNumber);
         saveState();
     }
@@ -295,8 +306,12 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void updateMember(Member newMember) throws Member.NotFoundException, Member.IllegalValueException, Member.AlreadyExistsException {
+    public void updateMember(Member newMember) throws Member.NotFoundException, Member.IllegalValueException,
+            Member.AlreadyExistsException, Boat.AlreadyAllocatedException {
+
         validateMemberPrivateBoat(newMember);
+        validatePrivateBoatDoesntChangedForUser(newMember);
+
         members.updateMember(newMember);
         saveState();
     }
@@ -320,9 +335,12 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void eraseAndLoadMembersFromFile(String filePath) throws JAXBException, SAXException {
+    public void eraseAndLoadMembersFromFile(String filePath) throws JAXBException, SAXException, Member.IllegalValueException {
         reservations.eraseAll();
         members.eraseAll();
+        try {
+            addMember(currentUser);
+        } catch (Member.AlreadyExistsException ignored) { }
         loadMembersFromFile(filePath);
     }
 
@@ -338,6 +356,7 @@ public class Engine implements BMSEngine{
 
     @Override
     public boolean memberHaveFutureReservations(int memberSerialNumber){
+
         for(ReservationView reservation : getAllFutureApprovedReservations())
             if(reservation.isMemberInReservation(memberSerialNumber) || reservation.getOrderedMemberID()==memberSerialNumber)
                 return true;
@@ -654,7 +673,7 @@ public class Engine implements BMSEngine{
 
     @Override
     public void approveReservation(int reservationID, int boatID)
-            throws Boat.AlreadyAllocatedException, Reservation.IllegalValueException {
+            throws Reservation.IllegalValueException {
 
         Reservation currentReservation= reservations.getReservation(reservationID);
         Boat boat = boats.getBoat(boatID);

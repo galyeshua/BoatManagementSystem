@@ -90,6 +90,7 @@ public class Commands {
                     askForRequiredDataAndCreateBoat();
                     askForOptionalValues();
                     engine.addBoat(boat);
+                    System.out.println("Boat created successfully");
                 } catch (Boat.AlreadyExistsException | Boat.IllegalValueException e){
                     System.out.println("Error: " + e.getMessage());
                 }
@@ -101,18 +102,28 @@ public class Commands {
         return new Command() {
             int serialNumber;
 
+            private void chooseBoat(){
+            if(engine.getBoats().isEmpty())
+                throw new Exceptions.ListIsEmptyException();
+
+                printBoats().execute();
+                System.out.println("choose boat to delete by serialNumber");
+                serialNumber = getNumberFromUser();
+            }
+
             @Override
             public void execute() {
-                printBoats().execute();
-                System.out.println("choose boat to delete");
-                serialNumber = getNumberFromUser();
 
                 try{
+                    chooseBoat();
                     engine.deleteBoat(serialNumber);
+                    System.out.println("Boat deleted successfully");
                 } catch (Boat.NotFoundException e){
                     System.out.println("Boat not found");
                 }catch (Boat.AlreadyAllocatedException e){
                     System.out.println("The boat is allocated for an approved reservation");
+                } catch (Exceptions.ListIsEmptyException e){
+                    System.out.println("No Boats");
                 }
 
             }
@@ -125,7 +136,10 @@ public class Commands {
             int serialNumber;
             BoatView boat;
 
-            private void chooseBoatToUpdate() throws Boat.NotFoundException {
+            private void chooseBoatToUpdate() throws Boat.NotFoundException, Boat.AlreadyAllocatedException {
+                if(engine.getBoats().isEmpty())
+                    throw new Exceptions.ListIsEmptyException();
+
                 System.out.println("All the boats:");
                 printBoats().execute();
                 System.out.println("choose boat to edit by entering a serial number ");
@@ -133,7 +147,10 @@ public class Commands {
                 boat = engine.getBoat(serialNumber);
                 if (boat == null)
                     throw new Boat.NotFoundException();
-            }
+
+                if(engine.boatHaveFutureReservations(boat.getSerialNumber()))
+                    throw new Boat.AlreadyAllocatedException();
+        }
 
             @Override
             public void execute() {
@@ -142,6 +159,10 @@ public class Commands {
                     new MenuUtils.openEditBoatMenu(serialNumber).execute();
                 } catch (Boat.NotFoundException e){
                     System.out.println("Boat not found");
+                } catch (Exceptions.ListIsEmptyException e){
+                    System.out.println("No boats");
+                } catch (Boat.AlreadyAllocatedException e) {
+                    System.out.println("Cannot edit Boat with allocated reservation");
                 }
             }
         };
@@ -309,6 +330,9 @@ public class Commands {
             MemberView member;
 
             private void chooseMemberToUpdate() throws Member.NotFoundException {
+                if(engine.getMembers().isEmpty())
+                    throw new Exceptions.ListIsEmptyException();
+
                 System.out.println("All the members:");
                 printMembers().execute();
                 System.out.println("Choose member to edit by entering a Serial Number");
@@ -325,6 +349,8 @@ public class Commands {
                     new MenuUtils.openEditMemberMenu(serialNumber).execute();
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
+                } catch (Exceptions.ListIsEmptyException e){
+                    System.out.println("No members");
                 }
             }
         };
@@ -358,13 +384,14 @@ public class Commands {
                 member.setNotes(getStringFromUser());
                 System.out.println("Enter phone number:");
                 member.setPhoneNumber(getStringFromUser());
+
+                member.setBoatSerialNumber(null);
                 System.out.println("Does member have private boat?");
                 if (getBoolFromUser()){
                     System.out.println("Enter Boat Serial Number:");
                     int boatSerialNumber = getNumberFromUser(1);
                     member.setBoatSerialNumber(boatSerialNumber);
-                } else
-                    member.setBoatSerialNumber(null);
+                }
             }
 
             @Override
@@ -373,6 +400,7 @@ public class Commands {
                     askForRequiredDataAndCreateMember();
                     askForOptionalValues();
                     engine.addMember(member);
+                    System.out.println("Member created successfully");
                 } catch (Member.AlreadyExistsException | Member.IllegalValueException e){
                     System.out.println("Error: " + e.getMessage());
                 }
@@ -402,17 +430,31 @@ public class Commands {
         return new Command() {
             int serialNumber;
 
+            private void chooseMember(){
+                if(engine.getMembers().isEmpty())
+                    throw new Exceptions.ListIsEmptyException();
+
+                printMembers().execute();
+                System.out.println("choose member to delete (by Serial number)");
+                serialNumber = getNumberFromUser();
+            }
+
             @Override
             public void execute() {
-                printBoats().execute();
-                System.out.println("choose member to delete");
-                serialNumber = getNumberFromUser();
-
                 try{
+                    chooseMember();
                     engine.deleteMember(serialNumber);
-                } catch (Member.NotFoundException | Member.AlreadyHaveApprovedReservationsException e){
+                    System.out.println("Member deleted successfully");
+                } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
+                } catch (Exceptions.ListIsEmptyException e){
+                    System.out.println("No members");
+                } catch (Member.AccessDeniedException e){
+                    System.out.println("You dont have permissions to do that");
+                } catch (Member.AlreadyHaveApprovedReservationsException e){
+                    System.out.println("Cannot delete member with approved reservation");
                 }
+
             }
         };
     }
@@ -429,10 +471,13 @@ public class Commands {
                     name = getStringFromUser();
                     newMember.setName(name);
                     engine.updateMember(newMember);
+                    System.out.println("Updated successfully");
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
                 } catch (Member.IllegalValueException | Member.AlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Boat.AlreadyAllocatedException e) {
+                    System.out.println("Cannot edit private boat while the member has approved reservation");
                 }
             }
         };
@@ -450,11 +495,13 @@ public class Commands {
                     age = getNumberFromUser(16, 99);
                     newMember.setAge(age);
                     engine.updateMember(newMember);
-
+                    System.out.println("Updated successfully");
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
                 } catch (Member.IllegalValueException | Member.AlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Boat.AlreadyAllocatedException e) {
+                    System.out.println("Cannot edit private boat while the member has approved reservation");
                 }
             }
         };
@@ -472,10 +519,13 @@ public class Commands {
                     notes = getStringFromUser();
                     newMember.setNotes(notes);
                     engine.updateMember(newMember);
+                    System.out.println("Updated successfully");
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
                 } catch (Member.IllegalValueException | Member.AlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Boat.AlreadyAllocatedException e) {
+                    System.out.println("Cannot edit private boat while the member has approved reservation");
                 }
             }
         };
@@ -494,10 +544,13 @@ public class Commands {
                     level = (Member.Level) chooseFromOptions(Member.Level.values());
                     newMember.setLevel(level);
                     engine.updateMember(newMember);
+                    System.out.println("Updated successfully");
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
                 } catch (Member.IllegalValueException | Member.AlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Boat.AlreadyAllocatedException e) {
+                    System.out.println("Cannot edit private boat while the member has approved reservation");
                 }
             }
         };
@@ -520,10 +573,13 @@ public class Commands {
                     } else
                         newMember.setBoatSerialNumber(null);
                     engine.updateMember(newMember);
+                    System.out.println("Updated successfully");
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
                 } catch (Member.IllegalValueException | Member.AlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Boat.AlreadyAllocatedException e) {
+                    System.out.println("Cannot edit private boat while the member has approved reservation");
                 }
             }
         };
@@ -541,10 +597,13 @@ public class Commands {
                     phone = getStringFromUser();
                     newMember.setPhoneNumber(phone);
                     engine.updateMember(newMember);
+                    System.out.println("Updated successfully");
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
                 } catch (Member.IllegalValueException | Member.AlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Boat.AlreadyAllocatedException e) {
+                    System.out.println("Cannot edit private boat while the member has approved reservation");
                 }
             }
         };
@@ -562,10 +621,13 @@ public class Commands {
                     email = getStringFromUser();
                     newMember.setEmail(email);
                     engine.updateMember(newMember);
+                    System.out.println("Updated successfully");
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
                 } catch (Member.IllegalValueException | Member.AlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Boat.AlreadyAllocatedException e) {
+                    System.out.println("Cannot edit private boat while the member has approved reservation");
                 }
             }
         };
@@ -583,10 +645,13 @@ public class Commands {
                     password = getStringFromUser();
                     newMember.setPassword(password);
                     engine.updateMember(newMember);
+                    System.out.println("Updated successfully");
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
                 } catch (Member.IllegalValueException | Member.AlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Boat.AlreadyAllocatedException e) {
+                    System.out.println("Cannot edit private boat while the member has approved reservation");
                 }
             }
         };
@@ -604,10 +669,13 @@ public class Commands {
                     role = getBoolFromUser();
                     newMember.setManager(role);
                     engine.updateMember(newMember);
+                    System.out.println("Updated successfully");
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
                 } catch (Member.IllegalValueException | Member.AlreadyExistsException e){
                     System.out.println("Error: " + e.getMessage());
+                } catch (Boat.AlreadyAllocatedException e) {
+                    System.out.println("Cannot edit private boat while the member has approved reservation");
                 }
             }
         };
@@ -621,6 +689,9 @@ public class Commands {
             int id;
 
             private void chooseActivityToUpdate() throws Activity.NotFoundException {
+                if(engine.getActivities().isEmpty())
+                    throw new Exceptions.ListIsEmptyException();
+
                 printActivities().execute();
                 System.out.println("choose activity to edit");
                 ArrayList<ActivityView> activities = new ArrayList<ActivityView>(engine.getActivities());
@@ -640,6 +711,8 @@ public class Commands {
                     new MenuUtils.openEditActivityMenu(id).execute();
                 } catch (Activity.NotFoundException e){
                     System.out.println("Activity not found");
+                } catch (Exceptions.ListIsEmptyException e){
+                    System.out.println("No activities");
                 }
             }
         };
@@ -674,6 +747,7 @@ public class Commands {
                     Activity activity = new Activity(name,startTime,finishTime);
                     activity.setBoatType(boatType);
                     engine.addActivity(activity);
+                    System.out.println("Activity created successfully");
                 } catch (Activity.AlreadyExistsException | Activity.IllegalValueException e){
                     System.out.println("Error: " + e.getMessage());
                 }
@@ -701,17 +775,29 @@ public class Commands {
 
     public static Command deleteActivity() {
         return new Command() {
-            @Override
-            public void execute() {
+            int id;
+
+            private void chooseActivity(){
+                if(engine.getActivities().isEmpty())
+                    throw new Exceptions.ListIsEmptyException();
+
                 printActivities().execute();
                 System.out.println("choose activity to delete");
                 List<ActivityView> activities = new ArrayList<ActivityView>(engine.getActivities());
                 int activityIndex = getNumberFromUser(0, activities.size() - 1);
-                int id = activities.get(activityIndex).getId();
+                id = activities.get(activityIndex).getId();
+            }
+
+            @Override
+            public void execute() {
                 try{
+                    chooseActivity();
                     engine.deleteActivity(id);
+                    System.out.println("Activity deleted successfully");
                 } catch (Activity.NotFoundException e){
                     System.out.println("Activity not found");
+                } catch (Exceptions.ListIsEmptyException e){
+                    System.out.println("No activities");
                 }
             }
         };
@@ -818,7 +904,7 @@ public class Commands {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getFutureUnapprovedReservationsForCurrentUser());
                 if (reservations.isEmpty())
-                    throw new Exceptions.EmptyReservationListException();
+                    throw new Exceptions.ListIsEmptyException();
 
                 int i = 0;
                 for (ReservationView reservation : reservations) {
@@ -843,7 +929,7 @@ public class Commands {
                     new MenuUtils.openEditReservationMenu(id, false).execute();
                 } catch (Reservation.NotFoundException e){
                     System.out.println("Reservation not found");
-                } catch (Exceptions.EmptyReservationListException e){
+                } catch (Exceptions.ListIsEmptyException e){
                     System.out.println("No Reservations found");
                 }
             }
@@ -860,7 +946,7 @@ public class Commands {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getUnapprovedReservationsForWeek(LocalDate.now()));
                 if (reservations.isEmpty())
-                    throw new Exceptions.EmptyReservationListException();
+                    throw new Exceptions.ListIsEmptyException();
 
                 int i=0;
                 for (ReservationView reservation : reservations) {
@@ -884,7 +970,7 @@ public class Commands {
                     new MenuUtils.openEditReservationMenu(id, true).execute();
                 } catch (Reservation.NotFoundException e){
                     System.out.println("Reservation not found");
-                } catch (Exceptions.EmptyReservationListException e){
+                } catch (Exceptions.ListIsEmptyException e){
                     System.out.println("No Reservations found");
                 }
             }
@@ -902,7 +988,7 @@ public class Commands {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getApprovedReservationsForWeek(LocalDate.now()));
                 if (reservations.isEmpty())
-                    throw new Exceptions.EmptyReservationListException();
+                    throw new Exceptions.ListIsEmptyException();
 
                 int i=0;
                 for (ReservationView reservation : reservations) {
@@ -929,7 +1015,7 @@ public class Commands {
                     System.out.println("successfully unapproved reservation");
                 } catch (Reservation.NotFoundException e){
                     System.out.println("Reservation not found");
-                } catch (Exceptions.EmptyReservationListException e){
+                } catch (Exceptions.ListIsEmptyException e){
                     System.out.println("No Reservations found");
                 } catch (Member.AccessDeniedException e) {
                     System.out.println("You dont have permissions to do that");
@@ -946,10 +1032,9 @@ public class Commands {
             private LocalDate activityDate;
             private List<Boat.Rowers> boatType;
             private List<Integer> participants;
-            private LocalDateTime orderDate = LocalDateTime.now();
-            private int orderedMemberID = user.getSerialNumber();
-
-            private List<ActivityView> activities = new ArrayList<ActivityView>(engine.getActivities());
+            private LocalDateTime orderDate;
+            private int orderedMemberID;
+            private List<ActivityView> activities;
             List<MemberView> members;
 
             private int getMemberSerialNumberFromListByName(List<MemberView> members, String name){
@@ -1028,6 +1113,10 @@ public class Commands {
 
             @Override
             public void execute() {
+                orderDate = LocalDateTime.now();
+                orderedMemberID = user.getSerialNumber();
+                activities = new ArrayList<ActivityView>(engine.getActivities());
+
                try{
                     askForValues();
                     Reservation reservation = new Reservation(activity, activityDate, orderDate, orderedMemberID);
@@ -1038,6 +1127,7 @@ public class Commands {
                         reservation.addBoatType(boatType);
 
                     engine.addReservation(reservation);
+                   System.out.println("Reservation created successfully");
                } catch (Reservation.AlreadyExistsException | Activity.IllegalValueException |
                        Member.AlreadyExistsException | Reservation.IllegalValueException | Boat.IllegalValueException e){
                    System.out.println("Error: " + e.getMessage());
@@ -1173,34 +1263,34 @@ public class Commands {
     }
 
 
-
-    public static Command deleteReservation() {
-        return new Command() {
-            int serialNumber;
-
-            @Override
-            public void execute() {
-                printReservationsForWeek(LocalDate.now()).execute();
-                System.out.println("choose Reservation to delete");
-                serialNumber = getNumberFromUser();
-
-                try{
-                    engine.deleteReservation(serialNumber);
-                } catch (Reservation.NotFoundException e){
-                    System.out.println("Reservation not found");
-                } catch (Reservation.AlreadyApprovedException e){
-                    System.out.println("Reservation already approved");
-                }
-            }
-        };
-    }
+//    public static Command deleteReservation() {
+//        return new Command() {
+//            int serialNumber;
+//
+//            @Override
+//            public void execute() {
+//                printReservationsForWeek(LocalDate.now()).execute();
+//                System.out.println("choose Reservation to delete");
+//                serialNumber = getNumberFromUser();
+//
+//                try{
+//                    engine.deleteReservation(serialNumber);
+//                    System.out.println("Reservation deleted successfully");
+//                } catch (Reservation.NotFoundException e){
+//                    System.out.println("Reservation not found");
+//                } catch (Reservation.AlreadyApprovedException e){
+//                    System.out.println("Reservation already approved");
+//                }
+//            }
+//        };
+//    }
 
 
     public static Command editReservationActivity(int id) {
         return new Command() {
             Activity activity;
             Reservation newReservation;
-            private List<ActivityView> activities = new ArrayList<ActivityView>(engine.getActivities());
+            private List<ActivityView> activities;
 
             private void askForActivity() throws Activity.IllegalValueException {
                 if (activities.isEmpty()){
@@ -1213,8 +1303,6 @@ public class Commands {
                 } else {
                     printActivities().execute();
 
-
-
                     System.out.println("choose activity:");
                     int activityIndex = getNumberFromUser(0, activities.size() - 1);
 
@@ -1224,11 +1312,14 @@ public class Commands {
 
             @Override
             public void execute() {
+                activities = new ArrayList<ActivityView>(engine.getActivities());
+
                 try {
                     newReservation = new Reservation(engine.getReservation(id));
                     askForActivity();
                     newReservation.setActivity(activity);
                     engine.updateReservation(newReservation);
+                    System.out.println("Updated successfully");
                 }catch (Reservation.NotFoundException e){
                     System.out.println("Reservation Not Found" );
                 } catch (Reservation.IllegalValueException | Member.AccessDeniedException |
@@ -1254,6 +1345,7 @@ public class Commands {
                     activityDate = getLocalDateFromUser();
                     newReservation.setActivityDate(activityDate);
                     engine.updateReservation(newReservation);
+                    System.out.println("Updated successfully");
                 }catch (Reservation.NotFoundException e){
                     System.out.println("Reservation Not Found" );
                 } catch (Reservation.IllegalValueException | Member.AccessDeniedException | Member.AlreadyExistsException e){
@@ -1291,6 +1383,7 @@ public class Commands {
                     System.out.println("Enter new type");
                     newReservation.addBoatType((Boat.Rowers) chooseFromOptions(Boat.Rowers.values()));
                     engine.updateReservation(newReservation);
+                    System.out.println("Added successfully");
                 }catch (Reservation.NotFoundException e){
                     System.out.println("Reservation Not Found" );
                 } catch (Reservation.IllegalValueException | Member.AccessDeniedException |
@@ -1314,6 +1407,7 @@ public class Commands {
                     System.out.println("choose type to delete");
                     newReservation.deleteBoatType((Boat.Rowers) chooseFromOptions(newReservation.getBoatType().toArray()));
                     engine.updateReservation(newReservation);
+                    System.out.println("deleed successfully");
                 }catch (Reservation.NotFoundException e){
                     System.out.println("Reservation Not Found" );
                 } catch (Reservation.IllegalValueException | Member.AccessDeniedException | Member.AlreadyExistsException e){
@@ -1380,6 +1474,7 @@ public class Commands {
                     name=getNameFromUser();
                     newReservation.addParticipant(getMemberSerialNumberFromListByName(members, name));
                     engine.updateReservation(newReservation);
+                    System.out.println("Added successfully");
                 }catch (Reservation.NotFoundException e){
                     System.out.println("Reservation Not Found" );
                 } catch (Reservation.IllegalValueException | Member.AlreadyExistsException e){
@@ -1412,6 +1507,7 @@ public class Commands {
                     int memberIndex = getNumberFromUser(0, newReservation.getParticipants().size()-1);
                     newReservation.deleteParticipant(newReservation.getParticipants().get(memberIndex));
                     engine.updateReservation(newReservation);
+                    System.out.println("Deleted successfully");
                 }catch (Reservation.NotFoundException e){
                     System.out.println("Reservation Not Found" );
                 } catch (Reservation.IllegalValueException | Member.AccessDeniedException | Member.AlreadyExistsException e){
@@ -1430,8 +1526,7 @@ public class Commands {
             System.out.println("The following errors occurred:");
             for (String error : engine.getXmlImportErrors())
                 System.out.println(error);
-        } else
-            System.out.println("Data loaded successfully");
+        }
     }
 
 
@@ -1444,6 +1539,7 @@ public class Commands {
                 filePath = getStringFromUser();
                 try{
                     engine.loadActivitiesFromFile(filePath);
+                    System.out.println("Data loaded successfully");
                     printErrorsAfterLoading();
                 } catch (Exceptions.IllegalFileTypeException e){
                     System.out.println("File must be in xml format");
@@ -1472,6 +1568,7 @@ public class Commands {
                     filePath = getStringFromUser();
                     try{
                         engine.eraseAndLoadActivitiesFromFile(filePath);
+                        System.out.println("Data loaded successfully");
                         printErrorsAfterLoading();
                     } catch (Exceptions.IllegalFileTypeException e){
                         System.out.println("File must be in xml format");
@@ -1519,6 +1616,7 @@ public class Commands {
                 filePath = getStringFromUser();
                 try{
                     engine.loadBoatsFromFile(filePath);
+                    System.out.println("Data loaded successfully");
                     printErrorsAfterLoading();
                 } catch (Exceptions.IllegalFileTypeException e){
                     System.out.println("File must be in xml format");
@@ -1547,6 +1645,7 @@ public class Commands {
                     filePath = getStringFromUser();
                     try{
                         engine.eraseAndLoadBoatsFromFile(filePath);
+                        System.out.println("Data loaded successfully");
                         printErrorsAfterLoading();
                     } catch (Exceptions.IllegalFileTypeException e){
                         System.out.println("File must be in xml format");
@@ -1592,6 +1691,7 @@ public class Commands {
                 filePath = getStringFromUser();
                 try{
                     engine.loadMembersFromFile(filePath);
+                    System.out.println("Data loaded successfully");
                     printErrorsAfterLoading();
                 } catch (Exceptions.IllegalFileTypeException e){
                     System.out.println("File must be in xml format");
@@ -1620,6 +1720,7 @@ public class Commands {
                     filePath = getStringFromUser();
                     try{
                         engine.eraseAndLoadMembersFromFile(filePath);
+                        System.out.println("Data loaded successfully");
                         printErrorsAfterLoading();
                     } catch (Exceptions.IllegalFileTypeException e){
                         System.out.println("File must be in xml format");
@@ -1629,6 +1730,8 @@ public class Commands {
                         e.getLinkedException().getMessage();
                     } catch (SAXException e) {
                         e.printStackTrace();
+                    } catch (Member.IllegalValueException e) {
+                        System.out.println("Problem with current user: " + e.getMessage());
                     }
                 }
             }
@@ -1671,7 +1774,7 @@ public class Commands {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getFutureUnapprovedReservationsForCurrentUser());
                 if (reservations.isEmpty())
-                    throw new Exceptions.EmptyReservationListException();
+                    throw new Exceptions.ListIsEmptyException();
 
                 int i=0;
                 for (ReservationView reservation : reservations) {
@@ -1693,9 +1796,10 @@ public class Commands {
                 try{
                     chooseReservationToDelete();
                     engine.deleteReservation(id);
+                    System.out.println("Deleted successfully");
                 } catch (Reservation.NotFoundException e){
                     System.out.println("Reservation not found");
-                } catch (Exceptions.EmptyReservationListException e){
+                } catch (Exceptions.ListIsEmptyException e){
                     System.out.println("No Reservations found");
                 } catch (Reservation.AlreadyApprovedException e) {
                     System.out.println("Reservation already approved");
@@ -1713,7 +1817,7 @@ public class Commands {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getUnapprovedReservationsForWeek(LocalDate.now()));
                 if (reservations.isEmpty())
-                    throw new Exceptions.EmptyReservationListException();
+                    throw new Exceptions.ListIsEmptyException();
 
                 int i=0;
                 for (ReservationView reservation : reservations) {
@@ -1734,9 +1838,10 @@ public class Commands {
                 try{
                     chooseReservationToDelete();
                     engine.deleteReservation(id);
+                    System.out.println("Deleted successfully");
                 } catch (Reservation.NotFoundException e){
                     System.out.println("Reservation not found");
-                } catch (Exceptions.EmptyReservationListException e){
+                } catch (Exceptions.ListIsEmptyException e){
                     System.out.println("There are no unapproved reservations for this week");
                 } catch (Reservation.AlreadyApprovedException e) {
                     System.out.println("Reservation already approved");
@@ -1748,10 +1853,9 @@ public class Commands {
 
     public static Command splitReservationParticipants(int id) {
         return new Command(){
-            private ReservationView currentReservation = engine.getReservation(id);
-
-            private List<Integer> restOfParticipants = new ArrayList<Integer>(currentReservation.getParticipants());
-            private List<Integer> participants = new ArrayList<Integer>();
+            private ReservationView currentReservation;
+            private List<Integer> restOfParticipants;
+            private List<Integer> participants;
 
             private void askForParticipants(){
                 do {
@@ -1777,6 +1881,10 @@ public class Commands {
 
             @Override
             public void execute() {
+                currentReservation = engine.getReservation(id);
+                restOfParticipants = new ArrayList<Integer>(currentReservation.getParticipants());
+                participants = new ArrayList<Integer>();
+
                 if (currentReservation.getParticipants().size() == 1)
                     System.out.println("Cannot split reservation with one participent");
                 else {
@@ -1816,7 +1924,7 @@ public class Commands {
 
     public static Command allocateBoatAndConfirm(int id) {
         return new Command() {
-            ReservationView currentReservation = engine.getReservation(id);
+            ReservationView currentReservation;
             int boatID;
 
             private void chooseBoat(){
@@ -1824,7 +1932,7 @@ public class Commands {
                 List<BoatView> availableBoats = new ArrayList<BoatView>(engine.getUnprivateAvailableBoats(currentReservation.getActivityDate(), currentReservation.getActivity()));
 
                 if(availableBoats.isEmpty())
-                    throw new Exceptions.EmptyReservationListException();
+                    throw new Exceptions.ListIsEmptyException();
 
                 int i=0;
                 for(BoatView boat : availableBoats) {
@@ -1839,6 +1947,7 @@ public class Commands {
 
             @Override
             public void execute() {
+                currentReservation = engine.getReservation(id);
 
                 try{
                     chooseBoat();
@@ -1848,7 +1957,7 @@ public class Commands {
                     System.out.println("Error: boat already allocated to another reservation");
                 } catch (Reservation.IllegalValueException e){
                     System.out.println(e.getMessage());
-                } catch (Exceptions.EmptyReservationListException e){
+                } catch (Exceptions.ListIsEmptyException e){
                     System.out.println("There are no available boats fot this time.");
                 }
             }
@@ -1864,7 +1973,7 @@ public class Commands {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(engine.getUnapprovedReservationsForWeek(LocalDate.now()));
                 if (reservations.isEmpty())
-                    throw new Exceptions.EmptyReservationListException();
+                    throw new Exceptions.ListIsEmptyException();
 
                 int i=0;
                 for (ReservationView reservation : reservations) {
@@ -1887,7 +1996,7 @@ public class Commands {
                     allocateBoatAndConfirm(id).execute();
                 } catch (Reservation.NotFoundException e){
                     System.out.println("Reservation not found");
-                } catch (Exceptions.EmptyReservationListException e){
+                } catch (Exceptions.ListIsEmptyException e){
                     System.out.println("There are no unapproved reservations for this week");
                 }
             }

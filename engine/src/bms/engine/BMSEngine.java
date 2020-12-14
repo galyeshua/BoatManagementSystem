@@ -41,14 +41,14 @@ public interface BMSEngine {
 
 
     void addMember(Member newMember) throws Member.AlreadyExistsException, Member.IllegalValueException;
-    void deleteMember(int serialNumber) throws Member.NotFoundException, Member.AlreadyHaveApprovedReservationsException;
+    void deleteMember(int serialNumber) throws Member.NotFoundException, Member.AlreadyHaveApprovedReservationsException, Member.AccessDeniedException;
     Collection<MemberView> getMembers();
     Collection<MemberView> getMembers(String name);
     MemberView getMember(int serialNumber);
     MemberView getMember(String email);
-    void updateMember(Member newMember) throws Member.NotFoundException, Member.IllegalValueException, Member.AlreadyExistsException;
+    void updateMember(Member newMember) throws Member.NotFoundException, Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyAllocatedException;
     void loadMembersFromFile(String filePath) throws JAXBException, SAXException;
-    void eraseAndLoadMembersFromFile(String filePath) throws JAXBException, SAXException;
+    void eraseAndLoadMembersFromFile(String filePath) throws JAXBException, SAXException, Member.IllegalValueException;
     void saveMembersToFile(String filePath) throws DatatypeConfigurationException, JAXBException, SAXException;
     boolean memberHaveFutureReservations(int memberSerialNumber);
 

@@ -7,5 +7,5 @@ public class Exceptions {
     public static class FileNotFoundException extends RuntimeException { }
     public static class FileAlreadyExistException extends RuntimeException { }
 
-    public static class EmptyReservationListException extends RuntimeException { }
+    public static class ListIsEmptyException extends RuntimeException { }
 }

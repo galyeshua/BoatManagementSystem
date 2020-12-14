@@ -27,7 +27,7 @@ public class BoatManager {
         Boat boat = getBoat(serialNumber);
         if (boat == null)
             throw new NotFoundException();
-        boats.remove(serialNumber);
+        boats.remove(boat);
     }
 
 
@@ -61,7 +61,7 @@ public class BoatManager {
         if (!currentBoat.getName().equals(newBoat.getName()))
             validateBoatName(newBoat.getName());
 
-        boats.set(boats.indexOf(getBoat(serialNumber)), newBoat);
+        boats.set(boats.indexOf(currentBoat), newBoat);
     }
 
     private void validateBoatSerialNumber(int serialNumber) throws AlreadyExistsException {

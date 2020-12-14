@@ -23,7 +23,7 @@ public class MemberManager {
         Member member = getMember(serialNumber);
         if (member == null)
             throw new Member.NotFoundException();
-        members.remove(serialNumber);
+        members.remove(member);
     }
 
     public Collection<Member> getMembers() {
@@ -54,7 +54,7 @@ public class MemberManager {
         if (!currentMember.getEmail().equals(newMember.getEmail()))
             validateMemberEmail(newMember.getEmail());
 
-        members.set(members.indexOf(getMember(serialNumber)), newMember);
+        members.set(members.indexOf(currentMember), newMember);
     }
 
     private void validateMemberSerialNumber(int serialNumber) throws Member.AlreadyExistsException {

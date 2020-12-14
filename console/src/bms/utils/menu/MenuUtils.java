@@ -284,7 +284,7 @@ public class MenuUtils {
     {
         int id;
         ReservationView reservation;
-        boolean forManager = false;
+        boolean forManager;
 
         public openEditReservationMenu(int id, boolean forManager) {
             this.id = id;

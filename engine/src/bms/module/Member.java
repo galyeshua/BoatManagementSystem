@@ -157,7 +157,10 @@ public class Member implements MemberView {
         this.age = age;
     }
     public void setNotes(String notes) {
-        this.notes = notes;
+        if (notes == null || (notes.trim()).isEmpty())
+            this.notes = null;
+        else
+            this.notes = notes.trim();
     }
     public void setLevel(Level level) {
         this.level = level;
@@ -189,7 +192,10 @@ public class Member implements MemberView {
             setHasPrivateBoat(true);
     }
     public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+        if (phoneNumber == null || (phoneNumber.trim()).isEmpty())
+            this.phoneNumber = null;
+        else
+            this.phoneNumber = phoneNumber.trim();
     }
     public void setEmail(String email) throws IllegalValueException {
         String regex = "^(.+)@(.+)$";
@@ -201,7 +207,7 @@ public class Member implements MemberView {
         this.email = email;
     }
     public void setPassword(String password) throws IllegalValueException {
-        if (password.trim().isEmpty())
+        if (password == null || password.trim().isEmpty())
             throw new IllegalValueException("Password cannot be empty");
         this.password = password.trim();
     }
