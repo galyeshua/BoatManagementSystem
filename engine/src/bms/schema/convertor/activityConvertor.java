@@ -3,7 +3,6 @@ package bms.schema.convertor;
 import bms.module.Activity;
 import bms.module.BoatView;
 import bms.schema.generated.activity.Timeframe;
-
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -36,7 +35,6 @@ public class activityConvertor {
         return newActivity;
     }
 
-
     public static bms.schema.generated.activity.Timeframe schemaActivityFromActivity(Activity activity){
         Timeframe timeframe = new Timeframe();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -52,5 +50,4 @@ public class activityConvertor {
 
         return timeframe;
     }
-
 }

@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -35,7 +36,6 @@ public class Boat implements BoatView {
 
     @XmlAttribute
     private Boolean isDisabled;
-
 
     private Boat(){}
 
@@ -74,7 +74,6 @@ public class Boat implements BoatView {
         this.setMarine(other.getMarine());
         this.setDisabled(other.getDisabled());
     }
-
 
     @Override
     public int getSerialNumber() {
@@ -159,6 +158,7 @@ public class Boat implements BoatView {
             throw new IllegalValueException("Name cannot be empty");
         this.name = name.trim();
     }
+
     public void setNumOfRowers(Rowers numOfRowers) {
         this.numOfRowers = numOfRowers;
     }
@@ -168,9 +168,11 @@ public class Boat implements BoatView {
                 throw new IllegalValueException("Boat with size ONE cannot have Single Paddles");
         this.numOfPaddles = numOfPaddles;
     }
+
     public void setPrivate(boolean aPrivate) {
         isPrivate = aPrivate;
     }
+
     public void setWide(boolean wide) {
         isWide = wide;
     }
@@ -186,6 +188,7 @@ public class Boat implements BoatView {
 
         this.hasCoxswain = hasCoxswain;
     }
+
     public void setMarine(boolean marine) {
         isMarine = marine;
     }
@@ -197,8 +200,6 @@ public class Boat implements BoatView {
         this.setNumOfPaddles(type.getNumOfPaddles());
         this.setHasCoxswain(type.HasCoxswain());
     }
-
-
 
     public static class NotFoundException extends Exception { }
 
@@ -217,4 +218,25 @@ public class Boat implements BoatView {
     public static class AlreadyAllocatedException extends Exception { }
 
     public static class BelongsToMember extends Exception { }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Boat boat = (Boat) o;
+        return serialNumber == boat.serialNumber &&
+                name.equalsIgnoreCase(boat.name) &&
+                numOfRowers == boat.numOfRowers &&
+                numOfPaddles == boat.numOfPaddles &&
+                Objects.equals(isPrivate, boat.isPrivate) &&
+                Objects.equals(isWide, boat.isWide) &&
+                Objects.equals(hasCoxswain, boat.hasCoxswain) &&
+                Objects.equals(isMarine, boat.isMarine) &&
+                Objects.equals(isDisabled, boat.isDisabled);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serialNumber, name, numOfRowers, numOfPaddles, isPrivate, isWide, hasCoxswain, isMarine, isDisabled);
+    }
 }

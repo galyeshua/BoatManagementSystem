@@ -14,14 +14,13 @@ public class BoatManager {
     private List<Boat> boats = new ArrayList<Boat>();
 
 
-    public void addBoat(Boat boat) throws AlreadyExistsException {
+    public void addBoat(Boat boat) throws AlreadyExistsException, Boat.IllegalValueException {
 
         validateBoatSerialNumber(boat.getSerialNumber());
         validateBoatName(boat.getName());
 
-        boats.add(boat);
+        boats.add(new Boat(boat));
     }
-
 
     public void deleteBoat(int serialNumber) throws NotFoundException {
         Boat boat = getBoat(serialNumber);
@@ -30,11 +29,9 @@ public class BoatManager {
         boats.remove(boat);
     }
 
-
     public Collection<Boat> getBoats() {
         return boats;
     }
-
 
     public Boat getBoat(int serialNumber) {
         for(Boat boat : getBoats())
@@ -43,25 +40,24 @@ public class BoatManager {
         return null;
     }
 
-
     public Boat getBoat(String name) {
         for(Boat boat : getBoats())
-            if(boat.getName().equals(name))
+            if(boat.getName().equalsIgnoreCase(name))
                 return boat;
         return null;
     }
 
-    public void updateBoat(Boat newBoat) throws NotFoundException, AlreadyExistsException {
+    public void updateBoat(Boat newBoat) throws NotFoundException, AlreadyExistsException, Boat.IllegalValueException {
         int serialNumber = newBoat.getSerialNumber();
         Boat currentBoat = getBoat(serialNumber);
 
         if (currentBoat == null)
             throw new NotFoundException();
 
-        if (!currentBoat.getName().equals(newBoat.getName()))
+        if (!currentBoat.getName().equalsIgnoreCase(newBoat.getName()))
             validateBoatName(newBoat.getName());
 
-        boats.set(boats.indexOf(currentBoat), newBoat);
+        boats.set(boats.indexOf(currentBoat), new Boat(newBoat));
     }
 
     private void validateBoatSerialNumber(int serialNumber) throws AlreadyExistsException {

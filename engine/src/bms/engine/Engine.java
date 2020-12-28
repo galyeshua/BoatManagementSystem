@@ -70,18 +70,10 @@ public class Engine implements BMSEngine{
         }
     }
 
-
-
-
-
     @Override
     public List<String> getXmlImportErrors(){
         return Collections.unmodifiableList(xmlImportErrorList);
     }
-
-
-
-
 
     @Override
     public boolean validateUserLogin(String email, String password){
@@ -98,9 +90,6 @@ public class Engine implements BMSEngine{
         if (!currentUser.getManager())
             throw new Member.AccessDeniedException();
     }
-
-
-
 
     @Override
     public void addBoat(Boat newBoat) throws Boat.AlreadyExistsException, Boat.IllegalValueException {
@@ -131,7 +120,6 @@ public class Engine implements BMSEngine{
         );
     }
 
-
     @Override
     public Collection<BoatView> getAllAvailableBoats(LocalDate date, Activity activity){
         return Collections.unmodifiableCollection(
@@ -151,7 +139,6 @@ public class Engine implements BMSEngine{
                         .collect(Collectors.toList())
         );
     }
-
 
     @Override
     public boolean boatIsAvailable(int boatSerialNumber, LocalDate date, Activity activity){
@@ -180,7 +167,7 @@ public class Engine implements BMSEngine{
         return boats.getBoat(name);
     }
 
-    public void updateBoat(Boat newBoat) throws Boat.NotFoundException, Boat.AlreadyAllocatedException, Boat.BelongsToMember, Boat.AlreadyExistsException {
+    public void updateBoat(Boat newBoat) throws Boat.NotFoundException, Boat.AlreadyAllocatedException, Boat.BelongsToMember, Boat.AlreadyExistsException, Boat.IllegalValueException {
         if(boatHaveFutureReservations(newBoat.getSerialNumber()))
             throw new Boat.AlreadyAllocatedException();
 
@@ -193,7 +180,6 @@ public class Engine implements BMSEngine{
         boats.updateBoat(newBoat);
         saveState();
     }
-
 
     @Override
     public void loadBoatsFromFile(String filePath) throws Exceptions.IllegalFileTypeException, JAXBException, SAXException {
@@ -220,7 +206,6 @@ public class Engine implements BMSEngine{
         loadBoatsFromFile(filePath);
     }
 
-
     @Override
     public void saveBoatsToFile(String filePath) throws Exceptions.IllegalFileTypeException, JAXBException, SAXException {
         Boats boatsRootElement = new Boats();
@@ -239,8 +224,6 @@ public class Engine implements BMSEngine{
 
         return false;
     }
-
-
 
     private void validatePrivateBoatDoesntChangedForUser(Member newMember) throws Boat.AlreadyAllocatedException {
         if(memberHaveFutureReservations(newMember.getSerialNumber())){
@@ -364,13 +347,8 @@ public class Engine implements BMSEngine{
         return false;
     }
 
-
-
-
-
-
     @Override
-    public void addActivity(Activity activity) throws Activity.AlreadyExistsException {
+    public void addActivity(Activity activity) throws Activity.AlreadyExistsException, Activity.IllegalValueException {
         activities.addActivity(activity);
         saveState();
     }
@@ -392,7 +370,7 @@ public class Engine implements BMSEngine{
     }
 
 
-    public void updateActivity(Activity newActivity) throws Activity.NotFoundException, Activity.AlreadyExistsException {
+    public void updateActivity(Activity newActivity) throws Activity.NotFoundException, Activity.AlreadyExistsException, Activity.IllegalValueException {
         activities.updateActivity(newActivity);
         saveState();
     }
@@ -421,7 +399,6 @@ public class Engine implements BMSEngine{
         loadActivitiesFromFile(filePath);
     }
 
-
     @Override
     public void saveActivitiesToFile(String filePath) throws Exceptions.IllegalFileTypeException, JAXBException, SAXException {
         Activities activitiesRootElement = new Activities();
@@ -431,12 +408,6 @@ public class Engine implements BMSEngine{
 
         createXmlFromObjects(filePath, Activities.class, activitiesRootElement, "resources/activities.xsd");
     }
-
-
-
-
-
-
 
     private BoatView findSuitPrivateBoatOfParticipents(Reservation reservation){
         List<BoatView> suitPrivateBoats = getAllAvailableBoats()
@@ -457,7 +428,6 @@ public class Engine implements BMSEngine{
         return null;
     }
 
-
     private void allocatePrivateBoatIfExist(Reservation reservation){
         BoatView boat = findSuitPrivateBoatOfParticipents(reservation);
         if (boat != null) {
@@ -469,10 +439,10 @@ public class Engine implements BMSEngine{
     @Override
     public void addReservation(Reservation newReservation)
             throws Reservation.IllegalValueException, Reservation.AlreadyExistsException,
-            Reservation.NotFoundException, Reservation.AlreadyApprovedException {
+            Reservation.NotFoundException, Reservation.AlreadyApprovedException, Member.AlreadyExistsException {
         try{
-            reservations.addReservation(newReservation);
             allocatePrivateBoatIfExist(newReservation);
+            reservations.addReservation(newReservation);
         } catch (Member.AlreadyHaveApprovedReservationsException e){
             MemberView member = getMember(e.getMemberID());
             throw new Reservation.IllegalValueException("Member '" + member.getName() + "' already have an approved reservation for this time");
@@ -497,13 +467,11 @@ public class Engine implements BMSEngine{
         saveState();
     }
 
-
     @Override
     public void deleteReservation(int id) throws Reservation.NotFoundException, Reservation.AlreadyApprovedException {
         reservations.deleteReservation(id);
         saveState();
     }
-
 
     @Override
     public Collection<ReservationView> getAllFutureApprovedReservations(){
@@ -519,14 +487,12 @@ public class Engine implements BMSEngine{
         return Collections.unmodifiableCollection(reservations.getReservations());
     }
 
-
     private Stream<Reservation> getReservationsForCurrentUser(){
         int userID = currentUser.getSerialNumber();
         return reservations.getReservations()
                 .stream()
                 .filter(r -> r.getParticipants().contains(userID) || r.getOrderedMemberID()==userID);
     }
-
 
     @Override
     public Collection<ReservationView> getFutureUnapprovedReservationsForCurrentUser() {
@@ -670,7 +636,6 @@ public class Engine implements BMSEngine{
         saveState();
     }
 
-
     @Override
     public void approveReservation(int reservationID, int boatID)
             throws Reservation.IllegalValueException {
@@ -688,6 +653,4 @@ public class Engine implements BMSEngine{
         currentReservation.setAllocatedBoatID(boatID);
         saveState();
     }
-
-
 }

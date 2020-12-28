@@ -1,7 +1,5 @@
 package bms.utils;
 
-import bms.module.Member;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -64,7 +62,6 @@ public class InputUtils {
         return inputNumber;
     }
 
-
     public static String getStringFromUser() {
         Scanner scanner = new Scanner(System.in);
         String inputString = "";
@@ -82,7 +79,6 @@ public class InputUtils {
 
         return inputString;
     }
-
 
     public static boolean isTrue(String question){
         System.out.println(question);
@@ -117,7 +113,6 @@ public class InputUtils {
         return ans.getAns();
     }
 
-
     public static LocalTime getLocalTimeFromUser() {
         while (true) {
             try {
@@ -127,13 +122,9 @@ public class InputUtils {
                 String time = scanner.nextLine();
                 return(LocalTime.parse(time, formatter));
 
-
             } catch (DateTimeParseException e) {}
-
         }
     }
-
-
 
     public static LocalDate getLocalDateFromUser() {
         while (true) {
@@ -152,13 +143,5 @@ public class InputUtils {
         LocalDate date = getLocalDateFromUser();
         return LocalDateTime.of(date,time);
     }
-
-
-//    public static Member getUserByEmailAndPassword() {
-//
-//
-//
-//    }
-
 
 }

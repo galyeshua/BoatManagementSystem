@@ -1,28 +1,39 @@
-package bms.utils.menu;
+package bms.utils;
 
 import bms.application.Menu;
 import bms.engine.BMSEngine;
 import bms.module.*;
+import bms.utils.commands.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class MenuUtils {
+    public static BMSEngine engine;
+    public static MemberView user;
+
+
+    private static void setEngine(BMSEngine engine) {
+        MenuUtils.engine = engine;
+    }
+    private static void setLoggedInUser(MemberView user) {
+        MenuUtils.user = user;
+    }
 
     public static Menu getMainMenuForUser(MemberView user, BMSEngine engine) {
-        Commands.setEngine(engine);
-        Commands.setLoggedInUser(user);
+        setEngine(engine);
+        setLoggedInUser(user);
         return createMainMenu(user.getManager());
     }
 
     private static Menu createMainMenu(boolean isManager){
         Menu mainMenu = new Menu("Boat House Main Menu");
         mainMenu.addOption("Edit my profile", new editProfileForUser());
-        mainMenu.addOption("Create new reservation", Commands.addReservation());
-        mainMenu.addOption("Show my future reservations", Commands.printFutureReservationForCurrentUser());
-        mainMenu.addOption("Edit my reservations", Commands.chooseAndEditReservationForCurrentUser());
-        mainMenu.addOption("Remove unapproved reservation", Commands.chooseAndDeleteReservationForCurrentUser());
-        mainMenu.addOption("Reservation history", Commands.printReservationHistoryForCurrentUser());
+        mainMenu.addOption("Create new reservation", ReservationCommands.addReservation());
+        mainMenu.addOption("Show my future reservations", ReservationCommands.printFutureReservationForCurrentUser());
+        mainMenu.addOption("Edit my reservations", ReservationCommands.chooseAndEditReservationForCurrentUser());
+        mainMenu.addOption("Remove unapproved reservation", ReservationCommands.chooseAndDeleteReservationForCurrentUser());
+        mainMenu.addOption("Reservation history", ReservationCommands.printReservationHistoryForCurrentUser());
         if (isManager)
             mainMenu.addOption("Manage", new openManageMenu());
         mainMenu.addOption("Exit", mainMenu.ExitApp());
@@ -40,7 +51,7 @@ public class MenuUtils {
             subMenu.addOption("Manage Boats", new openManageBoatsMenu());
             subMenu.addOption("Manage Activities", new openManageActivitiesMenu());
             subMenu.addOption("Manage Reservations", new openManageReservationsMenu());
-            subMenu.addOption("Display assignments for today", Commands.printApprovedReservations(LocalDate.now()));
+            subMenu.addOption("Display assignments for today", ReservationCommands.printApprovedReservations(LocalDate.now()));
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -53,12 +64,12 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Manage Members");
 
-            subMenu.addOption("Add Member", Commands.addMember());
-            subMenu.addOption("Show Members", Commands.printMembers());
-            subMenu.addOption("Edit Member", Commands.chooseAndEditMember());
-            subMenu.addOption("Delete Member", Commands.deleteMember());
+            subMenu.addOption("Add Member", MemberCommands.addMember());
+            subMenu.addOption("Show Members", MemberCommands.printMembers());
+            subMenu.addOption("Edit Member", MemberCommands.chooseAndEditMember());
+            subMenu.addOption("Delete Member", MemberCommands.deleteMember());
             subMenu.addOption("Import data from file", new openImportMembersMenu());
-            subMenu.addOption("Export data to file", Commands.exportMembersToFile());
+            subMenu.addOption("Export data to file", MemberCommands.exportMembersToFile());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -76,15 +87,15 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Edit Member " + memberSerialNumber);
 
-            subMenu.addOption("Edit Member Name", Commands.editMemberName(memberSerialNumber));
-            subMenu.addOption("Edit Member Age", Commands.editMemberAge(memberSerialNumber));
-            subMenu.addOption("Edit Member Notes", Commands.editMemberNotes(memberSerialNumber));
-            subMenu.addOption("Edit Member Level", Commands.editMemberLevel(memberSerialNumber));
-            subMenu.addOption("Edit Member Private Boat", Commands.editMemberPrivateBoat(memberSerialNumber));
-            subMenu.addOption("Edit Member Phone number", Commands.editMemberPhone(memberSerialNumber));
-            subMenu.addOption("Edit Member Email", Commands.editMemberEmail(memberSerialNumber));
-            subMenu.addOption("Edit Member Password", Commands.editMemberPassword(memberSerialNumber));
-            subMenu.addOption("Edit Member Role", Commands.editMemberRole(memberSerialNumber));
+            subMenu.addOption("Edit Member Name", MemberCommands.editMemberName(memberSerialNumber));
+            subMenu.addOption("Edit Member Age", MemberCommands.editMemberAge(memberSerialNumber));
+            subMenu.addOption("Edit Member Notes", MemberCommands.editMemberNotes(memberSerialNumber));
+            subMenu.addOption("Edit Member Level", MemberCommands.editMemberLevel(memberSerialNumber));
+            subMenu.addOption("Edit Member Private Boat", MemberCommands.editMemberPrivateBoat(memberSerialNumber));
+            subMenu.addOption("Edit Member Phone number", MemberCommands.editMemberPhone(memberSerialNumber));
+            subMenu.addOption("Edit Member Email", MemberCommands.editMemberEmail(memberSerialNumber));
+            subMenu.addOption("Edit Member Password", MemberCommands.editMemberPassword(memberSerialNumber));
+            subMenu.addOption("Edit Member Role", MemberCommands.editMemberRole(memberSerialNumber));
 
             subMenu.addOption("Back", subMenu.stopLoop());
 
@@ -98,8 +109,8 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Import members from file ");
 
-            subMenu.addOption("Add to current data", Commands.addMembersFromFile());
-            subMenu.addOption("Replace current data", Commands.replaceMembersFromFile());
+            subMenu.addOption("Add to current data", MemberCommands.addMembersFromFile());
+            subMenu.addOption("Replace current data", MemberCommands.replaceMembersFromFile());
 
             subMenu.addOption("Back", subMenu.stopLoop());
 
@@ -107,19 +118,18 @@ public class MenuUtils {
         }
     }
 
-
     public static class openManageBoatsMenu implements Command
     {
         @Override
         public void execute() {
             Menu subMenu = new Menu("Manage Boats");
 
-            subMenu.addOption("Add Boat", Commands.addBoat());
-            subMenu.addOption("Show Boats", Commands.printBoats());
-            subMenu.addOption("Edit Boat", Commands.chooseAndEditBoat());
-            subMenu.addOption("Delete Boat", Commands.deleteBoat());
+            subMenu.addOption("Add Boat", BoatCommands.addBoat());
+            subMenu.addOption("Show Boats", BoatCommands.printBoats());
+            subMenu.addOption("Edit Boat", BoatCommands.chooseAndEditBoat());
+            subMenu.addOption("Delete Boat", BoatCommands.deleteBoat());
             subMenu.addOption("Import data from file", new openImportBoatsMenu());
-            subMenu.addOption("Export data to file", Commands.exportBoatsToFile());
+            subMenu.addOption("Export data to file", BoatCommands.exportBoatsToFile());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -137,12 +147,12 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Edit Boat " + boatSerialNumber);
 
-            subMenu.addOption("Edit Boat Name", Commands.editBoatName(boatSerialNumber));
-            subMenu.addOption("Edit Boat Number Of Paddles", Commands.editBoatNumOfPaddles(boatSerialNumber));
-            subMenu.addOption("Edit Boat Private", Commands.editBoatPrivate(boatSerialNumber));
-            subMenu.addOption("Edit Boat has Coxswain", Commands.editBoatCoxswain(boatSerialNumber));
-            subMenu.addOption("Edit Boat Marine", Commands.editBoatMarine(boatSerialNumber));
-            subMenu.addOption("Edit Boat Disabled", Commands.editBoatDisabled(boatSerialNumber));
+            subMenu.addOption("Edit Boat Name", BoatCommands.editBoatName(boatSerialNumber));
+            subMenu.addOption("Edit Boat Number Of Paddles", BoatCommands.editBoatNumOfPaddles(boatSerialNumber));
+            subMenu.addOption("Edit Boat Private", BoatCommands.editBoatPrivate(boatSerialNumber));
+            subMenu.addOption("Edit Boat has Coxswain", BoatCommands.editBoatCoxswain(boatSerialNumber));
+            subMenu.addOption("Edit Boat Marine", BoatCommands.editBoatMarine(boatSerialNumber));
+            subMenu.addOption("Edit Boat Disabled", BoatCommands.editBoatDisabled(boatSerialNumber));
 
             subMenu.addOption("Back", subMenu.stopLoop());
 
@@ -156,8 +166,8 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Import boats from file ");
 
-            subMenu.addOption("Add to current data", Commands.addBoatsFromFile());
-            subMenu.addOption("Replace current data", Commands.replaceBoatsFromFile());
+            subMenu.addOption("Add to current data", BoatCommands.addBoatsFromFile());
+            subMenu.addOption("Replace current data", BoatCommands.replaceBoatsFromFile());
 
             subMenu.addOption("Back", subMenu.stopLoop());
 
@@ -171,12 +181,12 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Manage Activities");
 
-            subMenu.addOption("Add Activity", Commands.addActivity());
-            subMenu.addOption("Show Activities", Commands.printActivities());
-            subMenu.addOption("Edit Activity", Commands.chooseAndEditActivity());
-            subMenu.addOption("Delete Activity", Commands.deleteActivity());
+            subMenu.addOption("Add Activity", ActivityCommands.addActivity());
+            subMenu.addOption("Show Activities", ActivityCommands.printActivities());
+            subMenu.addOption("Edit Activity", ActivityCommands.chooseAndEditActivity());
+            subMenu.addOption("Delete Activity", ActivityCommands.deleteActivity());
             subMenu.addOption("Import data from file", new openImportActivitiesMenu());
-            subMenu.addOption("Export data to file", Commands.exportActivitiesToFile());
+            subMenu.addOption("Export data to file", ActivityCommands.exportActivitiesToFile());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -194,10 +204,10 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Edit Activity " + id);
 
-            subMenu.addOption("Edit Activity Name", Commands.editActivityName(id));
-            subMenu.addOption("Edit Activity Start Time", Commands.editActivityStartTime(id));
-            subMenu.addOption("Edit Activity Finish Time", Commands.editActivityFinishTime(id));
-            subMenu.addOption("Edit Activity Boat Type", Commands.editActivityBoatType(id));
+            subMenu.addOption("Edit Activity Name", ActivityCommands.editActivityName(id));
+            subMenu.addOption("Edit Activity Start Time", ActivityCommands.editActivityStartTime(id));
+            subMenu.addOption("Edit Activity Finish Time", ActivityCommands.editActivityFinishTime(id));
+            subMenu.addOption("Edit Activity Boat Type", ActivityCommands.editActivityBoatType(id));
 
             subMenu.addOption("Back", subMenu.stopLoop());
 
@@ -211,15 +221,14 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Import activities from file ");
 
-            subMenu.addOption("Add to current data", Commands.addActivitiesFromFile());
-            subMenu.addOption("Replace current data", Commands.replaceActivitiesFromFile());
+            subMenu.addOption("Add to current data", ActivityCommands.addActivitiesFromFile());
+            subMenu.addOption("Replace current data", ActivityCommands.replaceActivitiesFromFile());
 
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
         }
     }
-
 
     public static class openManageReservationsMenu implements Command
     {
@@ -229,11 +238,11 @@ public class MenuUtils {
 
             subMenu.addOption("Show All Reservation", new openShowDatesForReservationsMenu());
             subMenu.addOption("Show Unapproved Reservation", new openShowDatesForUnapprovedReservationsMenu());
-            subMenu.addOption("Edit Unapproved Reservations", Commands.chooseAndEditReservationForManager());
-            subMenu.addOption("Unapprove reservation", Commands.chooseAndUnapproveReservationForManager());
-            subMenu.addOption("Delete Reservation", Commands.chooseAndDeleteReservationForManager());
-            subMenu.addOption("View available (not disabled) boats", Commands.viewAvailableBoats());
-            subMenu.addOption("Allocate Boat and confirm reservation", Commands.chooseReservationToAllocateBoat());
+            subMenu.addOption("Edit Unapproved Reservations", ReservationCommands.chooseAndEditReservationForManager());
+            subMenu.addOption("Unapprove reservation", ReservationCommands.chooseAndUnapproveReservationForManager());
+            subMenu.addOption("Delete Reservation", ReservationCommands.chooseAndDeleteReservationForManager());
+            subMenu.addOption("View available (not disabled) boats", BoatCommands.viewAvailableBoats());
+            subMenu.addOption("Allocate Boat and confirm reservation", ReservationCommands.chooseReservationToAllocateBoat());
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
@@ -250,15 +259,14 @@ public class MenuUtils {
 
             for (int i = 0; i< 7; i++){
                 LocalDate date = startDate.plusDays(i);
-                subMenu.addOption(date.format(formatter), Commands.printReservations(date));
+                subMenu.addOption(date.format(formatter), ReservationCommands.printReservations(date));
             }
-            subMenu.addOption("All week", Commands.printReservationsForWeek(startDate));
+            subMenu.addOption("All week", ReservationCommands.printReservationsForWeek(startDate));
 
             subMenu.addOption("Back", subMenu.stopLoop());
             subMenu.startLoop();
         }
     }
-
 
     public static class openShowDatesForUnapprovedReservationsMenu implements Command
     {
@@ -270,15 +278,14 @@ public class MenuUtils {
 
             for (int i = 0; i< 7; i++){
                 LocalDate date = startDate.plusDays(i);
-                subMenu.addOption(date.format(formatter), Commands.printUnapprovedReservations(date));
+                subMenu.addOption(date.format(formatter), ReservationCommands.printUnapprovedReservations(date));
             }
-            subMenu.addOption("All week", Commands.printUnapprovedReservationsForWeek(startDate));
+            subMenu.addOption("All week", ReservationCommands.printUnapprovedReservationsForWeek(startDate));
 
             subMenu.addOption("Back", subMenu.stopLoop());
             subMenu.startLoop();
         }
     }
-
 
     public static class openEditReservationMenu implements Command
     {
@@ -289,29 +296,28 @@ public class MenuUtils {
         public openEditReservationMenu(int id, boolean forManager) {
             this.id = id;
             this.forManager = forManager;
-            this.reservation = Commands.engine.getReservation(id);
+            this.reservation = engine.getReservation(id);
         }
 
         @Override
         public void execute() {
 
             Menu subMenu = new Menu("Edit Reservation. Ordered by: " +
-                    Commands.engine.getMember(reservation.getOrderedMemberID()).getName());
+                    engine.getMember(reservation.getOrderedMemberID()).getName());
 
-            subMenu.addOption("Edit Reservation activity", Commands.editReservationActivity(id));
-            subMenu.addOption("Edit Reservation activity Date", Commands.editReservationActivityDate(id));
+            subMenu.addOption("Edit Reservation activity", ReservationCommands.editReservationActivity(id));
+            subMenu.addOption("Edit Reservation activity Date", ReservationCommands.editReservationActivityDate(id));
             subMenu.addOption("Edit Reservation Boat Type", new openAddOrRemoveReservationBoatTypeMenu(id));
             subMenu.addOption("Edit Reservation participants", new openAddOrRemoveReservationParticipantsMenu(id));
 
-            if(forManager && Commands.user.getManager())
-                subMenu.addOption("Split reservation participants", Commands.splitReservationParticipants(id));
+            if(forManager && user.getManager())
+                subMenu.addOption("Split reservation participants", ReservationCommands.splitReservationParticipants(id));
 
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
         }
     }
-
 
     public static class openAddOrRemoveReservationBoatTypeMenu implements Command
     {
@@ -320,7 +326,7 @@ public class MenuUtils {
 
         public openAddOrRemoveReservationBoatTypeMenu(int id) {
             this.id = id;
-            this.reservation = Commands.engine.getReservation(id);
+            this.reservation = engine.getReservation(id);
         }
 
         @Override
@@ -328,15 +334,14 @@ public class MenuUtils {
 
             Menu subMenu = new Menu("Edit Boat Type for Reservation");
 
-            subMenu.addOption("Show boat type", Commands.showReservationBoatType(id));
-            subMenu.addOption("Add type", Commands.addReservationBoatType(id));
-            subMenu.addOption("delete type", Commands.deleteReservationBoatType(id));
+            subMenu.addOption("Show boat type", ReservationCommands.showReservationBoatType(id));
+            subMenu.addOption("Add type", ReservationCommands.addReservationBoatType(id));
+            subMenu.addOption("delete type", ReservationCommands.deleteReservationBoatType(id));
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
         }
     }
-
 
     public static class openAddOrRemoveReservationParticipantsMenu implements Command
     {
@@ -345,7 +350,7 @@ public class MenuUtils {
 
         public openAddOrRemoveReservationParticipantsMenu(int id) {
             this.id = id;
-            this.reservation = Commands.engine.getReservation(id);
+            this.reservation = engine.getReservation(id);
         }
 
         @Override
@@ -353,15 +358,14 @@ public class MenuUtils {
 
             Menu subMenu = new Menu("Edit Perticipents for Reservation");
 
-            subMenu.addOption("Show Participants", Commands.showReservationPerticipents(id));
-            subMenu.addOption("Add Participants", Commands.addReservationPerticipent(id));
-            subMenu.addOption("delete Participants", Commands.deleteReservationPerticipent(id));
+            subMenu.addOption("Show Participants", ReservationCommands.showReservationPerticipents(id));
+            subMenu.addOption("Add Participants", ReservationCommands.addReservationPerticipent(id));
+            subMenu.addOption("delete Participants", ReservationCommands.deleteReservationPerticipent(id));
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
         }
     }
-
 
     public static class editProfileForUser implements Command
     {
@@ -369,15 +373,14 @@ public class MenuUtils {
         public void execute() {
             Menu subMenu = new Menu("Edit Profile");
 
-            subMenu.addOption("Edit Name", Commands.editMemberName(Commands.user.getSerialNumber()));
-            subMenu.addOption("Edit Phone number", Commands.editMemberPhone(Commands.user.getSerialNumber()));
-            subMenu.addOption("Edit Email", Commands.editMemberEmail(Commands.user.getSerialNumber()));
-            subMenu.addOption("Edit Password", Commands.editMemberPassword(Commands.user.getSerialNumber()));
+            subMenu.addOption("Edit Name", MemberCommands.editMemberName(user.getSerialNumber()));
+            subMenu.addOption("Edit Phone number", MemberCommands.editMemberPhone(user.getSerialNumber()));
+            subMenu.addOption("Edit Email", MemberCommands.editMemberEmail(user.getSerialNumber()));
+            subMenu.addOption("Edit Password", MemberCommands.editMemberPassword(user.getSerialNumber()));
 
             subMenu.addOption("Back", subMenu.stopLoop());
 
             subMenu.startLoop();
         }
     }
-
 }

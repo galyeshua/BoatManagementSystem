@@ -3,10 +3,8 @@ package bms.application;
 import bms.engine.BMSEngine;
 import bms.engine.Engine;
 import bms.module.*;
-
-
 import static bms.utils.InputUtils.getStringFromUser;
-import static bms.utils.menu.MenuUtils.getMainMenuForUser;
+import static bms.utils.MenuUtils.getMainMenuForUser;
 
 
 public class BMSMain {
@@ -47,7 +45,5 @@ public class BMSMain {
 
         Menu mainMenu = getMainMenuForUser(user, engine);
         mainMenu.startLoop();
-
     }
-
 }

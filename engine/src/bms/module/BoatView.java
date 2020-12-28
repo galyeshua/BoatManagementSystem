@@ -1,9 +1,5 @@
 package bms.module;
 
-import bms.schema.generated.boat.BoatType;
-
-import javax.xml.bind.annotation.XmlEnumValue;
-
 public interface BoatView {
 
     int getSerialNumber();
@@ -19,10 +15,9 @@ public interface BoatView {
     BoatType getType();
     int getAllowedNumOfRowers();
 
+    enum Paddles {SINGLE, DOUBLE}
 
-    public enum Paddles {SINGLE, DOUBLE}
-
-    public enum Rowers {
+    enum Rowers {
         ONE("1"), TWO("2"), FOUR("4"), EIGHT("8");
         private String num;
 
@@ -34,7 +29,7 @@ public interface BoatView {
         }
     }
 
-    public enum BoatType {
+    enum BoatType {
         SINGLE("Single", false, Rowers.ONE, Paddles.DOUBLE), // 1X
         PAIR("Pair", false, Rowers.TWO, Paddles.SINGLE), // 2-
         COXED_PAIR("Coxed_Pair", true, Rowers.TWO, Paddles.SINGLE), // 2+
@@ -80,5 +75,4 @@ public interface BoatView {
             throw new IllegalArgumentException(name);
         }
     }
-
 }

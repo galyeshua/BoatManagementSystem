@@ -2,7 +2,6 @@ package bms.schema.convertor;
 
 import bms.module.Member;
 import bms.schema.generated.member.RowingLevel;
-
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -21,7 +20,6 @@ public class memberConvertor {
             throw new Member.IllegalValueException("cannot read number '" + number + "' (it must be a number)");
         }
     }
-
 
     private static LocalDate localDateFromXMLGregorianCalendar(XMLGregorianCalendar time){
         return LocalDate.of(time.getYear(), time.getMonth(), time.getDay());

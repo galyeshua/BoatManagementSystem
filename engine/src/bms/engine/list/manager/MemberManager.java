@@ -9,14 +9,14 @@ public class MemberManager {
     @XmlElement(name="member", required = true)
     private List<Member> members = new ArrayList<Member>();
 
-    public void addMember(Member member) throws Member.AlreadyExistsException {
+    public void addMember(Member member) throws Member.AlreadyExistsException, Member.IllegalValueException {
         String email = member.getEmail();
         int serialNumber = member.getSerialNumber();
 
         validateMemberSerialNumber(serialNumber);
         validateMemberEmail(email);
 
-        members.add(member);
+        members.add(new Member(member));
     }
 
     public void deleteMember(int serialNumber) throws Member.NotFoundException {
@@ -39,22 +39,22 @@ public class MemberManager {
 
     public Member getMember(String email) {
         for(Member member : getMembers())
-            if(member.getEmail().equals(email))
+            if(member.getEmail().equalsIgnoreCase(email))
                 return member;
         return null;
     }
 
-    public void updateMember(Member newMember) throws Member.NotFoundException, Member.AlreadyExistsException {
+    public void updateMember(Member newMember) throws Member.NotFoundException, Member.AlreadyExistsException, Member.IllegalValueException {
         int serialNumber = newMember.getSerialNumber();
         Member currentMember = getMember(serialNumber);
 
         if (currentMember == null)
             throw new Member.NotFoundException();
 
-        if (!currentMember.getEmail().equals(newMember.getEmail()))
+        if (!currentMember.getEmail().equalsIgnoreCase(newMember.getEmail()))
             validateMemberEmail(newMember.getEmail());
 
-        members.set(members.indexOf(currentMember), newMember);
+        members.set(members.indexOf(currentMember), new Member(newMember));
     }
 
     private void validateMemberSerialNumber(int serialNumber) throws Member.AlreadyExistsException {

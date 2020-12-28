@@ -3,9 +3,8 @@ package bms.utils;
 import bms.module.BoatView;
 import bms.module.MemberView;
 import bms.module.ReservationView;
-import bms.utils.menu.Commands;
 
-public class printFormat {
+public class printFormatUtils {
 
     public static void printReservation(ReservationView reservation){
         String line;
@@ -14,7 +13,7 @@ public class printFormat {
                 + reservation.getActivity().getFinishTime() + ").";
         line += " Participants: ";
                     for (Integer memberID : reservation.getParticipants())
-        line += "[" + Commands.engine.getMember(memberID).getName() + "]  ";
+        line += "[" + MenuUtils.engine.getMember(memberID).getName() + "]  ";
 
 
         line += ".requested boat type: ";
@@ -23,19 +22,19 @@ public class printFormat {
 
 
         if (reservation.getIsApproved())
-        line += "- Approved" + " (Boat: " + Commands.engine.getBoat(reservation.getAllocatedBoatID()).getFormattedCode() +
-                ", " + Commands.engine.getBoat(reservation.getAllocatedBoatID()).getName() + ")";
+        line += "- Approved" + " (Boat: " + MenuUtils.engine.getBoat(reservation.getAllocatedBoatID()).getFormattedCode() +
+                ", " + MenuUtils.engine.getBoat(reservation.getAllocatedBoatID()).getName() + ")";
                     else
         line += "- Not approved";
 
                     System.out.println(line);
-                    System.out.println("    " + "Order by " + Commands.engine.getMember(reservation.getOrderedMemberID()).getName()
+                    System.out.println("    " + "Order by " + MenuUtils.engine.getMember(reservation.getOrderedMemberID()).getName()
                             + " on " + reservation.getOrderDate());
     }
 
 
     public static void printParticipantsShort(Integer memberID){
-        MemberView member = Commands.engine.getMember(memberID);
+        MemberView member = MenuUtils.engine.getMember(memberID);
         String line;
         line = "Name: " + member.getName();
         if (member.getAge() != null)
@@ -79,5 +78,12 @@ public class printFormat {
         System.out.println(line);
     }
 
+    public static void printErrorsAfterLoading(){
+        if (MenuUtils.engine.getXmlImportErrors().size() > 0){
+            System.out.println("The following errors occurred:");
+            for (String error : MenuUtils.engine.getXmlImportErrors())
+                System.out.println(error);
+        }
+    }
 
 }

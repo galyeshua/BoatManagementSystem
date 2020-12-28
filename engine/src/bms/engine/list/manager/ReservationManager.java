@@ -3,8 +3,6 @@ package bms.engine.list.manager;
 import bms.engine.Exceptions;
 import bms.module.Member;
 import bms.module.Reservation;
-import bms.module.ReservationView;
-
 import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,16 +16,15 @@ public class ReservationManager
     private List<Reservation> reservations = new ArrayList<Reservation>();
 
     public void addReservation(Reservation reservation) throws Member.AlreadyHaveApprovedReservationsException,
-            Reservation.AlreadyExistsException, Reservation.NotFoundException, Reservation.AlreadyApprovedException {
+            Reservation.AlreadyExistsException, Reservation.NotFoundException, Reservation.AlreadyApprovedException, Member.AlreadyExistsException {
 
         if (getReservation(reservation.getId()) != null)
             throw new Reservation.AlreadyExistsException("Reservation " + reservation.getId() + " already exist");
 
         removeParticipantsFromOlderReservations(reservation);
 
-        reservations.add(reservation);
+        reservations.add(new Reservation(reservation));
     }
-
 
     private void removeParticipantsFromOlderReservations(Reservation reservation)
             throws Member.AlreadyHaveApprovedReservationsException, Reservation.NotFoundException, Reservation.AlreadyApprovedException {
@@ -51,7 +48,6 @@ public class ReservationManager
                 }
             }
         }
-
     }
 
     private void validateIfOldReservationsAlreadyApproved(Reservation overlapRes, int memberID)
@@ -59,7 +55,6 @@ public class ReservationManager
         if (overlapRes.getIsApproved())
             throw new Member.AlreadyHaveApprovedReservationsException(memberID);
     }
-
 
     private Collection<Reservation> getOverlapReservations(Reservation reservation){
         return reservations
@@ -91,7 +86,7 @@ public class ReservationManager
 
     public void updateReservation(Reservation newReservation)
             throws Member.AlreadyHaveApprovedReservationsException,
-            Reservation.AlreadyApprovedException, Reservation.NotFoundException {
+            Reservation.AlreadyApprovedException, Reservation.NotFoundException, Member.AlreadyExistsException {
 
         int id = newReservation.getId();
 
@@ -99,9 +94,8 @@ public class ReservationManager
 
         removeParticipantsFromOlderReservations(newReservation);
 
-        reservations.set(reservations.indexOf(getReservation(id)), newReservation);
+        reservations.set(reservations.indexOf(getReservation(id)), new Reservation(newReservation));
     }
-
 
     private void validateApproved(Reservation reservation) throws Reservation.AlreadyApprovedException {
         if(reservation.getIsApproved())

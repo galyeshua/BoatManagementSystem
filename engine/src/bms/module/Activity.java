@@ -1,10 +1,10 @@
 package bms.module;
 
 import bms.module.adapter.LocalTimeAdapter;
-
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalTime;
+import java.util.Objects;
 
 
 @XmlAccessorType(XmlAccessType.NONE)
@@ -53,7 +53,6 @@ public class Activity implements ActivityView {
         this.setFinishTime(other.getFinishTime());
         this.setBoatType(other.getBoatType());
     }
-
 
     public static int getCounter() {
         return counter;
@@ -117,9 +116,6 @@ public class Activity implements ActivityView {
         this.boatType = boatType;
     }
 
-
-
-
     public static class IllegalValueException extends Exception{
         public IllegalValueException(String message) {
             super(message);
@@ -130,5 +126,22 @@ public class Activity implements ActivityView {
         public AlreadyExistsException(String message) {
             super(message);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Activity activity = (Activity) o;
+        return id == activity.id &&
+                name.equalsIgnoreCase(activity.name) &&
+                Objects.equals(startTime, activity.startTime) &&
+                Objects.equals(finishTime, activity.finishTime) &&
+                boatType == activity.boatType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, startTime, finishTime, boatType);
     }
 }

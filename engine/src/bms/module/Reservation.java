@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "reservation")
@@ -44,7 +45,6 @@ public class Reservation implements ReservationView {
 
     @XmlAttribute(required = true)
     private Integer allocatedBoatID;
-
 
     private Reservation(){ }
 
@@ -110,14 +110,11 @@ public class Reservation implements ReservationView {
         return isTimeOverlapping;
     }
 
-
     public void setAllocatedBoatID(Integer boatID){
         this.allocatedBoatID = boatID;
-        if(boatID == null)
-            this.setApproved(false);
-        else
-            this.setApproved(true);
+        this.setApproved(boatID != null);
     }
+
     public void allocateNewId() { this.setId(counter++); }
     private void setId(int id) {this.id = id;}
     public void setActivity(Activity activity) {this.activity = activity;}
@@ -128,10 +125,10 @@ public class Reservation implements ReservationView {
         for (Integer memberID : participants)
             addParticipant(memberID);
     }
+
     public void setOrderDate(LocalDateTime orderDate) {this.orderDate = orderDate;}
     public void setOrderedMemberID(int orderedMemberID) {this.orderedMemberID = orderedMemberID;}
     private void setApproved(boolean approved) {isApproved = approved;}
-
 
     public void addParticipant(Integer memberID) throws Member.AlreadyExistsException {
         if (participants.contains(memberID))
@@ -149,13 +146,12 @@ public class Reservation implements ReservationView {
             throw new Boat.IllegalValueException("Boat type already exist in list");
         boatType.add(type);
     }
+
     public void deleteBoatType(Boat.Rowers type) throws Exceptions.ListCannotBeEmptyException {
         if (boatType.size() == 1)
             throw new Exceptions.ListCannotBeEmptyException();
         boatType.remove(type);
     }
-
-
 
     public static class NotFoundException extends Exception { }
 
@@ -177,4 +173,24 @@ public class Reservation implements ReservationView {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Reservation that = (Reservation) o;
+        return id == that.id &&
+                orderedMemberID == that.orderedMemberID &&
+                isApproved == that.isApproved &&
+                Objects.equals(activity, that.activity) &&
+                Objects.equals(activityDate, that.activityDate) &&
+                Objects.equals(boatType, that.boatType) &&
+                Objects.equals(participants, that.participants) &&
+                Objects.equals(orderDate, that.orderDate) &&
+                Objects.equals(allocatedBoatID, that.allocatedBoatID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, activity, activityDate, boatType, participants, orderDate, orderedMemberID, isApproved, allocatedBoatID);
+    }
 }

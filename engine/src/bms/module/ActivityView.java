@@ -14,5 +14,4 @@ public interface ActivityView {
     BoatView.BoatType getBoatType();
 
     boolean isOverlapping(ActivityView other);
-
 }

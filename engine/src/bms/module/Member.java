@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -73,7 +74,6 @@ public class Member implements MemberView {
         this.setExpireDate(LocalDate.now().plusYears(1));
     }
 
-
     public Member(MemberView other) throws IllegalValueException {
         this.setSerialNumber(other.getSerialNumber());
         this.setName(other.getName());
@@ -88,7 +88,6 @@ public class Member implements MemberView {
         this.setPassword(other.getPassword());
         this.setManager(other.getManager());
     }
-
 
     @Override
     public int getSerialNumber() {
@@ -143,28 +142,31 @@ public class Member implements MemberView {
         return isManager;
     }
 
-
-
     public void setSerialNumber(int serialNumber) {
         this.serialNumber = serialNumber;
     }
+
     public void setName(String name) throws IllegalValueException {
         if (name.trim().isEmpty())
             throw new IllegalValueException("Name cannot be empty");
         this.name = name.trim();
     }
+
     public void setAge(Integer age) {
         this.age = age;
     }
+
     public void setNotes(String notes) {
         if (notes == null || (notes.trim()).isEmpty())
             this.notes = null;
         else
             this.notes = notes.trim();
     }
+
     public void setLevel(Level level) {
         this.level = level;
     }
+
     public void setJoinDate(LocalDate joinDate) throws IllegalValueException {
         if (getExpireDate() != null)
             if(joinDate.isAfter(getExpireDate()) || joinDate.isEqual(getExpireDate()))
@@ -179,11 +181,13 @@ public class Member implements MemberView {
             }
         this.expireDate = expireDate;
     }
+
     private void setHasPrivateBoat(boolean hasPrivateBoat) throws IllegalValueException {
         if(hasPrivateBoat==true && getBoatSerialNumber() == null)
             throw new IllegalValueException("Private boat serial number not specified");
         this.hasPrivateBoat = hasPrivateBoat;
     }
+
     public void setBoatSerialNumber(Integer boatSerialNumber) throws IllegalValueException {
         this.boatSerialNumber = boatSerialNumber;
         if(boatSerialNumber == null)
@@ -191,12 +195,14 @@ public class Member implements MemberView {
         else
             setHasPrivateBoat(true);
     }
+
     public void setPhoneNumber(String phoneNumber) {
         if (phoneNumber == null || (phoneNumber.trim()).isEmpty())
             this.phoneNumber = null;
         else
             this.phoneNumber = phoneNumber.trim();
     }
+
     public void setEmail(String email) throws IllegalValueException {
         String regex = "^(.+)@(.+)$";
         Pattern pattern = Pattern.compile(regex);
@@ -206,17 +212,16 @@ public class Member implements MemberView {
 
         this.email = email;
     }
+
     public void setPassword(String password) throws IllegalValueException {
         if (password == null || password.trim().isEmpty())
             throw new IllegalValueException("Password cannot be empty");
         this.password = password.trim();
     }
+
     public void setManager(boolean manager) {
         isManager = manager;
     }
-
-
-
 
     public static class NotFoundException extends Exception { }
 
@@ -246,4 +251,28 @@ public class Member implements MemberView {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return serialNumber == member.serialNumber &&
+                hasPrivateBoat == member.hasPrivateBoat &&
+                isManager == member.isManager &&
+                name.equalsIgnoreCase(member.name) &&
+                Objects.equals(age, member.age) &&
+                Objects.equals(notes, member.notes) &&
+                level == member.level &&
+                Objects.equals(joinDate, member.joinDate) &&
+                Objects.equals(expireDate, member.expireDate) &&
+                Objects.equals(boatSerialNumber, member.boatSerialNumber) &&
+                Objects.equals(phoneNumber, member.phoneNumber) &&
+                email.equalsIgnoreCase(member.email) &&
+                Objects.equals(password, member.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serialNumber, name, age, notes, level, joinDate, expireDate, hasPrivateBoat, boatSerialNumber, phoneNumber, email, password, isManager);
+    }
 }

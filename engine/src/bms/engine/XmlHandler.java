@@ -2,7 +2,6 @@ package bms.engine;
 
 import bms.module.*;
 import org.xml.sax.SAXException;
-
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.validation.Schema;
@@ -10,7 +9,6 @@ import javax.xml.validation.SchemaFactory;
 import java.io.File;
 import java.util.ArrayList;
 
-import static com.sun.javafx.scene.control.skin.Utils.getResource;
 
 public class XmlHandler {
 
@@ -25,9 +23,6 @@ public class XmlHandler {
     static void createXmlFromObjects(String filePath, Class schemaClass, Object rootElement, String schemaFileName) throws JAXBException, SAXException {
         File xmlFile = new File(filePath);
         File schemaFile = new File(schemaFileName);
-
-        //System.out.println(schemaFile.exists());
-        //System.out.println(schemaFile.getAbsoluteFile());
 
         if (xmlFile.exists())
             throw new Exceptions.FileAlreadyExistException();
@@ -45,13 +40,12 @@ public class XmlHandler {
         jaxbMarshaller.marshal(rootElement, xmlFile);
     }
 
-
     protected static Object ObjectsFromXml(String filePath, Class schemaClass, String schemaFileName) throws JAXBException, SAXException{
         File xmlFile = new File(filePath);
 
         checkIfFileIsXml(xmlFile);
 
-        Object objects = null;
+        Object objects;
 
         JAXBContext jaxbContext = JAXBContext.newInstance(schemaClass);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -69,7 +63,6 @@ public class XmlHandler {
         return objects;
     }
 
-
     protected static void saveSystemState(Engine systemEngine, String filename) throws JAXBException {
         File xmlFile = new File(filename);
 
@@ -80,7 +73,6 @@ public class XmlHandler {
 
         jaxbMarshaller.marshal(systemEngine, xmlFile);
     }
-
 
     protected static void loadSystemState(Engine systemEngine, String filename) throws Exceptions.ListCannotBeEmptyException {
         Engine engineFromFile;
@@ -117,8 +109,4 @@ public class XmlHandler {
             throw new Exceptions.ListCannotBeEmptyException();
         }
     }
-
-
-
-
 }

@@ -1,6 +1,6 @@
 package bms.application;
 
-import bms.utils.menu.Command;
+import bms.utils.commands.Command;
 
 import java.util.ArrayList;
 import java.util.List;
