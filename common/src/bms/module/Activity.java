@@ -3,13 +3,14 @@ package bms.module;
 import bms.module.adapter.LocalTimeAdapter;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.Objects;
 
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "activity")
-public class Activity implements ActivityView {
+public class Activity implements ActivityView, Serializable {
     private static int counter = 0;
 
     private int id;

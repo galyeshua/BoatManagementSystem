@@ -1,5 +1,6 @@
 package bms.engine;
 
+import bms.exception.General;
 import bms.module.*;
 import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
@@ -7,6 +8,8 @@ import javax.xml.bind.*;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 
 
@@ -14,18 +17,15 @@ public class XmlHandler {
 
     private static void checkIfFileIsXml(File file){
         if (!file.exists())
-            throw new Exceptions.FileNotFoundException();
+            throw new General.FileNotFoundException();
 
         if (!file.getName().endsWith(".xml"))
-            throw new Exceptions.IllegalFileTypeException();
+            throw new General.IllegalFileTypeException();
     }
 
-    static void createXmlFromObjects(String filePath, Class schemaClass, Object rootElement, String schemaFileName) throws JAXBException, SAXException {
-        File xmlFile = new File(filePath);
+    // save xml
+    static String xmlStringFromObjects(Class schemaClass, Object rootElement, String schemaFileName) throws JAXBException, SAXException {
         File schemaFile = new File(schemaFileName);
-
-        if (xmlFile.exists())
-            throw new Exceptions.FileAlreadyExistException();
 
         JAXBContext jaxbContext = JAXBContext.newInstance(schemaClass);
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
@@ -37,10 +37,58 @@ public class XmlHandler {
         Schema schema = schemaFactory.newSchema(schemaFile);
         jaxbMarshaller.setSchema(schema);
 
-        jaxbMarshaller.marshal(rootElement, xmlFile);
+        StringWriter writer = new StringWriter();
+        jaxbMarshaller.marshal(rootElement, writer);
+
+        return writer.toString();
     }
 
-    protected static Object ObjectsFromXml(String filePath, Class schemaClass, String schemaFileName) throws JAXBException, SAXException{
+    // load xml
+    protected static Object ObjectsFromXmlString(String xmlContent, Class schemaClass, String schemaFileName) throws JAXBException, SAXException{
+        Object objects;
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(schemaClass);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+
+        //Load schema for validation
+        if(schemaFileName != null){
+            File schemaFile = new File(schemaFileName);
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = schemaFactory.newSchema(schemaFile);
+            jaxbUnmarshaller.setSchema(schema);
+        }
+
+        StringReader reader = new StringReader(xmlContent);
+        objects = jaxbUnmarshaller.unmarshal(reader);
+
+        return objects;
+    }
+
+//
+//
+//
+//
+//    static void createXmlFromObjects(String filePath, Class schemaClass, Object rootElement, String schemaFileName) throws JAXBException, SAXException {
+//        File xmlFile = new File(filePath);
+//        File schemaFile = new File(schemaFileName);
+//
+//        if (xmlFile.exists())
+//            throw new General.FileAlreadyExistException();
+//
+//        JAXBContext jaxbContext = JAXBContext.newInstance(schemaClass);
+//        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+//
+//        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+//
+//        //Load schema for validation
+//        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+//        Schema schema = schemaFactory.newSchema(schemaFile);
+//        jaxbMarshaller.setSchema(schema);
+//
+//        jaxbMarshaller.marshal(rootElement, xmlFile);
+//    }
+//
+    private static Object ObjectsFromXml(String filePath, Class schemaClass, String schemaFileName) throws JAXBException, SAXException{
         File xmlFile = new File(filePath);
 
         checkIfFileIsXml(xmlFile);
@@ -58,7 +106,9 @@ public class XmlHandler {
             jaxbUnmarshaller.setSchema(schema);
         }
 
+        //StringReader reader = new StringReader("xml string here");
         objects = jaxbUnmarshaller.unmarshal(xmlFile);
+
 
         return objects;
     }
@@ -74,7 +124,7 @@ public class XmlHandler {
         jaxbMarshaller.marshal(systemEngine, xmlFile);
     }
 
-    protected static void loadSystemState(Engine systemEngine, String filename) throws Exceptions.ListCannotBeEmptyException {
+    protected static void loadSystemState(Engine systemEngine, String filename) throws General.ListCannotBeEmptyException {
         Engine engineFromFile;
         try {
             engineFromFile = (Engine) ObjectsFromXml(filename, Engine.class, null);
@@ -106,7 +156,7 @@ public class XmlHandler {
                 systemEngine.addReservation(newReservation);
             }
         } catch (Exception e){
-            throw new Exceptions.ListCannotBeEmptyException();
+            throw new General.ListCannotBeEmptyException();
         }
     }
 }

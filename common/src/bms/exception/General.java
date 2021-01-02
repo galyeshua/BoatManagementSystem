@@ -1,6 +1,6 @@
-package bms.engine;
+package bms.exception;
 
-public class Exceptions {
+public class General {
 
     public static class ListCannotBeEmptyException extends Exception { }
     public static class IllegalFileTypeException extends RuntimeException { }

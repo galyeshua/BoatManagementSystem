@@ -1,6 +1,6 @@
 package bms.utils.commands;
 
-import bms.engine.Exceptions;
+import bms.exception.General;
 import bms.module.Boat;
 import bms.module.Member;
 import bms.module.MemberView;
@@ -10,9 +10,15 @@ import org.xml.sax.SAXException;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import java.io.IOException;
+import java.util.Collection;
+
 import static bms.utils.InputUtils.*;
 import static bms.utils.printFormatUtils.printMemberForManager;
 import static bms.utils.printFormatUtils.printErrorsAfterLoading;
+import static bms.xml.Convertor.saveXmlFromString;
+import static bms.xml.Convertor.stringFromXmlFilePath;
+import static bms.xml.Convertor.isFileExists;
 
 public class MemberCommands {
 
@@ -23,7 +29,7 @@ public class MemberCommands {
 
             private void chooseMemberToUpdate() throws Member.NotFoundException {
                 if(MenuUtils.engine.getMembers().isEmpty())
-                    throw new Exceptions.ListIsEmptyException();
+                    throw new General.ListIsEmptyException();
 
                 System.out.println("All the members:");
                 printMembers().execute();
@@ -41,7 +47,7 @@ public class MemberCommands {
                     new MenuUtils.openEditMemberMenu(serialNumber).execute();
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
-                } catch (Exceptions.ListIsEmptyException e){
+                } catch (General.ListIsEmptyException e){
                     System.out.println("No members");
                 }
             }
@@ -104,11 +110,13 @@ public class MemberCommands {
         return new Command() {
             @Override
             public void execute() {
-                if (MenuUtils.engine.getMembers().isEmpty())
+                Collection<MemberView> members = MenuUtils.engine.getMembers();
+
+                if (members.isEmpty())
                     System.out.println("No Members");
                 else {
                     int i = 0;
-                    for (MemberView member : MenuUtils.engine.getMembers()) {
+                    for (MemberView member : members) {
                         System.out.print("[" + i + "] ");
                         printMemberForManager(member);
                         i++;
@@ -124,7 +132,7 @@ public class MemberCommands {
 
             private void chooseMember(){
                 if(MenuUtils.engine.getMembers().isEmpty())
-                    throw new Exceptions.ListIsEmptyException();
+                    throw new General.ListIsEmptyException();
 
                 printMembers().execute();
                 System.out.println("choose member to delete (by Serial number)");
@@ -139,7 +147,7 @@ public class MemberCommands {
                     System.out.println("Member deleted successfully");
                 } catch (Member.NotFoundException e){
                     System.out.println("Member not found");
-                } catch (Exceptions.ListIsEmptyException e){
+                } catch (General.ListIsEmptyException e){
                     System.out.println("No members");
                 } catch (Member.AccessDeniedException e){
                     System.out.println("You dont have permissions to do that");
@@ -380,16 +388,20 @@ public class MemberCommands {
                 System.out.println("Enter file path include name and extension");
                 filePath = getStringFromUser();
                 try {
-                    MenuUtils.engine.saveMembersToFile(filePath);
+                    if(isFileExists(filePath))
+                        throw new General.FileAlreadyExistException();
+                    saveXmlFromString(MenuUtils.engine.getXmlStringMembers(), filePath);
                     System.out.println("successfully saved");
-                } catch (Exceptions.FileAlreadyExistException e){
+                } catch (General.FileAlreadyExistException e){
                     System.out.println("Error: File with the same name already exist at this location. cannot export data.");
                 } catch (DatatypeConfigurationException e){
                     System.out.println(e.getMessage());
                 } catch (JAXBException e) {
-                    System.out.println(e.getLinkedException().getMessage());
-                } catch (SAXException e) {
+                    System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
+                } catch (SAXException | IOException e) {
                     e.printStackTrace();
+                } catch (General.ListIsEmptyException e){
+                    System.out.println("There are no members to export (member list is empty).");
                 }
 
             }
@@ -404,15 +416,15 @@ public class MemberCommands {
                 System.out.println("Enter file path");
                 filePath = getStringFromUser();
                 try{
-                    MenuUtils.engine.loadMembersFromFile(filePath);
+                    MenuUtils.engine.loadMembersFromXmlString(stringFromXmlFilePath(filePath));
                     System.out.println("Data loaded successfully");
                     printErrorsAfterLoading();
-                } catch (Exceptions.IllegalFileTypeException e){
+                } catch (General.IllegalFileTypeException e){
                     System.out.println("File must be in xml format");
-                } catch (Exceptions.FileNotFoundException e){
+                } catch (General.FileNotFoundException e){
                     System.out.println("Cant find file " + filePath);
                 } catch (JAXBException e) {
-                    e.getLinkedException().getMessage();
+                    System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
                 } catch (SAXException e) {
                     e.printStackTrace();
                 }
@@ -433,15 +445,15 @@ public class MemberCommands {
                     System.out.println("Enter file path");
                     filePath = getStringFromUser();
                     try{
-                        MenuUtils.engine.eraseAndLoadMembersFromFile(filePath);
+                        MenuUtils.engine.eraseAndLoadMembersFromXmlString(stringFromXmlFilePath(filePath));
                         System.out.println("Data loaded successfully");
                         printErrorsAfterLoading();
-                    } catch (Exceptions.IllegalFileTypeException e){
+                    } catch (General.IllegalFileTypeException e){
                         System.out.println("File must be in xml format");
-                    } catch (Exceptions.FileNotFoundException e){
+                    } catch (General.FileNotFoundException e){
                         System.out.println("Cant find file " + filePath);
                     } catch (JAXBException e) {
-                        e.getLinkedException().getMessage();
+                        System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
                     } catch (SAXException e) {
                         e.printStackTrace();
                     } catch (Member.IllegalValueException e) {

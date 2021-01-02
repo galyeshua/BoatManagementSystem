@@ -4,12 +4,13 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "boat")
-public class Boat implements BoatView {
+public class Boat implements BoatView, Serializable {
     @XmlAttribute(required = true)
     private int serialNumber;
 

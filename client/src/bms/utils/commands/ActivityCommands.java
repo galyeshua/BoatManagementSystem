@@ -1,6 +1,6 @@
 package bms.utils.commands;
 
-import bms.engine.Exceptions;
+import bms.exception.General;
 import bms.module.Activity;
 import bms.module.ActivityView;
 import bms.module.BoatView;
@@ -8,12 +8,14 @@ import bms.utils.MenuUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static bms.utils.InputUtils.*;
 import static bms.utils.printFormatUtils.printErrorsAfterLoading;
+import static bms.xml.Convertor.*;
 
 public class ActivityCommands {
 
@@ -24,7 +26,7 @@ public class ActivityCommands {
 
             private void chooseActivityToUpdate() throws Activity.NotFoundException {
                 if(MenuUtils.engine.getActivities().isEmpty())
-                    throw new Exceptions.ListIsEmptyException();
+                    throw new General.ListIsEmptyException();
 
                 printActivities().execute();
                 System.out.println("choose activity to edit");
@@ -45,7 +47,7 @@ public class ActivityCommands {
                     new MenuUtils.openEditActivityMenu(id).execute();
                 } catch (Activity.NotFoundException e){
                     System.out.println("Activity not found");
-                } catch (Exceptions.ListIsEmptyException e){
+                } catch (General.ListIsEmptyException e){
                     System.out.println("No activities");
                 }
             }
@@ -113,7 +115,7 @@ public class ActivityCommands {
 
             private void chooseActivity(){
                 if(MenuUtils.engine.getActivities().isEmpty())
-                    throw new Exceptions.ListIsEmptyException();
+                    throw new General.ListIsEmptyException();
 
                 printActivities().execute();
                 System.out.println("choose activity to delete");
@@ -130,7 +132,7 @@ public class ActivityCommands {
                     System.out.println("Activity deleted successfully");
                 } catch (Activity.NotFoundException e){
                     System.out.println("Activity not found");
-                } catch (Exceptions.ListIsEmptyException e){
+                } catch (General.ListIsEmptyException e){
                     System.out.println("No activities");
                 }
             }
@@ -232,14 +234,18 @@ public class ActivityCommands {
                 System.out.println("Enter file path include name and extension");
                 filePath = getStringFromUser();
                 try {
-                    MenuUtils.engine.saveActivitiesToFile(filePath);
+                    if(isFileExists(filePath))
+                        throw new General.FileAlreadyExistException();
+                    saveXmlFromString(MenuUtils.engine.getXmlStringActivities(), filePath);
                     System.out.println("successfully saved");
-                } catch (Exceptions.FileAlreadyExistException e){
+                } catch (General.FileAlreadyExistException e){
                     System.out.println("Error: File with the same name already exist at this location. cannot export data.");
                 } catch (JAXBException e) {
-                    System.out.println(e.getLinkedException().getMessage());
-                } catch (SAXException e) {
+                    System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
+                } catch (SAXException | IOException e) {
                     e.printStackTrace();
+                } catch (General.ListIsEmptyException e){
+                    System.out.println("There are no activities to export (activity list is empty).");
                 }
             }
         };
@@ -253,12 +259,12 @@ public class ActivityCommands {
                 System.out.println("Enter file path");
                 filePath = getStringFromUser();
                 try{
-                    MenuUtils.engine.loadActivitiesFromFile(filePath);
+                    MenuUtils.engine.loadActivitiesFromXmlString(stringFromXmlFilePath(filePath));
                     System.out.println("Data loaded successfully");
                     printErrorsAfterLoading();
-                } catch (Exceptions.IllegalFileTypeException e){
+                } catch (General.IllegalFileTypeException e){
                     System.out.println("File must be in xml format");
-                } catch (Exceptions.FileNotFoundException e){
+                } catch (General.FileNotFoundException e){
                     System.out.println("Cant find file " + filePath);
                 } catch (JAXBException e) {
                     System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
@@ -282,15 +288,15 @@ public class ActivityCommands {
                     System.out.println("Enter file path");
                     filePath = getStringFromUser();
                     try{
-                        MenuUtils.engine.eraseAndLoadActivitiesFromFile(filePath);
+                        MenuUtils.engine.eraseAndLoadActivitiesFromXmlString(stringFromXmlFilePath(filePath));
                         System.out.println("Data loaded successfully");
                         printErrorsAfterLoading();
-                    } catch (Exceptions.IllegalFileTypeException e){
+                    } catch (General.IllegalFileTypeException e){
                         System.out.println("File must be in xml format");
-                    } catch (Exceptions.FileNotFoundException e){
+                    } catch (General.FileNotFoundException e){
                         System.out.println("Cant find file " + filePath);
                     } catch (JAXBException e) {
-                        e.getLinkedException().getMessage();
+                        System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
                     } catch (SAXException e) {
                         e.printStackTrace();
                     }

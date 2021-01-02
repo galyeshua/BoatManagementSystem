@@ -1,5 +1,7 @@
 package bms.module;
 
+
+
 import bms.module.adapter.LocalDateAdapter;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -7,13 +9,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "member")
-public class Member implements MemberView {
+public class Member implements MemberView, Serializable {
 
 
     @XmlAttribute(required = true)

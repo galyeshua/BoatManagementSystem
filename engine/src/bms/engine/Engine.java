@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import bms.engine.list.manager.*;
 
+import bms.exception.General;
 import bms.module.*;
 import bms.schema.generated.activity.Activities;
 import bms.schema.generated.activity.Timeframe;
@@ -22,8 +23,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 
-import static bms.engine.XmlHandler.ObjectsFromXml;
-import static bms.engine.XmlHandler.createXmlFromObjects;
+
+import static bms.engine.XmlHandler.*;
+
+import static bms.engine.XmlHandler.ObjectsFromXmlString;
+import static bms.engine.XmlHandler.xmlStringFromObjects;
 import static bms.schema.convertor.activityConvertor.activityFromSchemaActivity;
 import static bms.schema.convertor.activityConvertor.schemaActivityFromActivity;
 import static bms.schema.convertor.boatConvertor.boatFromSchemaBoat;
@@ -50,7 +54,6 @@ public class Engine implements BMSEngine{
     List<String> xmlImportErrorList = new ArrayList<String>();
 
 
-    @Override
     public void saveState() {
         try{
             XmlHandler.saveSystemState(this, "database.xml");
@@ -59,14 +62,16 @@ public class Engine implements BMSEngine{
         }
     }
 
-    @Override
-    public void loadState() throws Member.IllegalValueException, Member.AlreadyExistsException {
+    public void loadState()  {
         try{
             XmlHandler.loadSystemState(this, "database.xml");
-        } catch (Exceptions.ListCannotBeEmptyException e){
+        } catch (General.ListCannotBeEmptyException e){
+            try {
             Member firstMember = new Member(1, "admin", "admin@bms.com", "admin");
             firstMember.setManager(true);
-            addMember(firstMember);
+                addMember(firstMember);
+            } catch (Member.AlreadyExistsException | Member.IllegalValueException ignored) { ;
+            }
         }
     }
 
@@ -181,11 +186,13 @@ public class Engine implements BMSEngine{
         saveState();
     }
 
+
+
     @Override
-    public void loadBoatsFromFile(String filePath) throws Exceptions.IllegalFileTypeException, JAXBException, SAXException {
+    public void loadBoatsFromXmlString(String fileContent) throws JAXBException, SAXException {
         xmlImportErrorList = new ArrayList<String>();
 
-        Boats boats = (Boats) ObjectsFromXml(filePath, Boats.class, "resources/boats.xsd");
+        Boats boats = (Boats) ObjectsFromXmlString(fileContent, Boats.class, "resources/boats.xsd");
 
         for (bms.schema.generated.boat.Boat schemaBoat : boats.getBoat()){
             try{
@@ -200,20 +207,25 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void eraseAndLoadBoatsFromFile(String filePath) throws JAXBException, SAXException {
+    public void eraseAndLoadBoatsFromXmlString(String fileContent) throws JAXBException, SAXException {
         reservations.eraseAll();
         boats.eraseAll();
-        loadBoatsFromFile(filePath);
+        loadBoatsFromXmlString(fileContent);
     }
 
     @Override
-    public void saveBoatsToFile(String filePath) throws Exceptions.IllegalFileTypeException, JAXBException, SAXException {
+    public String getXmlStringBoats() throws JAXBException, SAXException, General.ListIsEmptyException {
         Boats boatsRootElement = new Boats();
+
+        if (boats.getBoats().isEmpty())
+            throw new General.ListIsEmptyException();
 
         for (Boat systemBoat : boats.getBoats())
             boatsRootElement.getBoat().add(schemaBoatFromBoat(systemBoat));
 
-        createXmlFromObjects(filePath, Boats.class, boatsRootElement, "resources/boats.xsd");
+        System.out.println(boatsRootElement.getBoat().size());
+
+        return xmlStringFromObjects(Boats.class, boatsRootElement, "resources/boats.xsd");
     }
 
     @Override
@@ -300,10 +312,10 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void loadMembersFromFile(String filePath) throws JAXBException, SAXException {
+    public void loadMembersFromXmlString(String fileContent) throws JAXBException, SAXException {
         xmlImportErrorList = new ArrayList<String>();
 
-        Members members = (Members) ObjectsFromXml(filePath, Members.class, "resources/members.xsd");
+        Members members = (Members) ObjectsFromXmlString(fileContent, Members.class, "resources/members.xsd");
 
         for (bms.schema.generated.member.Member schemaMember : members.getMember()){
             try{
@@ -318,23 +330,26 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void eraseAndLoadMembersFromFile(String filePath) throws JAXBException, SAXException, Member.IllegalValueException {
+    public void eraseAndLoadMembersFromXmlString(String fileContent) throws JAXBException, SAXException, Member.IllegalValueException {
         reservations.eraseAll();
         members.eraseAll();
         try {
             addMember(currentUser);
         } catch (Member.AlreadyExistsException ignored) { }
-        loadMembersFromFile(filePath);
+        loadMembersFromXmlString(fileContent);
     }
 
     @Override
-    public void saveMembersToFile(String filePath) throws Exceptions.IllegalFileTypeException, DatatypeConfigurationException, JAXBException, SAXException {
+    public String getXmlStringMembers() throws General.IllegalFileTypeException, JAXBException, SAXException, DatatypeConfigurationException, General.ListIsEmptyException {
         Members membersRootElement = new Members();
+
+        if (members.getMembers().isEmpty())
+            throw new General.ListIsEmptyException();
 
         for (Member systemMember : members.getMembers())
             membersRootElement.getMember().add(schemaMemberFromMember(systemMember));
 
-        createXmlFromObjects(filePath, Members.class, membersRootElement, "resources/members.xsd");
+        return xmlStringFromObjects(Members.class, membersRootElement, "resources/members.xsd");
     }
 
     @Override
@@ -376,10 +391,10 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void loadActivitiesFromFile(String filePath) throws JAXBException, SAXException {
+    public void loadActivitiesFromXmlString(String fileContent) throws JAXBException, SAXException {
         xmlImportErrorList = new ArrayList<String>();
 
-        Activities activities = (Activities) ObjectsFromXml(filePath, Activities.class, "resources/activities.xsd");
+        Activities activities = (Activities) ObjectsFromXmlString(fileContent, Activities.class, "resources/activities.xsd");
         for (Timeframe timeframe : activities.getTimeframe()){
             try{
                 Activity newActivity = activityFromSchemaActivity(timeframe);
@@ -393,20 +408,23 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void eraseAndLoadActivitiesFromFile(String filePath) throws JAXBException, SAXException {
+    public void eraseAndLoadActivitiesFromXmlString(String fileContent) throws JAXBException, SAXException {
         reservations.eraseAll();
         activities.eraseAll();
-        loadActivitiesFromFile(filePath);
+        loadActivitiesFromXmlString(fileContent);
     }
 
     @Override
-    public void saveActivitiesToFile(String filePath) throws Exceptions.IllegalFileTypeException, JAXBException, SAXException {
+    public String getXmlStringActivities() throws General.IllegalFileTypeException, JAXBException, SAXException, General.ListIsEmptyException {
         Activities activitiesRootElement = new Activities();
+
+        if (activities.getActivities().isEmpty())
+            throw new General.ListIsEmptyException();
 
         for (Activity activity : activities.getActivities())
             activitiesRootElement.getTimeframe().add(schemaActivityFromActivity(activity));
 
-        createXmlFromObjects(filePath, Activities.class, activitiesRootElement, "resources/activities.xsd");
+        return xmlStringFromObjects(Activities.class, activitiesRootElement, "resources/activities.xsd");
     }
 
     private BoatView findSuitPrivateBoatOfParticipents(Reservation reservation){

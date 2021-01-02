@@ -1,6 +1,6 @@
 package bms.utils.commands;
 
-import bms.engine.Exceptions;
+import bms.exception.General;
 import bms.module.Boat;
 import bms.module.BoatView;
 import bms.utils.MenuUtils;
@@ -8,10 +8,13 @@ import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
 
+import java.io.IOException;
+
 import static bms.utils.InputUtils.*;
 import static bms.utils.InputUtils.getBoolFromUser;
 import static bms.utils.printFormatUtils.printBoatForManager;
 import static bms.utils.printFormatUtils.printErrorsAfterLoading;
+import static bms.xml.Convertor.*;
 
 public class BoatCommands {
 
@@ -79,7 +82,7 @@ public class BoatCommands {
 
             private void chooseBoat(){
                 if(MenuUtils.engine.getBoats().isEmpty())
-                    throw new Exceptions.ListIsEmptyException();
+                    throw new General.ListIsEmptyException();
 
                 printBoats().execute();
                 System.out.println("choose boat to delete by serialNumber");
@@ -97,7 +100,7 @@ public class BoatCommands {
                     System.out.println("Boat not found");
                 }catch (Boat.AlreadyAllocatedException e){
                     System.out.println("The boat is allocated for an approved reservation");
-                } catch (Exceptions.ListIsEmptyException e){
+                } catch (General.ListIsEmptyException e){
                     System.out.println("No Boats");
                 }
 
@@ -112,7 +115,7 @@ public class BoatCommands {
 
             private void chooseBoatToUpdate() throws Boat.NotFoundException, Boat.AlreadyAllocatedException {
                 if(MenuUtils.engine.getBoats().isEmpty())
-                    throw new Exceptions.ListIsEmptyException();
+                    throw new General.ListIsEmptyException();
 
                 System.out.println("All the boats:");
                 printBoats().execute();
@@ -133,7 +136,7 @@ public class BoatCommands {
                     new MenuUtils.openEditBoatMenu(serialNumber).execute();
                 } catch (Boat.NotFoundException e){
                     System.out.println("Boat not found");
-                } catch (Exceptions.ListIsEmptyException e){
+                } catch (General.ListIsEmptyException e){
                     System.out.println("No boats");
                 } catch (Boat.AlreadyAllocatedException e) {
                     System.out.println("Cannot edit Boat with allocated reservation");
@@ -316,14 +319,18 @@ public class BoatCommands {
                 System.out.println("Enter file path include name and extension");
                 filePath = getStringFromUser();
                 try {
-                    MenuUtils.engine.saveBoatsToFile(filePath);
+                    if(isFileExists(filePath))
+                        throw new General.FileAlreadyExistException();
+                    saveXmlFromString(MenuUtils.engine.getXmlStringBoats(), filePath);
                     System.out.println("successfully saved");
-                } catch (Exceptions.FileAlreadyExistException e){
+                } catch (General.FileAlreadyExistException e){
                     System.out.println("Error: File with the same name already exist at this location. cannot export data.");
                 } catch (JAXBException e) {
-                    System.out.println(e.getLinkedException().getMessage());
-                } catch (SAXException e) {
+                    System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
+                } catch (SAXException | IOException e) {
                     e.printStackTrace();
+                } catch (General.ListIsEmptyException e){
+                    System.out.println("There are no boats to export (boat list is empty).");
                 }
             }
         };
@@ -337,15 +344,15 @@ public class BoatCommands {
                 System.out.println("Enter file path");
                 filePath = getStringFromUser();
                 try{
-                    MenuUtils.engine.loadBoatsFromFile(filePath);
+                    MenuUtils.engine.loadBoatsFromXmlString(stringFromXmlFilePath(filePath));
                     System.out.println("Data loaded successfully");
                     printErrorsAfterLoading();
-                } catch (Exceptions.IllegalFileTypeException e){
+                } catch (General.IllegalFileTypeException e){
                     System.out.println("File must be in xml format");
-                } catch (Exceptions.FileNotFoundException e){
+                } catch (General.FileNotFoundException e){
                     System.out.println("Cant find file " + filePath);
                 } catch (JAXBException e) {
-                    e.getLinkedException().getMessage();
+                    System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
                 } catch (SAXException e) {
                     e.printStackTrace();
                 }
@@ -366,15 +373,15 @@ public class BoatCommands {
                     System.out.println("Enter file path");
                     filePath = getStringFromUser();
                     try{
-                        MenuUtils.engine.eraseAndLoadBoatsFromFile(filePath);
+                        MenuUtils.engine.eraseAndLoadBoatsFromXmlString(stringFromXmlFilePath(filePath));
                         System.out.println("Data loaded successfully");
                         printErrorsAfterLoading();
-                    } catch (Exceptions.IllegalFileTypeException e){
+                    } catch (General.IllegalFileTypeException e){
                         System.out.println("File must be in xml format");
-                    } catch (Exceptions.FileNotFoundException e){
+                    } catch (General.FileNotFoundException e){
                         System.out.println("Cant find file " + filePath);
                     } catch (JAXBException e) {
-                        e.getLinkedException().getMessage();
+                        System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
                     } catch (SAXException e) {
                         e.printStackTrace();
                     }

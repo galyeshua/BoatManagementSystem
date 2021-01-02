@@ -1,6 +1,6 @@
 package bms.engine.list.manager;
 
-import bms.engine.Exceptions;
+import bms.exception.General;
 import bms.module.Member;
 import bms.module.Reservation;
 import javax.xml.bind.annotation.XmlElement;
@@ -42,7 +42,7 @@ public class ReservationManager
 
                     try{
                         overlapRes.deleteParticipant(memberID);
-                    } catch ( Exceptions.ListCannotBeEmptyException e){
+                    } catch ( General.ListCannotBeEmptyException e){
                         deleteReservation(overlapRes.getId());
                     }
                 }

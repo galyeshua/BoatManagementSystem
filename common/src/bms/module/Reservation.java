@@ -1,11 +1,12 @@
 package bms.module;
 
-import bms.engine.Exceptions;
+import bms.exception.General;
 import bms.module.adapter.LocalDateAdapter;
 import bms.module.adapter.LocalDateTimeAdapter;
 
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "reservation")
-public class Reservation implements ReservationView {
+public class Reservation implements ReservationView, Serializable {
     private static int counter = 0;
 
     private int id;
@@ -135,9 +136,9 @@ public class Reservation implements ReservationView {
             throw new Member.AlreadyExistsException("Member already exist in list");
         participants.add(memberID);
     }
-    public void deleteParticipant(Integer memberID) throws Exceptions.ListCannotBeEmptyException {
+    public void deleteParticipant(Integer memberID) throws General.ListCannotBeEmptyException {
         if (participants.size() == 1)
-            throw new Exceptions.ListCannotBeEmptyException();
+            throw new General.ListCannotBeEmptyException();
         participants.remove(memberID);
     }
 
@@ -147,9 +148,9 @@ public class Reservation implements ReservationView {
         boatType.add(type);
     }
 
-    public void deleteBoatType(Boat.Rowers type) throws Exceptions.ListCannotBeEmptyException {
+    public void deleteBoatType(Boat.Rowers type) throws General.ListCannotBeEmptyException {
         if (boatType.size() == 1)
-            throw new Exceptions.ListCannotBeEmptyException();
+            throw new General.ListCannotBeEmptyException();
         boatType.remove(type);
     }
 
