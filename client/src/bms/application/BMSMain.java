@@ -3,13 +3,10 @@ package bms.application;
 import bms.engine.BMSEngine;
 import bms.module.*;
 
-import java.io.IOException;
 import java.lang.reflect.Proxy;
 
 import static bms.utils.InputUtils.getStringFromUser;
 import static bms.utils.MenuUtils.getMainMenuForUser;
-
-import bms.xml.Convertor;
 
 public class BMSMain {
 

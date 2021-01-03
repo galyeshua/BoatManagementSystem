@@ -14,7 +14,7 @@ import static bms.utils.InputUtils.*;
 import static bms.utils.InputUtils.getBoolFromUser;
 import static bms.utils.printFormatUtils.printBoatForManager;
 import static bms.utils.printFormatUtils.printErrorsAfterLoading;
-import static bms.xml.Convertor.*;
+import static bms.utils.xml.Convertor.*;
 
 public class BoatCommands {
 

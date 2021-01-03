@@ -15,7 +15,7 @@ import java.util.List;
 
 import static bms.utils.InputUtils.*;
 import static bms.utils.printFormatUtils.printErrorsAfterLoading;
-import static bms.xml.Convertor.*;
+import static bms.utils.xml.Convertor.*;
 
 public class ActivityCommands {
 

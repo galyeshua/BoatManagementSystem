@@ -1,11 +1,7 @@
-package bms.xml;
+package bms.utils.xml;
 
 import bms.exception.General;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;

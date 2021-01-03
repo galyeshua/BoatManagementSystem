@@ -16,9 +16,9 @@ import java.util.Collection;
 import static bms.utils.InputUtils.*;
 import static bms.utils.printFormatUtils.printMemberForManager;
 import static bms.utils.printFormatUtils.printErrorsAfterLoading;
-import static bms.xml.Convertor.saveXmlFromString;
-import static bms.xml.Convertor.stringFromXmlFilePath;
-import static bms.xml.Convertor.isFileExists;
+import static bms.utils.xml.Convertor.saveXmlFromString;
+import static bms.utils.xml.Convertor.stringFromXmlFilePath;
+import static bms.utils.xml.Convertor.isFileExists;
 
 public class MemberCommands {
 
