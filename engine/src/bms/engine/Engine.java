@@ -23,9 +23,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 
-
-import static bms.engine.XmlHandler.*;
-
 import static bms.engine.XmlHandler.ObjectsFromXmlString;
 import static bms.engine.XmlHandler.xmlStringFromObjects;
 import static bms.schema.convertor.activityConvertor.activityFromSchemaActivity;
@@ -80,8 +77,7 @@ public class Engine implements BMSEngine{
         return Collections.unmodifiableList(xmlImportErrorList);
     }
 
-    @Override
-    public boolean validateUserLogin(String email, String password){
+    private boolean validateUserLogin(String email, String password){
         Member member = members.getMember(email);
         return member!=null && member.getPassword().equals(password);
     }
@@ -298,6 +294,13 @@ public class Engine implements BMSEngine{
     @Override
     public MemberView getMember(String email) {
         return members.getMember(email);
+    }
+
+    @Override
+    public MemberView getMember(String email, String password) {
+        if (validateUserLogin(email, password))
+            return getMember(email);
+        return null;
     }
 
     @Override

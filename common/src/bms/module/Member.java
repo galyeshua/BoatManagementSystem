@@ -254,6 +254,8 @@ public class Member implements MemberView, Serializable {
         }
     }
 
+    public static class AlreadyLoginException extends Exception{};
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

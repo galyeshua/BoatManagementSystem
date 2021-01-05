@@ -14,10 +14,7 @@ public interface BMSEngine {
     List<String> getXmlImportErrors();
 
 
-    boolean validateUserLogin(String email, String password);
     void loginUser(MemberView currentUser);
-    //void saveState() throws JAXBException;
-    //void loadState() throws Member.IllegalValueException, Member.AlreadyExistsException;
 
     void addBoat(Boat newBoat) throws Boat.AlreadyExistsException, Boat.IllegalValueException;
     void deleteBoat(int serialNumber) throws Boat.NotFoundException, Boat.AlreadyAllocatedException;
@@ -41,6 +38,7 @@ public interface BMSEngine {
     Collection<MemberView> getMembers(String name);
     MemberView getMember(int serialNumber);
     MemberView getMember(String email);
+    MemberView getMember(String email, String password);
     void updateMember(Member newMember) throws Member.NotFoundException, Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyAllocatedException;
     void loadMembersFromXmlString(String fileContent) throws JAXBException, SAXException;
     void eraseAndLoadMembersFromXmlString(String fileContent) throws JAXBException, SAXException, Member.IllegalValueException;

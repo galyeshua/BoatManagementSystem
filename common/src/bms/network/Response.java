@@ -3,7 +3,7 @@ package bms.network;
 import java.io.Serializable;
 
 public class Response implements Serializable {
-    public enum Status {OK, FAILED}
+    public enum Status {OK, FAILED, CREATESESSION}
 
     private Object object;
     private Status status;

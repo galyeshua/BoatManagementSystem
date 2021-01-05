@@ -1,23 +1,24 @@
 package bms.server;
 
-import bms.engine.BMSEngine;
+import bms.engine.Engine;
+import bms.engine.LoginHandler;
 import bms.network.Request;
 import bms.network.Response;
 
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class BmsServerThread extends Thread {
-    private BMSEngine engine;
-    private Class engineClass;
     private Socket socket;
+    private BmsServer server;
 
-    public BmsServerThread(BMSEngine engine, Class engineClass, Socket socket) {
-        this.engine = engine;
-        this.engineClass = engineClass;
+    public BmsServerThread(BmsServer server, Socket socket) {
+        this.server = server;
         this.socket = socket;
     }
+
 
     @Override
     public void run(){
@@ -25,34 +26,53 @@ public class BmsServerThread extends Thread {
         try (ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
              ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
 
-            Object res;
+            Object resultOfMethod;
             Response.Status status = Response.Status.OK;
-
-            // get request
             Request request = (Request)in.readObject();
+            Engine engine = server.getEngine();
+            UsersManager usersManager = server.getUsersManager();
+            Method requiredMethod;
+            Object requiredObject;
+
             System.out.println("method name from request: " + request.getMethodName());
-            System.out.println("method args from request: " + request.getArgs());
-            System.out.println("invoking: ");
-            Method requiredMethod = engineClass.getMethod(request.getMethodName(), request.getTypes());
+
+            System.out.println("users:");
+            for(Session s : usersManager.getSessions())
+                System.out.println(s.user.getName());
+
+            boolean isLoginHandlerClass = request.getClassName().equals(LoginHandler.class.getSimpleName());
+
+            if (isLoginHandlerClass){
+                requiredObject = usersManager;
+                requiredMethod = usersManager.getClass().getMethod(request.getMethodName(), request.getTypes());
+            } else {
+                if (request.getSessionID() != null)
+                    usersManager.getSession(request.getSessionID()).updateExpired();
+                requiredObject = engine;
+                requiredMethod = engine.getClass().getMethod(request.getMethodName(), request.getTypes());
+            }
+
 
             try{
-                res = requiredMethod.invoke(engine, request.getArgs());
+                resultOfMethod = requiredMethod.invoke(requiredObject, request.getArgs());
+
+//                if(request.getSessionID() == null)
+//                    if(request.getUser() != null)
+//                        System.out.println("need to set session id");
+
             } catch (Exception e){
-                res = e.getCause();
+                resultOfMethod = e.getCause();
                 status = Response.Status.FAILED;
             }
 
-            // write response
             try{
-                out.writeObject(new Response(res, status));
+                out.writeObject(new Response(resultOfMethod, status));
                 out.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException e) {
             e.printStackTrace();
         }
         System.out.println("finish handle request " + Thread.currentThread().getId());

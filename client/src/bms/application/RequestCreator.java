@@ -1,5 +1,6 @@
 package bms.application;
 
+import bms.module.MemberView;
 import bms.network.Request;
 import bms.network.Response;
 
@@ -14,6 +15,8 @@ import java.net.Socket;
 public class RequestCreator implements InvocationHandler {
     private String host;
     private int port;
+    private static MemberView currentUser = null;
+    private static Integer sessionID = null;
 
     public RequestCreator(String host, int port) {
         this.host = host;
@@ -22,7 +25,6 @@ public class RequestCreator implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        //Object obj = null;
         Response response;
 
         try {
@@ -31,7 +33,7 @@ public class RequestCreator implements InvocationHandler {
 
             // start with sending request to server
             try (ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
-                Request request = new Request(method.getName(), args, method.getParameterTypes());
+                Request request = new Request(method, args, sessionID, currentUser);
                 out.writeObject(request);
                 out.flush();
 
@@ -40,7 +42,6 @@ public class RequestCreator implements InvocationHandler {
                 try(ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()))){
                     response = (Response)in.readObject();
                     System.out.println("STATUS: " + response.getStatus());
-                    //System.out.println(response.getObject());
 
                     if(response.getStatus().equals(Response.Status.FAILED)) {
                         //throw Exception
@@ -60,4 +61,25 @@ public class RequestCreator implements InvocationHandler {
 
         return response.getObject();
     }
+
+    public static void updateSession(MemberView currentUser, Integer sessionID) {
+        RequestCreator.currentUser = currentUser;
+        RequestCreator.sessionID = sessionID;
+    }
+
+//    public static void setCurrentUser(MemberView currentUser) {
+//        RequestCreator.currentUser = currentUser;
+//    }
+//
+//    public static void setSessionID(Integer sessionID) {
+//        RequestCreator.sessionID = sessionID;
+//    }
+//
+//    public static MemberView getCurrentUser() {
+//        return currentUser;
+//    }
+//
+//    public static Integer getSessionID() {
+//        return sessionID;
+//    }
 }
