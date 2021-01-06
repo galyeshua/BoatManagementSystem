@@ -62,7 +62,7 @@ public class Engine implements BMSEngine{
     public void loadState()  {
         try{
             XmlHandler.loadSystemState(this, "database.xml");
-        } catch (General.ListCannotBeEmptyException e){
+        } catch (Reservation.ListCannotBeEmptyException e){
             try {
             Member firstMember = new Member(1, "admin", "admin@bms.com", "admin");
             firstMember.setManager(true);
@@ -343,7 +343,7 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public String getXmlStringMembers() throws General.IllegalFileTypeException, JAXBException, SAXException, DatatypeConfigurationException, General.ListIsEmptyException {
+    public String getXmlStringMembers() throws JAXBException, SAXException, DatatypeConfigurationException, General.ListIsEmptyException {
         Members membersRootElement = new Members();
 
         if (members.getMembers().isEmpty())
@@ -418,7 +418,7 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public String getXmlStringActivities() throws General.IllegalFileTypeException, JAXBException, SAXException, General.ListIsEmptyException {
+    public String getXmlStringActivities() throws JAXBException, SAXException, General.ListIsEmptyException {
         Activities activitiesRootElement = new Activities();
 
         if (activities.getActivities().isEmpty())
@@ -430,7 +430,7 @@ public class Engine implements BMSEngine{
         return xmlStringFromObjects(Activities.class, activitiesRootElement, "resources/activities.xsd");
     }
 
-    private BoatView findSuitPrivateBoatOfParticipents(Reservation reservation){
+    private BoatView findSuitPrivateBoatOfParticipants(Reservation reservation){
         List<BoatView> suitPrivateBoats = getAllAvailableBoats()
                 .stream()
                 .filter(BoatView::getPrivate)
@@ -450,7 +450,7 @@ public class Engine implements BMSEngine{
     }
 
     private void allocatePrivateBoatIfExist(Reservation reservation){
-        BoatView boat = findSuitPrivateBoatOfParticipents(reservation);
+        BoatView boat = findSuitPrivateBoatOfParticipants(reservation);
         if (boat != null) {
             reservation.setAllocatedBoatID(boat.getSerialNumber());
         }

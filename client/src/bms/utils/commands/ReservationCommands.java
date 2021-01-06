@@ -19,7 +19,7 @@ public class ReservationCommands {
             int id;
             ReservationView reservation;
 
-            private void chooseReservationToUpdate() throws Reservation.NotFoundException {
+            private void chooseReservationToUpdate() throws Reservation.NotFoundException, General.ListIsEmptyException {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(MenuUtils.engine.getFutureUnapprovedReservationsForCurrentUser());
                 if (reservations.isEmpty())
@@ -59,7 +59,7 @@ public class ReservationCommands {
             int id;
             ReservationView reservation;
 
-            private void chooseReservationToUpdate() throws Reservation.NotFoundException {
+            private void chooseReservationToUpdate() throws Reservation.NotFoundException, General.ListIsEmptyException {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(MenuUtils.engine.getUnapprovedReservationsForWeek(LocalDate.now()));
                 if (reservations.isEmpty())
@@ -99,7 +99,7 @@ public class ReservationCommands {
             int id;
             ReservationView reservation;
 
-            private void chooseReservationToUnapprove() throws Reservation.NotFoundException {
+            private void chooseReservationToUnapprove() throws Reservation.NotFoundException, General.ListIsEmptyException {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(MenuUtils.engine.getApprovedReservationsForWeek(LocalDate.now()));
                 if (reservations.isEmpty())
@@ -500,7 +500,7 @@ public class ReservationCommands {
                     System.out.println("Error: " + e.getMessage());
                 } catch (Reservation.AlreadyApprovedException e){
                     System.out.println("Cannot edit Approved Reservation" );
-                } catch (General.ListCannotBeEmptyException e){
+                } catch (Reservation.ListCannotBeEmptyException e){
                     System.out.println("List must have at least one type" );
                 }
             }
@@ -599,7 +599,7 @@ public class ReservationCommands {
                     System.out.println("Error: " + e.getMessage());
                 } catch (Reservation.AlreadyApprovedException e){
                     System.out.println("Cannot edit Approved Reservation" );
-                } catch (General.ListCannotBeEmptyException e){
+                } catch (Reservation.ListCannotBeEmptyException e){
                     System.out.println("List must have at least one participant" );
                 }
             }
@@ -611,7 +611,7 @@ public class ReservationCommands {
             int id;
             ReservationView reservation;
 
-            private void chooseReservationToDelete() throws Reservation.NotFoundException {
+            private void chooseReservationToDelete() throws Reservation.NotFoundException, General.ListIsEmptyException {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(MenuUtils.engine.getFutureUnapprovedReservationsForCurrentUser());
                 if (reservations.isEmpty())
@@ -654,7 +654,7 @@ public class ReservationCommands {
             int id;
             ReservationView reservation;
 
-            private void chooseReservationToDelete() throws Reservation.NotFoundException {
+            private void chooseReservationToDelete() throws Reservation.NotFoundException, General.ListIsEmptyException {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(MenuUtils.engine.getUnapprovedReservationsForWeek(LocalDate.now()));
                 if (reservations.isEmpty())
@@ -751,7 +751,7 @@ public class ReservationCommands {
             ReservationView currentReservation;
             int boatID;
 
-            private void chooseBoat(){
+            private void chooseBoat() throws General.ListIsEmptyException {
                 System.out.println("All available and boats for reservation at this time:");
                 List<BoatView> availableBoats = new ArrayList<BoatView>(MenuUtils.engine.getUnprivateAvailableBoats(currentReservation.getActivityDate(), currentReservation.getActivity()));
 
@@ -793,7 +793,7 @@ public class ReservationCommands {
             int id;
             ReservationView reservation;
 
-            private void chooseReservation() throws Reservation.NotFoundException {
+            private void chooseReservation() throws Reservation.NotFoundException, General.ListIsEmptyException {
                 System.out.println("Choose reservation:");
                 ArrayList<ReservationView> reservations = new ArrayList<ReservationView>(MenuUtils.engine.getUnapprovedReservationsForWeek(LocalDate.now()));
                 if (reservations.isEmpty())

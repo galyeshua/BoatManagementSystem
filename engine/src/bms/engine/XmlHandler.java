@@ -7,17 +7,15 @@ import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.ArrayList;
 
 
 public class XmlHandler {
 
-    private static void checkIfFileIsXml(File file){
+    private static void checkIfFileIsXml(File file) throws FileNotFoundException, General.IllegalFileTypeException {
         if (!file.exists())
-            throw new General.FileNotFoundException();
+            throw new FileNotFoundException();
 
         if (!file.getName().endsWith(".xml"))
             throw new General.IllegalFileTypeException();
@@ -88,7 +86,7 @@ public class XmlHandler {
 //        jaxbMarshaller.marshal(rootElement, xmlFile);
 //    }
 //
-    private static Object ObjectsFromXml(String filePath, Class schemaClass, String schemaFileName) throws JAXBException, SAXException{
+    private static Object ObjectsFromXml(String filePath, Class schemaClass, String schemaFileName) throws JAXBException, SAXException, FileNotFoundException, General.IllegalFileTypeException {
         File xmlFile = new File(filePath);
 
         checkIfFileIsXml(xmlFile);
@@ -124,7 +122,7 @@ public class XmlHandler {
         jaxbMarshaller.marshal(systemEngine, xmlFile);
     }
 
-    protected static void loadSystemState(Engine systemEngine, String filename) throws General.ListCannotBeEmptyException {
+    protected static void loadSystemState(Engine systemEngine, String filename) throws Reservation.ListCannotBeEmptyException {
         Engine engineFromFile;
         try {
             engineFromFile = (Engine) ObjectsFromXml(filename, Engine.class, null);
@@ -156,7 +154,8 @@ public class XmlHandler {
                 systemEngine.addReservation(newReservation);
             }
         } catch (Exception e){
-            throw new General.ListCannotBeEmptyException();
+            throw new Reservation.ListCannotBeEmptyException();
         }
     }
+
 }

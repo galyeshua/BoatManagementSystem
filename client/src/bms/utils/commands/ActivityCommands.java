@@ -8,7 +8,9 @@ import bms.utils.MenuUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +26,7 @@ public class ActivityCommands {
             ActivityView activity;
             int id;
 
-            private void chooseActivityToUpdate() throws Activity.NotFoundException {
+            private void chooseActivityToUpdate() throws Activity.NotFoundException, General.ListIsEmptyException {
                 if(MenuUtils.engine.getActivities().isEmpty())
                     throw new General.ListIsEmptyException();
 
@@ -113,7 +115,7 @@ public class ActivityCommands {
         return new Command() {
             int id;
 
-            private void chooseActivity(){
+            private void chooseActivity() throws General.ListIsEmptyException {
                 if(MenuUtils.engine.getActivities().isEmpty())
                     throw new General.ListIsEmptyException();
 
@@ -235,10 +237,10 @@ public class ActivityCommands {
                 filePath = getStringFromUser();
                 try {
                     if(isFileExists(filePath))
-                        throw new General.FileAlreadyExistException();
+                        throw new FileAlreadyExistsException(null);
                     saveXmlFromString(MenuUtils.engine.getXmlStringActivities(), filePath);
                     System.out.println("successfully saved");
-                } catch (General.FileAlreadyExistException e){
+                } catch (FileAlreadyExistsException e){
                     System.out.println("Error: File with the same name already exist at this location. cannot export data.");
                 } catch (JAXBException e) {
                     System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
@@ -264,7 +266,7 @@ public class ActivityCommands {
                     printErrorsAfterLoading();
                 } catch (General.IllegalFileTypeException e){
                     System.out.println("File must be in xml format");
-                } catch (General.FileNotFoundException e){
+                } catch (FileNotFoundException e){
                     System.out.println("Cant find file " + filePath);
                 } catch (JAXBException e) {
                     System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
@@ -293,7 +295,7 @@ public class ActivityCommands {
                         printErrorsAfterLoading();
                     } catch (General.IllegalFileTypeException e){
                         System.out.println("File must be in xml format");
-                    } catch (General.FileNotFoundException e){
+                    } catch (FileNotFoundException e){
                         System.out.println("Cant find file " + filePath);
                     } catch (JAXBException e) {
                         System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());

@@ -4,6 +4,7 @@ import bms.exception.General;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.Scanner;
 
 public class Convertor {
@@ -13,7 +14,7 @@ public class Convertor {
         return xmlFile.exists();
     }
 
-    public static String stringFromXmlFilePath(String filePath){
+    public static String stringFromXmlFilePath(String filePath) throws FileNotFoundException, General.IllegalFileTypeException {
         File xmlFile = new File(filePath);
 
         if (!xmlFile.getName().endsWith(".xml"))
@@ -23,7 +24,7 @@ public class Convertor {
         try {
             content = new Scanner(xmlFile).useDelimiter("\\Z").next();
         } catch (FileNotFoundException e) {
-            throw new General.FileNotFoundException();
+            throw new FileNotFoundException();
         }
 
         return content;
@@ -34,7 +35,7 @@ public class Convertor {
         File xmlFile = new File(filePath);
 
         if (xmlFile.exists())
-            throw new General.FileAlreadyExistException();
+            throw new FileAlreadyExistsException(null);
         else
             xmlFile.createNewFile();
 

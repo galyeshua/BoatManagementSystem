@@ -10,7 +10,9 @@ import org.xml.sax.SAXException;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.Collection;
 
 import static bms.utils.InputUtils.*;
@@ -27,7 +29,7 @@ public class MemberCommands {
             int serialNumber;
             MemberView member;
 
-            private void chooseMemberToUpdate() throws Member.NotFoundException {
+            private void chooseMemberToUpdate() throws Member.NotFoundException, General.ListIsEmptyException {
                 if(MenuUtils.engine.getMembers().isEmpty())
                     throw new General.ListIsEmptyException();
 
@@ -130,7 +132,7 @@ public class MemberCommands {
         return new Command() {
             int serialNumber;
 
-            private void chooseMember(){
+            private void chooseMember() throws General.ListIsEmptyException {
                 if(MenuUtils.engine.getMembers().isEmpty())
                     throw new General.ListIsEmptyException();
 
@@ -389,10 +391,10 @@ public class MemberCommands {
                 filePath = getStringFromUser();
                 try {
                     if(isFileExists(filePath))
-                        throw new General.FileAlreadyExistException();
+                        throw new FileAlreadyExistsException(null);
                     saveXmlFromString(MenuUtils.engine.getXmlStringMembers(), filePath);
                     System.out.println("successfully saved");
-                } catch (General.FileAlreadyExistException e){
+                } catch (FileAlreadyExistsException e){
                     System.out.println("Error: File with the same name already exist at this location. cannot export data.");
                 } catch (DatatypeConfigurationException e){
                     System.out.println(e.getMessage());
@@ -400,7 +402,7 @@ public class MemberCommands {
                     System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
                 } catch (SAXException | IOException e) {
                     e.printStackTrace();
-                } catch (General.ListIsEmptyException e){
+                } catch (General.ListIsEmptyException e) {
                     System.out.println("There are no members to export (member list is empty).");
                 }
 
@@ -421,7 +423,7 @@ public class MemberCommands {
                     printErrorsAfterLoading();
                 } catch (General.IllegalFileTypeException e){
                     System.out.println("File must be in xml format");
-                } catch (General.FileNotFoundException e){
+                } catch (FileNotFoundException e){
                     System.out.println("Cant find file " + filePath);
                 } catch (JAXBException e) {
                     System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
@@ -450,7 +452,7 @@ public class MemberCommands {
                         printErrorsAfterLoading();
                     } catch (General.IllegalFileTypeException e){
                         System.out.println("File must be in xml format");
-                    } catch (General.FileNotFoundException e){
+                    } catch (FileNotFoundException e){
                         System.out.println("Cant find file " + filePath);
                     } catch (JAXBException e) {
                         System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());

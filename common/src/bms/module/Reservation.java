@@ -1,6 +1,5 @@
 package bms.module;
 
-import bms.exception.General;
 import bms.module.adapter.LocalDateAdapter;
 import bms.module.adapter.LocalDateTimeAdapter;
 
@@ -136,9 +135,9 @@ public class Reservation implements ReservationView, Serializable {
             throw new Member.AlreadyExistsException("Member already exist in list");
         participants.add(memberID);
     }
-    public void deleteParticipant(Integer memberID) throws General.ListCannotBeEmptyException {
+    public void deleteParticipant(Integer memberID) throws ListCannotBeEmptyException {
         if (participants.size() == 1)
-            throw new General.ListCannotBeEmptyException();
+            throw new ListCannotBeEmptyException();
         participants.remove(memberID);
     }
 
@@ -148,9 +147,9 @@ public class Reservation implements ReservationView, Serializable {
         boatType.add(type);
     }
 
-    public void deleteBoatType(Boat.Rowers type) throws General.ListCannotBeEmptyException {
+    public void deleteBoatType(Boat.Rowers type) throws ListCannotBeEmptyException {
         if (boatType.size() == 1)
-            throw new General.ListCannotBeEmptyException();
+            throw new ListCannotBeEmptyException();
         boatType.remove(type);
     }
 
@@ -174,6 +173,8 @@ public class Reservation implements ReservationView, Serializable {
         }
     }
 
+    public static class ListCannotBeEmptyException extends Exception{}
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -194,4 +195,5 @@ public class Reservation implements ReservationView, Serializable {
     public int hashCode() {
         return Objects.hash(id, activity, activityDate, boatType, participants, orderDate, orderedMemberID, isApproved, allocatedBoatID);
     }
+
 }

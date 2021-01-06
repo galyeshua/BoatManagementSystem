@@ -8,7 +8,9 @@ import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 
 import static bms.utils.InputUtils.*;
 import static bms.utils.InputUtils.getBoolFromUser;
@@ -80,7 +82,7 @@ public class BoatCommands {
         return new Command() {
             int serialNumber;
 
-            private void chooseBoat(){
+            private void chooseBoat() throws General.ListIsEmptyException {
                 if(MenuUtils.engine.getBoats().isEmpty())
                     throw new General.ListIsEmptyException();
 
@@ -113,7 +115,7 @@ public class BoatCommands {
             int serialNumber;
             BoatView boat;
 
-            private void chooseBoatToUpdate() throws Boat.NotFoundException, Boat.AlreadyAllocatedException {
+            private void chooseBoatToUpdate() throws Boat.NotFoundException, Boat.AlreadyAllocatedException, General.ListIsEmptyException {
                 if(MenuUtils.engine.getBoats().isEmpty())
                     throw new General.ListIsEmptyException();
 
@@ -320,10 +322,10 @@ public class BoatCommands {
                 filePath = getStringFromUser();
                 try {
                     if(isFileExists(filePath))
-                        throw new General.FileAlreadyExistException();
+                        throw new FileAlreadyExistsException(null);
                     saveXmlFromString(MenuUtils.engine.getXmlStringBoats(), filePath);
                     System.out.println("successfully saved");
-                } catch (General.FileAlreadyExistException e){
+                } catch (FileAlreadyExistsException e){
                     System.out.println("Error: File with the same name already exist at this location. cannot export data.");
                 } catch (JAXBException e) {
                     System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
@@ -349,7 +351,7 @@ public class BoatCommands {
                     printErrorsAfterLoading();
                 } catch (General.IllegalFileTypeException e){
                     System.out.println("File must be in xml format");
-                } catch (General.FileNotFoundException e){
+                } catch (FileNotFoundException e){
                     System.out.println("Cant find file " + filePath);
                 } catch (JAXBException e) {
                     System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
@@ -378,7 +380,7 @@ public class BoatCommands {
                         printErrorsAfterLoading();
                     } catch (General.IllegalFileTypeException e){
                         System.out.println("File must be in xml format");
-                    } catch (General.FileNotFoundException e){
+                    } catch (FileNotFoundException e){
                         System.out.println("Cant find file " + filePath);
                     } catch (JAXBException e) {
                         System.out.println("Error: file is not valid. " + e.getLinkedException().getMessage());
