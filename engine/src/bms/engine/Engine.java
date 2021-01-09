@@ -83,7 +83,7 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void loginUser(MemberView currentUser) {
+    public void setCurrentUser(MemberView currentUser) {
         this.currentUser = members.getMember(currentUser.getSerialNumber());
     }
 

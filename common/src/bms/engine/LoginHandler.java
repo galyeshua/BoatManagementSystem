@@ -2,10 +2,12 @@ package bms.engine;
 
 import bms.module.Member;
 import bms.module.MemberView;
+import bms.network.SessionView;
 
 public interface LoginHandler {
 
-    Integer createSessionForUser(MemberView user) throws Member.AlreadyLoginException;
+    SessionView createUserSession(String email, String password) throws Member.InvalidUsernameOrPasswordException, Member.AlreadyLoginException;
 
-    void endSessionForUser(Integer sessionID);
+    void deleteUserSession(MemberView user);
+
 }

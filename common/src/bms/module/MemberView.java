@@ -29,6 +29,8 @@ public interface MemberView {
 
     boolean getManager();
 
+    boolean checkPassword(String password);
+
     enum Level {
         BEGINNER("Beginner"), INTERMEDIATE("Intermediate"), ADVANCED("Advanced");
 

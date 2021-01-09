@@ -13,7 +13,7 @@ public class BmsServer {
 
     public BmsServer() {
         engine = new Engine();
-        usersManager = new UsersManager();
+        usersManager = new UsersManager(engine);
     }
 
     void startServer(int port) {

@@ -123,7 +123,7 @@ public class EngineTest {
         Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
         managerUser.setManager(true);
         engine.addMember(managerUser);
-        engine.loginUser(managerUser);
+        engine.setCurrentUser(managerUser);
 
         Member m = new Member(1, "gal", "gal@gmail.com", "1234");
         engine.addMember(m);
@@ -143,7 +143,7 @@ public class EngineTest {
         Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
         managerUser.setManager(true);
         engine.addMember(managerUser);
-        engine.loginUser(managerUser);
+        engine.setCurrentUser(managerUser);
 
         engine.deleteMember(100);
 
@@ -195,7 +195,7 @@ public class EngineTest {
         gal.setBoatSerialNumber(5);
         engine.addMember(gal);
 
-        engine.loginUser(gal);
+        engine.setCurrentUser(gal);
 
         Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
                 LocalDate.now().plusDays(2),
@@ -225,7 +225,7 @@ public class EngineTest {
         gal.setBoatSerialNumber(5);
         engine.addMember(gal);
 
-        engine.loginUser(gal);
+        engine.setCurrentUser(gal);
 
         Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
                 LocalDate.now().plusDays(2),
@@ -267,7 +267,7 @@ public class EngineTest {
         Member benny = new Member(3, "benny", "benny@gmail.com", "1234");
         engine.addMember(benny);
 
-        engine.loginUser(gal);
+        engine.setCurrentUser(gal);
         Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
                 LocalDate.now().plusDays(2),
                 LocalDateTime.now(),

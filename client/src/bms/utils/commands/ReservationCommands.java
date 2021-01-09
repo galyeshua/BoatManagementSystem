@@ -752,21 +752,29 @@ public class ReservationCommands {
             int boatID;
 
             private void chooseBoat() throws General.ListIsEmptyException {
-                System.out.println("All available and boats for reservation at this time:");
+
                 List<BoatView> availableBoats = new ArrayList<BoatView>(MenuUtils.engine.getUnprivateAvailableBoats(currentReservation.getActivityDate(), currentReservation.getActivity()));
 
                 if(availableBoats.isEmpty())
                     throw new General.ListIsEmptyException();
 
-                int i=0;
-                for(BoatView boat : availableBoats) {
-                    System.out.print("[" + i + "] ");
-                    printBoatForManager(boat);
-                    i++;
-                }
+                System.out.println("Do you want to allocate this boat?");
+                printBoatForManager(availableBoats.get(0));
+                boatID = availableBoats.get(0).getSerialNumber();
+                boolean adminWantsToAllocateDefaultBoat = getBoolFromUser();
 
-                int index = getNumberFromUser(0, availableBoats.size() - 1);
-                boatID = availableBoats.get(index).getSerialNumber();
+                if(!adminWantsToAllocateDefaultBoat){
+                    System.out.println("All available and boats for reservation at this time:");
+                    int i=0;
+                    for(BoatView boat : availableBoats) {
+                        System.out.print("[" + i + "] ");
+                        printBoatForManager(boat);
+                        i++;
+                    }
+
+                    int index = getNumberFromUser(0, availableBoats.size() - 1);
+                    boatID = availableBoats.get(index).getSerialNumber();
+                }
             }
 
             @Override

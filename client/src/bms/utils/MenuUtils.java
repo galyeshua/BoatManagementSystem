@@ -2,6 +2,7 @@ package bms.utils;
 
 import bms.application.Menu;
 import bms.engine.BMSEngine;
+import bms.engine.LoginHandler;
 import bms.module.*;
 import bms.utils.commands.*;
 
@@ -11,8 +12,11 @@ import java.time.format.DateTimeFormatter;
 public class MenuUtils {
     public static BMSEngine engine;
     public static MemberView user;
+    public static LoginHandler loginHandler;
 
-
+    private static void setLoginHandler(LoginHandler loginHandler) {
+        MenuUtils.loginHandler = loginHandler;
+    }
     private static void setEngine(BMSEngine engine) {
         MenuUtils.engine = engine;
     }
@@ -20,7 +24,8 @@ public class MenuUtils {
         MenuUtils.user = user;
     }
 
-    public static Menu getMainMenuForUser(MemberView user, BMSEngine engine) {
+    public static Menu getMainMenuForUser(MemberView user, BMSEngine engine, LoginHandler loginHandler) {
+        setLoginHandler(loginHandler);
         setEngine(engine);
         setLoggedInUser(user);
         return createMainMenu(user.getManager());
@@ -36,9 +41,23 @@ public class MenuUtils {
         mainMenu.addOption("Reservation history", ReservationCommands.printReservationHistoryForCurrentUser());
         if (isManager)
             mainMenu.addOption("Manage", new openManageMenu());
-        mainMenu.addOption("Exit", mainMenu.ExitApp());
+        mainMenu.addOption("Logout", new logoutFromSystem(mainMenu));
 
         return mainMenu;
+    }
+
+    public static class logoutFromSystem implements Command
+    {
+        Menu menu;
+        public logoutFromSystem(Menu menu){
+            this.menu = menu;
+        }
+
+        @Override
+        public void execute() {
+            loginHandler.deleteUserSession(user);
+            menu.ExitApp().execute();
+        }
     }
 
     public static class openManageMenu implements Command

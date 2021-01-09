@@ -145,6 +145,11 @@ public class Member implements MemberView, Serializable {
         return isManager;
     }
 
+    @Override
+    public boolean checkPassword(String password) {
+        return this.getPassword().equals(password);
+    }
+
     public void setSerialNumber(int serialNumber) {
         this.serialNumber = serialNumber;
     }
@@ -255,6 +260,8 @@ public class Member implements MemberView, Serializable {
     }
 
     public static class AlreadyLoginException extends Exception{};
+
+    public static class InvalidUsernameOrPasswordException extends Exception{};
 
     @Override
     public boolean equals(Object o) {
