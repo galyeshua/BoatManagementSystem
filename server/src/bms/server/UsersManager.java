@@ -93,7 +93,7 @@ public class UsersManager implements LoginHandler {
                             "' (" + user.getEmail() + "), SN:" + user.getSerialNumber() + " expired: "
                             + s.getExpiredTime() + " (Active: " + s.sessionIsActive() + ")");
                 else
-                    System.out.println("user " + s.getUserSerialNumber() + "is not exists in engine");
+                    System.out.println("> Session number " + s.getSessionID() + " exists but user (" + s.getUserSerialNumber() + ") is not exists. will be deleted soon.");
             }
         }
     }

@@ -24,10 +24,15 @@ import static bms.utils.xml.Convertor.isFileExists;
 
 public class MemberCommands {
 
+    private static void validateMemberExistence(int serialNumber) throws Member.NotFoundException {
+        MemberView member = MenuUtils.engine.getMember(serialNumber);
+        if (member == null)
+            throw new Member.NotFoundException();
+    }
+
     public static Command chooseAndEditMember() {
         return new Command() {
             int serialNumber;
-            MemberView member;
 
             private void chooseMemberToUpdate() throws Member.NotFoundException, General.ListIsEmptyException {
                 if(MenuUtils.engine.getMembers().isEmpty())
@@ -37,9 +42,7 @@ public class MemberCommands {
                 printMembers().execute();
                 System.out.println("Choose member to edit by entering a Serial Number");
                 serialNumber = getNumberFromUser();
-                member = MenuUtils.engine.getMember(serialNumber);
-                if (member == null)
-                    throw new Member.NotFoundException();
+                validateMemberExistence(serialNumber);
             }
 
             @Override
@@ -169,6 +172,7 @@ public class MemberCommands {
             @Override
             public void execute() {
                 try{
+                    validateMemberExistence(serialNumber);
                     newMember = new Member(MenuUtils.engine.getMember(serialNumber));
                     name = getStringFromUser();
                     newMember.setName(name);
@@ -193,6 +197,7 @@ public class MemberCommands {
             @Override
             public void execute() {
                 try{
+                    validateMemberExistence(serialNumber);
                     newMember = new Member(MenuUtils.engine.getMember(serialNumber));
                     age = getNumberFromUser(16, 99);
                     newMember.setAge(age);
@@ -217,6 +222,7 @@ public class MemberCommands {
             @Override
             public void execute() {
                 try{
+                    validateMemberExistence(serialNumber);
                     newMember = new Member(MenuUtils.engine.getMember(serialNumber));
                     notes = getStringFromUser();
                     newMember.setNotes(notes);
@@ -241,6 +247,7 @@ public class MemberCommands {
             @Override
             public void execute() {
                 try{
+                    validateMemberExistence(serialNumber);
                     newMember = new Member(MenuUtils.engine.getMember(serialNumber));
                     level = (Member.Level) chooseFromOptions(Member.Level.values());
                     newMember.setLevel(level);
@@ -264,6 +271,7 @@ public class MemberCommands {
             @Override
             public void execute() {
                 try{
+                    validateMemberExistence(serialNumber);
                     newMember = new Member(MenuUtils.engine.getMember(serialNumber));
                     System.out.println("Does member have private boat?");
 
@@ -294,6 +302,7 @@ public class MemberCommands {
             @Override
             public void execute() {
                 try{
+                    validateMemberExistence(serialNumber);
                     newMember = new Member(MenuUtils.engine.getMember(serialNumber));
                     phone = getStringFromUser();
                     newMember.setPhoneNumber(phone);
@@ -318,6 +327,7 @@ public class MemberCommands {
             @Override
             public void execute() {
                 try{
+                    validateMemberExistence(serialNumber);
                     newMember = new Member(MenuUtils.engine.getMember(serialNumber));
                     email = getStringFromUser();
                     newMember.setEmail(email);
@@ -342,6 +352,7 @@ public class MemberCommands {
             @Override
             public void execute() {
                 try{
+                    validateMemberExistence(serialNumber);
                     newMember = new Member(MenuUtils.engine.getMember(serialNumber));
                     password = getStringFromUser();
                     newMember.setPassword(password);
@@ -366,7 +377,9 @@ public class MemberCommands {
             @Override
             public void execute() {
                 try{
+                    validateMemberExistence(serialNumber);
                     newMember = new Member(MenuUtils.engine.getMember(serialNumber));
+                    System.out.println("Member is manager?");
                     role = getBoolFromUser();
                     newMember.setManager(role);
                     MenuUtils.engine.updateMember(newMember);
