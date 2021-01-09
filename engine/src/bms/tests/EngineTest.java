@@ -76,7 +76,7 @@ public class EngineTest {
         assertEquals(returnedMember, engine.getMember("gal@gmail.com"));
         assertEquals("gal", returnedMember.getName());
         assertEquals("gal@gmail.com", returnedMember.getEmail());
-        assertEquals("1234", returnedMember.getPassword());
+        assertTrue(returnedMember.checkPassword("1234"));
 
         deleteDatabase();
     }
