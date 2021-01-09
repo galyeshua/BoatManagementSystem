@@ -2,7 +2,9 @@ package bms.module;
 
 
 
+import bms.encryption.Encryptor;
 import bms.module.adapter.LocalDateAdapter;
+import bms.encryption.Encryptor.*;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -147,7 +149,7 @@ public class Member implements MemberView, Serializable {
 
     @Override
     public boolean checkPassword(String password) {
-        return this.getPassword().equals(password);
+        return this.getPassword().equals(Encryptor.Encrypt(password));
     }
 
     public void setSerialNumber(int serialNumber) {
@@ -224,7 +226,11 @@ public class Member implements MemberView, Serializable {
     public void setPassword(String password) throws IllegalValueException {
         if (password == null || password.trim().isEmpty())
             throw new IllegalValueException("Password cannot be empty");
-        this.password = password.trim();
+
+        if(Encryptor.isEncrypted(password.trim()))
+            this.password = password.trim();
+        else
+            this.password = Encryptor.Encrypt(password.trim());
     }
 
     public void setManager(boolean manager) {

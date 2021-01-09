@@ -429,12 +429,19 @@ public class Engine implements BMSEngine{
         return xmlStringFromObjects(Activities.class, activitiesRootElement, "resources/activities.xsd");
     }
 
-    private BoatView findSuitPrivateBoatOfParticipants(Reservation reservation){
-        List<BoatView> suitPrivateBoats = getAllAvailableBoats()
+    @Override
+    public Collection<BoatView> getAllAvailableBoatsForReservation(ReservationView reservation){
+        return Collections.unmodifiableCollection(getAllAvailableBoats()
                 .stream()
-                .filter(BoatView::getPrivate)
                 .filter(b -> b.getAllowedNumOfRowers() == reservation.getParticipants().size())
                 .filter(b -> reservation.getBoatType().contains(b.getNumOfRowers()))
+                .collect(Collectors.toList()));
+    }
+
+    private BoatView findSuitPrivateBoatOfParticipants(ReservationView reservation){
+        List<BoatView> suitPrivateBoats = getAllAvailableBoatsForReservation(reservation)
+                .stream()
+                .filter(BoatView::getPrivate)
                 .collect(Collectors.toList());
 
         for (Integer memberID : reservation.getParticipants()){

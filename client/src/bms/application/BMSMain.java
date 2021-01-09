@@ -1,8 +1,10 @@
 package bms.application;
 
+import bms.encryption.Encryptor;
 import bms.engine.BMSEngine;
 import bms.engine.LoginHandler;
-import bms.module.*;
+import bms.module.Member;
+import bms.module.MemberView;
 import bms.network.Session;
 import bms.network.SessionView;
 
@@ -11,9 +13,23 @@ import java.lang.reflect.Proxy;
 import static bms.utils.InputUtils.getStringFromUser;
 import static bms.utils.MenuUtils.getMainMenuForUser;
 
+
+import java.security.MessageDigest;
+
 public class BMSMain {
 
     public static void main(String[] args) {
+
+//        String regularString = "hello";
+//        String encryptedString = Encryptor.Encrypt(regularString);
+//
+//        System.out.println(regularString);
+//        System.out.println(encryptedString);
+//        System.out.println(encryptedString.length());
+//        System.out.println(Encryptor.isEncrypted(encryptedString));
+
+
+
         String host = "localhost";
         int port = 1989;
 

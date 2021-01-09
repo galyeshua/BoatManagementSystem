@@ -752,28 +752,33 @@ public class ReservationCommands {
             int boatID;
 
             private void chooseBoat() throws General.ListIsEmptyException {
+                boolean adminWantsToAllocateDefaultBoat = false;
+                List<BoatView> suitableBoatsForReservation = new ArrayList<BoatView>(MenuUtils.engine.getAllAvailableBoatsForReservation(currentReservation));
+                List<BoatView> allAvailableBoatsForTime = new ArrayList<BoatView>(MenuUtils.engine.getUnprivateAvailableBoats(currentReservation.getActivityDate(), currentReservation.getActivity()));
 
-                List<BoatView> availableBoats = new ArrayList<BoatView>(MenuUtils.engine.getUnprivateAvailableBoats(currentReservation.getActivityDate(), currentReservation.getActivity()));
-
-                if(availableBoats.isEmpty())
+                if(allAvailableBoatsForTime.isEmpty())
                     throw new General.ListIsEmptyException();
 
-                System.out.println("Do you want to allocate this boat?");
-                printBoatForManager(availableBoats.get(0));
-                boatID = availableBoats.get(0).getSerialNumber();
-                boolean adminWantsToAllocateDefaultBoat = getBoolFromUser();
+                if(suitableBoatsForReservation.isEmpty()){
+                    System.out.println("There are not suitable boats for this reservation by the number of rowers or size of boat.");
+                } else {
+                    System.out.println("Do you want to allocate this boat?");
+                    printBoatForManager(suitableBoatsForReservation.get(0));
+                    boatID = suitableBoatsForReservation.get(0).getSerialNumber();
+                    adminWantsToAllocateDefaultBoat = getBoolFromUser();
+                }
 
                 if(!adminWantsToAllocateDefaultBoat){
-                    System.out.println("All available and boats for reservation at this time:");
+                    System.out.println("All available and boats for the requested time:");
                     int i=0;
-                    for(BoatView boat : availableBoats) {
+                    for(BoatView boat : allAvailableBoatsForTime) {
                         System.out.print("[" + i + "] ");
                         printBoatForManager(boat);
                         i++;
                     }
 
-                    int index = getNumberFromUser(0, availableBoats.size() - 1);
-                    boatID = availableBoats.get(index).getSerialNumber();
+                    int index = getNumberFromUser(0, allAvailableBoatsForTime.size() - 1);
+                    boatID = allAvailableBoatsForTime.get(index).getSerialNumber();
                 }
             }
 

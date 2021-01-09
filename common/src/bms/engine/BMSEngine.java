@@ -19,6 +19,7 @@ public interface BMSEngine {
     Collection<BoatView> getBoats();
     Collection<BoatView> getAllAvailableBoats();
     Collection<BoatView> getAllAvailableBoats(LocalDate date, Activity activity);
+    Collection<BoatView> getAllAvailableBoatsForReservation(ReservationView reservation);
     Collection<BoatView> getUnprivateAvailableBoats(LocalDate date, Activity activity);
     boolean boatIsAvailable(int boatSerialNumber, LocalDate date, Activity activity);
     BoatView getBoat(int serialNumber);
