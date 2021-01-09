@@ -17,7 +17,7 @@ import java.net.Socket;
 public class RequestCreator implements InvocationHandler {
     private String host;
     private int port;
-    private static MemberView currentUser = null;
+    private static Integer userSerialNumber = null;
     private static Integer sessionID = null;
 
     public RequestCreator(String host, int port) {
@@ -35,7 +35,7 @@ public class RequestCreator implements InvocationHandler {
 
             // start with sending request to server
             try (ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
-                Request request = new Request(method, args, sessionID, currentUser);
+                Request request = new Request(method, args, sessionID, userSerialNumber);
                 out.writeObject(request);
                 out.flush();
 
@@ -66,7 +66,7 @@ public class RequestCreator implements InvocationHandler {
     }
 
     public static void updateSession(SessionView session) {
-        RequestCreator.currentUser = session.getUser();
+        RequestCreator.userSerialNumber = session.getUserSerialNumber();
         RequestCreator.sessionID = session.getSessionID();
     }
 

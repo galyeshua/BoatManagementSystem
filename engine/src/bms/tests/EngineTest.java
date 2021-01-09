@@ -25,7 +25,7 @@ public class EngineTest {
 
     @Test
     public void getListOfMembersShouldBeEmpty(){
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
         Collection<MemberView> members = engine.getMembers();
 
         assertEquals(0, members.size());
@@ -35,7 +35,7 @@ public class EngineTest {
 
     @Test
     public void getListOfMembersAfterAddMemberSizeShouldBeOne() throws Member.IllegalValueException, Member.AlreadyExistsException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
 
         Member m = new Member(1, "gal", "gal@gmail.com", "1234");
         engine.addMember(m);
@@ -48,7 +48,7 @@ public class EngineTest {
 
     @Test(expected = Member.AlreadyExistsException.class)
     public void addTwoMemberWithSameDetailsShouldThrowException() throws Member.IllegalValueException, Member.AlreadyExistsException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
         Member m = new Member(1, "gal", "gal@gmail.com", "1234");
         engine.addMember(m);
         engine.addMember(m);
@@ -58,7 +58,7 @@ public class EngineTest {
 
     @Test
     public void getMemberThatNotExistsShouldReturnNull() {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
 
         assertNull(engine.getMember(1));
 
@@ -67,7 +67,7 @@ public class EngineTest {
 
     @Test
     public void addAndGetMemberShouldReturnMemberViewObject() throws Member.AlreadyExistsException, Member.IllegalValueException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
 
         Member m = new Member(1, "gal", "gal@gmail.com", "1234");
         engine.addMember(m);
@@ -83,7 +83,7 @@ public class EngineTest {
 
     @Test
     public void updateMemberNameShouldChangedTheName() throws Member.AlreadyExistsException, Member.IllegalValueException, Member.NotFoundException, Boat.AlreadyAllocatedException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
 
         Member m = new Member(1, "gal", "gal@gmail.com", "1234");
         engine.addMember(m);
@@ -102,7 +102,7 @@ public class EngineTest {
 
     @Test(expected = Member.AlreadyExistsException.class)
     public void updateMemberEmailOfAnotherUserShouldReturnAlreadyExist() throws Member.AlreadyExistsException, Member.IllegalValueException, Member.NotFoundException, Boat.AlreadyAllocatedException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
 
         Member m1 = new Member(1, "gal", "gal@gmail.com", "1234");
         engine.addMember(m1);
@@ -118,12 +118,12 @@ public class EngineTest {
 
     @Test
     public void getMemberAfterDeletingShouldReturnNull() throws Member.AccessDeniedException, Member.NotFoundException, Member.AlreadyHaveApprovedReservationsException, Member.AlreadyExistsException, Member.IllegalValueException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
 
         Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
         managerUser.setManager(true);
         engine.addMember(managerUser);
-        engine.setCurrentUser(managerUser);
+        engine.setCurrentUser(managerUser.getSerialNumber());
 
         Member m = new Member(1, "gal", "gal@gmail.com", "1234");
         engine.addMember(m);
@@ -138,12 +138,12 @@ public class EngineTest {
 
     @Test(expected = Member.AccessDeniedException.class)
     public void deleteLoggedInUserShouldReturnAccessDenied() throws Member.AccessDeniedException, Member.NotFoundException, Member.AlreadyHaveApprovedReservationsException, Member.AlreadyExistsException, Member.IllegalValueException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
 
         Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
         managerUser.setManager(true);
         engine.addMember(managerUser);
-        engine.setCurrentUser(managerUser);
+        engine.setCurrentUser(managerUser.getSerialNumber());
 
         engine.deleteMember(100);
 
@@ -152,7 +152,7 @@ public class EngineTest {
 
     @Test
     public void getMembersByNameWithUsersShouldReturnListOfTwo() throws Member.IllegalValueException, Member.AlreadyExistsException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
 
         Member m1 = new Member(1, "gal", "gal@gmail.com", "1234");
         engine.addMember(m1);
@@ -172,7 +172,7 @@ public class EngineTest {
 
     @Test
     public void getMembersByNameWithoutUsersShouldReturnEmptyList() {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
 
         Collection<MemberView> members = engine.getMembers("gal");
         assertTrue(members.isEmpty());
@@ -183,7 +183,7 @@ public class EngineTest {
 
     @Test
     public void addReservationForUserWithPrivateBoatShouldApprovedAutomatically() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyExistsException, Boat.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException, Activity.IllegalValueException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -195,7 +195,7 @@ public class EngineTest {
         gal.setBoatSerialNumber(5);
         engine.addMember(gal);
 
-        engine.setCurrentUser(gal);
+        engine.setCurrentUser(gal.getSerialNumber());
 
         Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
                 LocalDate.now().plusDays(2),
@@ -214,7 +214,7 @@ public class EngineTest {
 
     @Test
     public void addReservationForUserWithPrivateBoatOfDifferentTypeShouldNotApproved() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyExistsException, Boat.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException, Activity.IllegalValueException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
         Boat galsBoat = new Boat(5, "5", BoatView.BoatType.SINGLE);
@@ -225,7 +225,7 @@ public class EngineTest {
         gal.setBoatSerialNumber(5);
         engine.addMember(gal);
 
-        engine.setCurrentUser(gal);
+        engine.setCurrentUser(gal.getSerialNumber());
 
         Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
                 LocalDate.now().plusDays(2),
@@ -244,7 +244,7 @@ public class EngineTest {
 
     @Test
     public void addTwoReservationsThatOneWithPrivateBoatShouldApprovedOneAutomatically() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyExistsException, Boat.IllegalValueException, Activity.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException {
-        BMSEngine engine = new Engine();
+        Engine engine = new Engine();
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
         Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
@@ -267,7 +267,7 @@ public class EngineTest {
         Member benny = new Member(3, "benny", "benny@gmail.com", "1234");
         engine.addMember(benny);
 
-        engine.setCurrentUser(gal);
+        engine.setCurrentUser(gal.getSerialNumber());
         Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
                 LocalDate.now().plusDays(2),
                 LocalDateTime.now(),

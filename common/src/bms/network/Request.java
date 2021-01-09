@@ -1,7 +1,5 @@
 package bms.network;
 
-import bms.module.MemberView;
-
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
@@ -11,16 +9,16 @@ public class Request implements Serializable {
     private Object[] args;
     private String className;
     private Integer sessionID;
-    private MemberView user;
+    private Integer userSerialNumber;
 
 
-    public Request(Method method, Object[] args, Integer sessionID, MemberView user){
+    public Request(Method method, Object[] args, Integer sessionID, Integer userSerialNumber){
         this.args = args;
         this.methodName = method.getName();
         this.types = method.getParameterTypes();
         this.className = method.getDeclaringClass().getSimpleName();
         this.sessionID = sessionID;
-        this.user = user;
+        this.userSerialNumber = userSerialNumber;
     }
 
     public String getMethodName() {
@@ -39,8 +37,8 @@ public class Request implements Serializable {
         return sessionID;
     }
 
-    public MemberView getUser() {
-        return user;
+    public Integer getUserSerialNumber() {
+        return userSerialNumber;
     }
 
     public String getClassName() {

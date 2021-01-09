@@ -82,9 +82,8 @@ public class Engine implements BMSEngine{
         return member!=null && member.getPassword().equals(password);
     }
 
-    @Override
-    public void setCurrentUser(MemberView currentUser) {
-        this.currentUser = members.getMember(currentUser.getSerialNumber());
+    public void setCurrentUser(int userSerialNumber) {
+        this.currentUser = members.getMember(userSerialNumber);
     }
 
     private void validateUserRole() throws Member.AccessDeniedException {

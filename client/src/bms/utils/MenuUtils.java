@@ -55,7 +55,7 @@ public class MenuUtils {
 
         @Override
         public void execute() {
-            loginHandler.deleteUserSession(user);
+            loginHandler.deleteUserSession(user.getSerialNumber());
             menu.ExitApp().execute();
         }
     }

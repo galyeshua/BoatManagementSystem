@@ -1,6 +1,5 @@
 package bms.server;
 
-import java.util.Arrays;
 
 public class BmsServerMain {
     public static void main(String[] args) {

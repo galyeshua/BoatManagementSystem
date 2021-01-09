@@ -1,25 +1,23 @@
 package bms.network;
 
-import bms.module.MemberView;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class Session implements SessionView, Serializable {
-    private MemberView user;
     private LocalDateTime expiredTime;
     private int sessionTimeInMinutes = 5;
+    private int userSerialNumber;
     private int sessionID;
 
-    public Session(MemberView user, int sessionID) {
+    public Session(int userSerialNumber, int sessionID) {
         this.sessionID = sessionID;
-        this.user = user;
+        this.userSerialNumber = userSerialNumber;
         updateExpiredTime();
     }
 
     public Session(SessionView other) {
         this.sessionID = other.getSessionID();
-        this.user = other.getUser();
+        this.userSerialNumber = other.getUserSerialNumber();
     }
 
     public void setSessionTimeInMinutes(int sessionTimeInMinutes) {
@@ -36,8 +34,8 @@ public class Session implements SessionView, Serializable {
     }
 
     @Override
-    public MemberView getUser() {
-        return user;
+    public int getUserSerialNumber() {
+        return userSerialNumber;
     }
 
     public LocalDateTime getExpiredTime() {

@@ -13,7 +13,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 public interface BMSEngine {
     List<String> getXmlImportErrors();
 
-    void setCurrentUser(MemberView currentUser);
 
     void addBoat(Boat newBoat) throws Boat.AlreadyExistsException, Boat.IllegalValueException;
     void deleteBoat(int serialNumber) throws Boat.NotFoundException, Boat.AlreadyAllocatedException;

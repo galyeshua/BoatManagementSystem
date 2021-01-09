@@ -25,7 +25,7 @@ public class BMSMain {
             System.out.println("Connecting to default host '" + host + "' and port " + port + ".");
         }
 
-        new BMSMain().start(host, port);
+        new BMSMain().startClient(host, port);
     }
 
     private static String parseHostArg(String hostArg){
@@ -48,7 +48,7 @@ public class BMSMain {
     }
 
 
-    private void start(String host, int port) {
+    private void startClient(String host, int port) {
         Object proxy = inspectEngine(host, port);
 
         BMSEngine engine = (BMSEngine)proxy;
@@ -80,8 +80,10 @@ public class BMSMain {
                     }
                 }while(!isValid);
 
-                System.out.println("Welcome " + session.getUser().getName());
-                mainMenu = getMainMenuForUser(session.getUser(), engine, loginHandler);
+                MemberView user = engine.getMember(session.getUserSerialNumber());
+
+                System.out.println("Welcome " + user.getName());
+                mainMenu = getMainMenuForUser(user, engine, loginHandler);
                 mainMenu.startLoop();
 
             } catch(Session.IsExpiredException e){
@@ -95,6 +97,5 @@ public class BMSMain {
             }
         }
     }
-
 
 }

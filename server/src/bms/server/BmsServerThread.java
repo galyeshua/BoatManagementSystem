@@ -48,8 +48,8 @@ public class BmsServerThread extends Thread {
 
             try{
                 if(userMustBeLoggedIn){
-                    usersManager.updateSessionExpiredTime(request.getUser(), request.getSessionID());
-                    engine.setCurrentUser(request.getUser());
+                    usersManager.updateSessionExpiredTime(request.getUserSerialNumber(), request.getSessionID());
+                    engine.setCurrentUser(request.getUserSerialNumber());
                 }
                 result = method.invoke(objectForInvoke, request.getArgs());
 

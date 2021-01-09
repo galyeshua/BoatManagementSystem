@@ -21,14 +21,22 @@ public class UsersManager implements LoginHandler {
         activeUsers = new Hashtable<>();
     }
 
-    private void deleteExpiredSessions(){
-        for(Session s : activeUsers.values())
-            if(!s.sessionIsActive())
-                activeUsers.remove(s.getUser().getSerialNumber());
+    private boolean userExistsInActiveUsersMap(int userSerialNumber){
+        return activeUsers.containsKey(userSerialNumber);
     }
 
-    public boolean userIsLoggedIn(MemberView user){
-        return activeUsers.containsKey(user.getSerialNumber());
+    private void deleteExpiredSessionsFromMap(){
+        for(Session s : activeUsers.values())
+            if(!s.sessionIsActive())
+                deleteUserSession(s.getUserSerialNumber());
+    }
+
+    public Session getSessionForUser(int userSerialNumber) throws Session.IsNotExistsException {
+        Session s = activeUsers.get(userSerialNumber);
+        if(s==null)
+            throw new Session.IsNotExistsException();
+
+        return s;
     }
 
     @Override
@@ -38,33 +46,32 @@ public class UsersManager implements LoginHandler {
         if ((user == null) || (!user.checkPassword(password)))
             throw new Member.InvalidUsernameOrPasswordException();
 
-        deleteExpiredSessions(); // if user have old session it will remove here
+        deleteExpiredSessionsFromMap(); // if user have old session it will remove here
 
-        if (userIsLoggedIn(user))
+        if (userExistsInActiveUsersMap(user.getSerialNumber()))
             throw new Member.AlreadyLoginException();
 
-        activeUsers.put(user.getSerialNumber(), new Session(user, sessionCounter++));
+        Session createdSession = new Session(user.getSerialNumber(), sessionCounter++);
+        activeUsers.put(user.getSerialNumber(), createdSession);
 
-        return new Session(activeUsers.get(user.getSerialNumber()));
+        return createdSession;
     }
 
     @Override
-    public void deleteUserSession(MemberView user) {
-        if(userIsLoggedIn(user))
-            activeUsers.remove(user.getSerialNumber());
+    public void deleteUserSession(int userSerialNumber) {
+        if(userExistsInActiveUsersMap(userSerialNumber))
+            activeUsers.remove(userSerialNumber);
 
-        deleteExpiredSessions();
+        deleteExpiredSessionsFromMap();
     }
 
-    public Session getSession(MemberView user) throws Session.IsNotExistsException {
-        Session s = activeUsers.get(user.getSerialNumber());
-        if(s==null)
+    public void updateSessionExpiredTime(int userSerialNumber, int sessionID) throws Session.IsNotExistsException, Session.IsExpiredException, Member.NotFoundException {
+        Session s = getSessionForUser(userSerialNumber);
+
+        if(engine.getMember(userSerialNumber)==null){
+            deleteUserSession(userSerialNumber);
             throw new Session.IsNotExistsException();
-        return s;
-    }
-
-    public void updateSessionExpiredTime(MemberView user, int sessionID) throws Session.IsNotExistsException, Session.IsExpiredException {
-        Session s = getSession(user);
+        }
 
         boolean sessionIdIsNotEqual = s.getSessionID() != sessionID;
         boolean sessionIsExpired = !s.sessionIsActive();
@@ -79,10 +86,15 @@ public class UsersManager implements LoginHandler {
             System.out.println("(No connected users)");
         else{
             System.out.println("List of connected users:");
-            for(Session s : activeUsers.values())
-                System.out.println("> Session number " + s.getSessionID() + " for user '" + s.getUser().getName() +
-                        "' (" + s.getUser().getEmail() + "), SN:" + s.getUser().getSerialNumber() + " expired: "
-                + s.getExpiredTime() + " (Active: " + s.sessionIsActive() + ")");
+            for(Session s : activeUsers.values()){
+                MemberView user = engine.getMember(s.getUserSerialNumber());
+                if (user != null)
+                    System.out.println("> Session number " + s.getSessionID() + " for user '" + user.getName() +
+                            "' (" + user.getEmail() + "), SN:" + user.getSerialNumber() + " expired: "
+                            + s.getExpiredTime() + " (Active: " + s.sessionIsActive() + ")");
+                else
+                    System.out.println("user " + s.getUserSerialNumber() + "is not exists in engine");
+            }
         }
     }
 
