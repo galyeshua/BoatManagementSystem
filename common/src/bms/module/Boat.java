@@ -240,4 +240,5 @@ public class Boat implements BoatView, Serializable {
     public int hashCode() {
         return Objects.hash(serialNumber, name, numOfRowers, numOfPaddles, isPrivate, isWide, hasCoxswain, isMarine, isDisabled);
     }
+
 }

@@ -37,10 +37,10 @@ public class BMSMain {
             host = parseHostArg(args[0]);
             port = parsePortArg(args[1]);
         } catch (Exception e){
-            System.out.println("Usage: --host=HOST --port=NUMBER");
-            System.out.println("Connecting to default host '" + host + "' and port " + port + ".");
+            System.out.println("Usage: java -cp common.jar;client.jar bms.application.BMSMain --host=HOST --port=PORT");
         }
 
+        System.out.println("Connecting to host '" + host + "' and port " + port);
         new BMSMain().startClient(host, port);
     }
 

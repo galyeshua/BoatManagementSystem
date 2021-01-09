@@ -753,16 +753,16 @@ public class ReservationCommands {
 
             private void chooseBoat() throws General.ListIsEmptyException {
                 boolean adminWantsToAllocateDefaultBoat = false;
-                List<BoatView> suitableBoatsForReservation = new ArrayList<BoatView>(MenuUtils.engine.getAllAvailableBoatsForReservation(currentReservation));
+                List<BoatView> suitableBoatsForReservation = new ArrayList<BoatView>(MenuUtils.engine.findSuitableBoatByLevelOfParticipants(currentReservation));
                 List<BoatView> allAvailableBoatsForTime = new ArrayList<BoatView>(MenuUtils.engine.getUnprivateAvailableBoats(currentReservation.getActivityDate(), currentReservation.getActivity()));
 
                 if(allAvailableBoatsForTime.isEmpty())
                     throw new General.ListIsEmptyException();
 
                 if(suitableBoatsForReservation.isEmpty()){
-                    System.out.println("There are not suitable boats for this reservation by the number of rowers or size of boat.");
+                    System.out.println("There are not suitable boats for this reservation by the number of rowers, size of boat and participants level.");
                 } else {
-                    System.out.println("Do you want to allocate this boat?");
+                    System.out.println("Do you want to allocate this boat? it matches the requested reservation details.");
                     printBoatForManager(suitableBoatsForReservation.get(0));
                     boatID = suitableBoatsForReservation.get(0).getSerialNumber();
                     adminWantsToAllocateDefaultBoat = getBoolFromUser();

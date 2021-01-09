@@ -8,7 +8,7 @@ public class BmsServerMain {
         try{
             port = parsePortArg(args[0]);
         } catch (Exception e){
-            System.out.println("Usage: --port=NUMBER");
+            System.out.println("Usage: java -cp common.jar;engine.jar;server.jar bms.server.BmsServerMain --port=PORT");
             System.out.println("Default port " + port + " will be used.");
         }
 
@@ -18,5 +18,4 @@ public class BmsServerMain {
     private static int parsePortArg(String portArg){
         return Integer.parseInt(portArg.split("--port=")[1]);
     }
-
 }

@@ -431,10 +431,28 @@ public class Engine implements BMSEngine{
 
     @Override
     public Collection<BoatView> getAllAvailableBoatsForReservation(ReservationView reservation){
-        return Collections.unmodifiableCollection(getAllAvailableBoats()
+        return Collections.unmodifiableCollection(getAllAvailableBoats(reservation.getActivityDate(), reservation.getActivity())
                 .stream()
                 .filter(b -> b.getAllowedNumOfRowers() == reservation.getParticipants().size())
                 .filter(b -> reservation.getBoatType().contains(b.getNumOfRowers()))
+                .collect(Collectors.toList()));
+    }
+
+    private boolean needToAlocateWideBoatForBegginers(ReservationView reservation){
+        for (Integer memberID : reservation.getParticipants()){
+            MemberView member = getMember(memberID);
+            if (member != null && member.getLevel().equals(MemberView.Level.BEGINNER))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Collection<BoatView> findSuitableBoatByLevelOfParticipants(ReservationView reservation){
+        boolean needWideBoat = needToAlocateWideBoatForBegginers(reservation);
+        return Collections.unmodifiableCollection(getAllAvailableBoatsForReservation(reservation)
+                .stream()
+                .filter(b -> b.getWide()==needWideBoat)
                 .collect(Collectors.toList()));
     }
 
@@ -665,10 +683,13 @@ public class Engine implements BMSEngine{
 
     @Override
     public void approveReservation(int reservationID, int boatID)
-            throws Reservation.IllegalValueException {
+            throws Reservation.IllegalValueException, Boat.AlreadyAllocatedException {
 
         Reservation currentReservation= reservations.getReservation(reservationID);
         Boat boat = boats.getBoat(boatID);
+
+        if(!boatIsAvailable(boatID, currentReservation.getActivityDate(), currentReservation.getActivity()))
+            throw new Boat.AlreadyAllocatedException();
 
         int allowedNumOfRowers = boat.getAllowedNumOfRowers();
 

@@ -21,6 +21,7 @@ public interface BMSEngine {
     Collection<BoatView> getAllAvailableBoats(LocalDate date, Activity activity);
     Collection<BoatView> getAllAvailableBoatsForReservation(ReservationView reservation);
     Collection<BoatView> getUnprivateAvailableBoats(LocalDate date, Activity activity);
+    Collection<BoatView> findSuitableBoatByLevelOfParticipants(ReservationView reservation);
     boolean boatIsAvailable(int boatSerialNumber, LocalDate date, Activity activity);
     BoatView getBoat(int serialNumber);
     BoatView getBoat(String name);
@@ -69,6 +70,6 @@ public interface BMSEngine {
     Collection<ReservationView> getUnapprovedReservationsForWeek(LocalDate startDate);
     void unapprovedReservation(int id) throws Member.AccessDeniedException, Reservation.NotFoundException;
     ReservationView getReservation(int id);
-    public void updateReservation(Reservation newReservation) throws Reservation.NotFoundException, Member.AccessDeniedException, Member.AlreadyExistsException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException;
-    public void approveReservation(int reservationID, int boatID) throws Reservation.IllegalValueException, Boat.AlreadyAllocatedException;
+    void updateReservation(Reservation newReservation) throws Reservation.NotFoundException, Member.AccessDeniedException, Member.AlreadyExistsException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException;
+    void approveReservation(int reservationID, int boatID) throws Reservation.IllegalValueException, Boat.AlreadyAllocatedException;
 }

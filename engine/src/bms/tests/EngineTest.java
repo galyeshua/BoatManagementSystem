@@ -293,5 +293,209 @@ public class EngineTest {
     deleteDatabase();
     }
 
+    @Test
+    public void addReservationWithAllBegginerMembersShouldSuggestWideBoat() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.IllegalValueException, Boat.AlreadyExistsException, Activity.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException {
+        Engine engine = new Engine();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+        engine.addMember(managerUser);
+
+        Boat publicBoat1 = new Boat(24, "wide boat", BoatView.BoatType.COXED_DOUBLE);
+        publicBoat1.setWide(true);
+        engine.addBoat(publicBoat1);
+        Boat publicBoat2 = new Boat(13, "13", BoatView.BoatType.PAIR);
+        engine.addBoat(publicBoat2);
+        Boat publicBoat3 = new Boat(100, "100", BoatView.BoatType.PAIR);
+        engine.addBoat(publicBoat3);
+
+        Member gal = new Member(1, "gal", "gal@gmail.com", "1234");
+        gal.setLevel(MemberView.Level.BEGINNER);
+        engine.addMember(gal);
+        Member maya = new Member(2, "maya", "maya@gmail.com", "1234");
+        maya.setLevel(MemberView.Level.BEGINNER);
+        engine.addMember(maya);
+        Member benny = new Member(3, "benny", "benny@gmail.com", "1234");
+        benny.setLevel(MemberView.Level.BEGINNER);
+        engine.addMember(benny);
+
+        engine.setCurrentUser(gal.getSerialNumber());
+        Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                1);
+        galsReservation.addBoatType(BoatView.Rowers.ONE);
+        galsReservation.addBoatType(BoatView.Rowers.TWO);
+        galsReservation.addParticipant(1);
+        galsReservation.addParticipant(2);
+        galsReservation.addParticipant(3);
+        engine.addReservation(galsReservation);
+
+        List<BoatView> suggestedBoats = new ArrayList<BoatView>(engine.findSuitableBoatByLevelOfParticipants(galsReservation));
+        assertEquals(1, suggestedBoats.size());
+        assertEquals(publicBoat1, suggestedBoats.get(0));
+
+        deleteDatabase();
+    }
+
+    @Test
+    public void addReservationWithAllAdvancedMembersShouldSuggestNothing() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.IllegalValueException, Boat.AlreadyExistsException, Activity.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException {
+        Engine engine = new Engine();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+        engine.addMember(managerUser);
+
+        Boat publicBoat1 = new Boat(24, "wide boat", BoatView.BoatType.COXED_DOUBLE);
+        publicBoat1.setWide(true);
+        engine.addBoat(publicBoat1);
+        Boat publicBoat2 = new Boat(13, "13", BoatView.BoatType.PAIR);
+        engine.addBoat(publicBoat2);
+        Boat publicBoat3 = new Boat(100, "100", BoatView.BoatType.PAIR);
+        engine.addBoat(publicBoat3);
+
+        Member gal = new Member(1, "gal", "gal@gmail.com", "1234");
+        gal.setLevel(MemberView.Level.ADVANCED);
+        engine.addMember(gal);
+        Member maya = new Member(2, "maya", "maya@gmail.com", "1234");
+        maya.setLevel(MemberView.Level.ADVANCED);
+        engine.addMember(maya);
+        Member benny = new Member(3, "benny", "benny@gmail.com", "1234");
+        benny.setLevel(MemberView.Level.ADVANCED);
+        engine.addMember(benny);
+
+        engine.setCurrentUser(gal.getSerialNumber());
+        Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                1);
+        galsReservation.addBoatType(BoatView.Rowers.ONE);
+        galsReservation.addBoatType(BoatView.Rowers.TWO);
+        galsReservation.addParticipant(1);
+        galsReservation.addParticipant(2);
+        galsReservation.addParticipant(3);
+        engine.addReservation(galsReservation);
+
+        List<BoatView> suggestedBoats = new ArrayList<BoatView>(engine.findSuitableBoatByLevelOfParticipants(galsReservation));
+        assertEquals(0, suggestedBoats.size());
+
+        deleteDatabase();
+    }
+
+
+    @Test
+    public void addTwoReservationsOnSameTimeAndSameRequirementsShouldSuggestOnlyOnFirst() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.IllegalValueException, Boat.AlreadyExistsException, Activity.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException, Boat.AlreadyAllocatedException {
+        Engine engine = new Engine();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setLevel(MemberView.Level.ADVANCED);
+        managerUser.setManager(true);
+        engine.addMember(managerUser);
+
+        Member gal = new Member(1, "gal", "gal@gmail.com", "1234");
+        gal.setLevel(MemberView.Level.ADVANCED);
+        engine.addMember(gal);
+
+        Member maya = new Member(2, "maya", "maya@gmail.com", "1234");
+        maya.setLevel(MemberView.Level.ADVANCED);
+        engine.addMember(maya);
+
+        Member benny = new Member(3, "benny", "benny@gmail.com", "1234");
+        benny.setLevel(MemberView.Level.ADVANCED);
+        engine.addMember(benny);
+
+        Boat publicBoat1 = new Boat(24, "wide boat", BoatView.BoatType.DOUBLE);
+        engine.addBoat(publicBoat1);
+
+        engine.setCurrentUser(gal.getSerialNumber());
+        Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                1);
+        galsReservation.addBoatType(BoatView.Rowers.ONE);
+        galsReservation.addBoatType(BoatView.Rowers.TWO);
+        galsReservation.addParticipant(1);
+        galsReservation.addParticipant(2);
+        engine.addReservation(galsReservation);
+
+        engine.setCurrentUser(benny.getSerialNumber());
+        Reservation bennysReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                24);
+        bennysReservation.addBoatType(BoatView.Rowers.FOUR);
+        bennysReservation.addBoatType(BoatView.Rowers.TWO);
+        bennysReservation.addParticipant(100);
+        bennysReservation.addParticipant(24);
+        engine.addReservation(bennysReservation);
+
+        List<BoatView> suggestedBoats = new ArrayList<BoatView>(engine.findSuitableBoatByLevelOfParticipants(galsReservation));
+        assertEquals(1, suggestedBoats.size());
+        assertEquals(publicBoat1, suggestedBoats.get(0));
+
+        engine.approveReservation(galsReservation.getId(), publicBoat1.getSerialNumber());
+
+        suggestedBoats = new ArrayList<BoatView>(engine.findSuitableBoatByLevelOfParticipants(bennysReservation));
+        assertEquals(0, suggestedBoats.size());
+
+        deleteDatabase();
+    }
+
+    @Test(expected = Boat.AlreadyAllocatedException.class)
+    public void addTwoReservationsOnSameTimeAndSameRequirementsShouldThrowException() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.IllegalValueException, Boat.AlreadyExistsException, Activity.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException, Boat.AlreadyAllocatedException {
+        Engine engine = new Engine();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setLevel(MemberView.Level.ADVANCED);
+        managerUser.setManager(true);
+        engine.addMember(managerUser);
+
+        Member gal = new Member(1, "gal", "gal@gmail.com", "1234");
+        gal.setLevel(MemberView.Level.ADVANCED);
+        engine.addMember(gal);
+
+        Member maya = new Member(2, "maya", "maya@gmail.com", "1234");
+        maya.setLevel(MemberView.Level.ADVANCED);
+        engine.addMember(maya);
+
+        Member benny = new Member(3, "benny", "benny@gmail.com", "1234");
+        benny.setLevel(MemberView.Level.ADVANCED);
+        engine.addMember(benny);
+
+        Boat publicBoat1 = new Boat(24, "wide boat", BoatView.BoatType.DOUBLE);
+        engine.addBoat(publicBoat1);
+
+        engine.setCurrentUser(gal.getSerialNumber());
+        Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                1);
+        galsReservation.addBoatType(BoatView.Rowers.ONE);
+        galsReservation.addBoatType(BoatView.Rowers.TWO);
+        galsReservation.addParticipant(1);
+        galsReservation.addParticipant(2);
+        engine.addReservation(galsReservation);
+
+        engine.setCurrentUser(benny.getSerialNumber());
+        Reservation bennysReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                24);
+        bennysReservation.addBoatType(BoatView.Rowers.FOUR);
+        bennysReservation.addBoatType(BoatView.Rowers.TWO);
+        bennysReservation.addParticipant(100);
+        bennysReservation.addParticipant(24);
+        engine.addReservation(bennysReservation);
+
+        engine.approveReservation(galsReservation.getId(), publicBoat1.getSerialNumber());
+        engine.approveReservation(bennysReservation.getId(), publicBoat1.getSerialNumber());
+
+        deleteDatabase();
+    }
+
 }
 
