@@ -293,4 +293,23 @@ public class Member implements MemberView, Serializable {
     public int hashCode() {
         return Objects.hash(serialNumber, name, age, notes, level, joinDate, expireDate, hasPrivateBoat, boatSerialNumber, phoneNumber, email, password, isManager);
     }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "serialNumber=" + serialNumber +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", notes='" + notes + '\'' +
+                ", level=" + level +
+                ", joinDate=" + joinDate +
+                ", expireDate=" + expireDate +
+                ", hasPrivateBoat=" + hasPrivateBoat +
+                ", boatSerialNumber=" + boatSerialNumber +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", isManager=" + isManager +
+                '}';
+    }
 }

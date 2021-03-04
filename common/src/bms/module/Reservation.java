@@ -196,4 +196,18 @@ public class Reservation implements ReservationView, Serializable {
         return Objects.hash(id, activity, activityDate, boatType, participants, orderDate, orderedMemberID, isApproved, allocatedBoatID);
     }
 
+    @Override
+    public String toString() {
+        return "Reservation{" +
+                "id=" + id +
+                ", activity=" + activity +
+                ", activityDate=" + activityDate +
+                ", boatType=" + boatType +
+                ", participants=" + participants +
+                ", orderDate=" + orderDate +
+                ", orderedMemberID=" + orderedMemberID +
+                ", isApproved=" + isApproved +
+                ", allocatedBoatID=" + allocatedBoatID +
+                '}';
+    }
 }

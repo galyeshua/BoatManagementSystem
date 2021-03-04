@@ -51,9 +51,24 @@ public class Engine implements BMSEngine{
     List<String> xmlImportErrorList = new ArrayList<String>();
 
 
+
+    String webappPathDir = getDirPathByOs();
+
+    private String getDirPathByOs(){
+        String OS = System.getProperty("os.name").toLowerCase();
+        boolean isWindows = OS.indexOf("win") >= 0;
+        boolean isUnix = (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") > 0);
+        boolean isMac = OS.indexOf("mac") >= 0;
+
+        if(isWindows)
+            return System.getProperty("user.dir").replace("\\bin", "\\webapps") + "\\BMS\\";
+        else // for unix and mac
+            return System.getProperty("user.dir") + "/webapps" + "/BMS/";
+    }
+
     public void saveState() {
         try{
-            XmlHandler.saveSystemState(this, "database.xml");
+            XmlHandler.saveSystemState(this, webappPathDir + "database/database.xml");
         } catch (JAXBException e) {
             e.printStackTrace();
         }
@@ -61,7 +76,7 @@ public class Engine implements BMSEngine{
 
     public void loadState()  {
         try{
-            XmlHandler.loadSystemState(this, "database.xml");
+            XmlHandler.loadSystemState(this, webappPathDir + "database/database.xml");
         } catch (Reservation.ListCannotBeEmptyException e){
             try {
             Member firstMember = new Member(1, "admin", "admin@bms.com", "admin");
@@ -86,6 +101,20 @@ public class Engine implements BMSEngine{
         this.currentUser = members.getMember(userSerialNumber);
     }
 
+
+
+    private void validateUserCanEditReservation(Reservation originalReservation)
+            throws Member.AccessDeniedException {
+        boolean userIsOwner = originalReservation.getOrderedMemberID() == currentUser.getSerialNumber();
+        boolean userIsParticipant = originalReservation.getParticipants().contains(currentUser.getSerialNumber());
+        boolean userIsAdmin = currentUser.getManager();
+
+        boolean userCanEdit = userIsOwner || userIsParticipant || userIsAdmin;
+
+        if (!userCanEdit)
+            throw new Member.AccessDeniedException();
+    }
+
     private void validateUserRole() throws Member.AccessDeniedException {
         if (!currentUser.getManager())
             throw new Member.AccessDeniedException();
@@ -98,9 +127,11 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public void deleteBoat(int serialNumber) throws Boat.NotFoundException, Boat.AlreadyAllocatedException {
+    public void deleteBoat(int serialNumber) throws Boat.NotFoundException, Boat.AlreadyAllocatedException, Boat.BelongsToMember {
         if(boatHaveFutureReservations(serialNumber))
             throw new Boat.AlreadyAllocatedException();
+        if(isPrivateBoatAllocatedToMember(serialNumber))
+            throw new Boat.BelongsToMember();
         boats.deleteBoat(serialNumber);
         saveState();
     }
@@ -187,7 +218,7 @@ public class Engine implements BMSEngine{
     public void loadBoatsFromXmlString(String fileContent) throws JAXBException, SAXException {
         xmlImportErrorList = new ArrayList<String>();
 
-        Boats boats = (Boats) ObjectsFromXmlString(fileContent, Boats.class, "resources/boats.xsd");
+        Boats boats = (Boats) ObjectsFromXmlString(fileContent, Boats.class, webappPathDir + "resources/boats.xsd");
 
         for (bms.schema.generated.boat.Boat schemaBoat : boats.getBoat()){
             try{
@@ -220,7 +251,7 @@ public class Engine implements BMSEngine{
 
         System.out.println(boatsRootElement.getBoat().size());
 
-        return xmlStringFromObjects(Boats.class, boatsRootElement, "resources/boats.xsd");
+        return xmlStringFromObjects(Boats.class, boatsRootElement, webappPathDir + "resources/boats.xsd");
     }
 
     @Override
@@ -229,6 +260,19 @@ public class Engine implements BMSEngine{
             if(reservation.getAllocatedBoatID() == boatSerialNumber)
                 return true;
 
+        return false;
+    }
+
+    @Override
+    public boolean isPrivateBoatAllocatedToMember(int boatSerialNumber) {
+        BoatView b = getBoat(boatSerialNumber);
+        if(!b.getPrivate())
+            return false;
+        for(MemberView memberView : getMembers()){
+            if(memberView.getHasPrivateBoat() && memberView.getBoatSerialNumber() != null)
+                if(memberView.getBoatSerialNumber() == boatSerialNumber)
+                    return true;
+        }
         return false;
     }
 
@@ -317,7 +361,7 @@ public class Engine implements BMSEngine{
     public void loadMembersFromXmlString(String fileContent) throws JAXBException, SAXException {
         xmlImportErrorList = new ArrayList<String>();
 
-        Members members = (Members) ObjectsFromXmlString(fileContent, Members.class, "resources/members.xsd");
+        Members members = (Members) ObjectsFromXmlString(fileContent, Members.class, webappPathDir + "resources/members.xsd");
 
         for (bms.schema.generated.member.Member schemaMember : members.getMember()){
             try{
@@ -351,7 +395,7 @@ public class Engine implements BMSEngine{
         for (Member systemMember : members.getMembers())
             membersRootElement.getMember().add(schemaMemberFromMember(systemMember));
 
-        return xmlStringFromObjects(Members.class, membersRootElement, "resources/members.xsd");
+        return xmlStringFromObjects(Members.class, membersRootElement, webappPathDir + "resources/members.xsd");
     }
 
     @Override
@@ -396,7 +440,7 @@ public class Engine implements BMSEngine{
     public void loadActivitiesFromXmlString(String fileContent) throws JAXBException, SAXException {
         xmlImportErrorList = new ArrayList<String>();
 
-        Activities activities = (Activities) ObjectsFromXmlString(fileContent, Activities.class, "resources/activities.xsd");
+        Activities activities = (Activities) ObjectsFromXmlString(fileContent, Activities.class, webappPathDir + "resources/activities.xsd");
         for (Timeframe timeframe : activities.getTimeframe()){
             try{
                 Activity newActivity = activityFromSchemaActivity(timeframe);
@@ -426,7 +470,7 @@ public class Engine implements BMSEngine{
         for (Activity activity : activities.getActivities())
             activitiesRootElement.getTimeframe().add(schemaActivityFromActivity(activity));
 
-        return xmlStringFromObjects(Activities.class, activitiesRootElement, "resources/activities.xsd");
+        return xmlStringFromObjects(Activities.class, activitiesRootElement, webappPathDir + "resources/activities.xsd");
     }
 
     @Override
@@ -647,7 +691,7 @@ public class Engine implements BMSEngine{
     }
 
     @Override
-    public ReservationView getReservation(int id) { return reservations.getReservation(id);    }
+    public ReservationView getReservation(int id) { return reservations.getReservation(id);}
 
     @Override
     public void updateReservation(Reservation newReservation) throws Reservation.NotFoundException,
@@ -658,7 +702,8 @@ public class Engine implements BMSEngine{
         int reservationID = newReservation.getId();
         Reservation oldReservation = reservations.getReservation(reservationID);
 
-        validateUserRole();
+        validateUserCanEditReservation(oldReservation);
+        //validateUserRole();
 
         if (!currentUser.getManager()){
             safeReservation = new Reservation(oldReservation);
@@ -668,6 +713,8 @@ public class Engine implements BMSEngine{
             safeReservation.setBoatType(newReservation.getBoatType());
             safeReservation.setParticipants(newReservation.getParticipants());
         }
+
+        System.out.println(safeReservation);
 
         if (!safeReservation.equals(newReservation))
             throw new Member.AccessDeniedException();

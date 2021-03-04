@@ -15,11 +15,12 @@ public class ReservationManager
     private List<Reservation> reservations = new ArrayList<Reservation>();
 
     public void addReservation(Reservation reservation) throws Member.AlreadyHaveApprovedReservationsException,
-            Reservation.AlreadyExistsException, Reservation.NotFoundException, Reservation.AlreadyApprovedException, Member.AlreadyExistsException {
+            Reservation.AlreadyExistsException, Reservation.NotFoundException, Reservation.AlreadyApprovedException, Member.AlreadyExistsException, Reservation.IllegalValueException {
 
         if (getReservation(reservation.getId()) != null)
             throw new Reservation.AlreadyExistsException("Reservation " + reservation.getId() + " already exist");
 
+        validateReservationParticipantsAndBoatType(reservation);
         removeParticipantsFromOlderReservations(reservation);
 
         reservations.add(new Reservation(reservation));
@@ -85,12 +86,12 @@ public class ReservationManager
 
     public void updateReservation(Reservation newReservation)
             throws Member.AlreadyHaveApprovedReservationsException,
-            Reservation.AlreadyApprovedException, Reservation.NotFoundException, Member.AlreadyExistsException {
+            Reservation.AlreadyApprovedException, Reservation.NotFoundException, Member.AlreadyExistsException, Reservation.IllegalValueException {
 
         int id = newReservation.getId();
 
+        validateReservationParticipantsAndBoatType(newReservation);
         validateApproved(newReservation);
-
         removeParticipantsFromOlderReservations(newReservation);
 
         reservations.set(reservations.indexOf(getReservation(id)), new Reservation(newReservation));
@@ -99,6 +100,14 @@ public class ReservationManager
     private void validateApproved(Reservation reservation) throws Reservation.AlreadyApprovedException {
         if(reservation.getIsApproved())
             throw new Reservation.AlreadyApprovedException("Cannot change approved reservation");
+    }
+
+    private void validateReservationParticipantsAndBoatType(Reservation reservation) throws Reservation.IllegalValueException {
+        if(reservation.getParticipants().isEmpty())
+            throw new Reservation.IllegalValueException("Reservation must include at least 1 participant");
+
+        if(reservation.getBoatType().isEmpty())
+            throw new Reservation.IllegalValueException("Reservation must include at least 1 boat type");
     }
 
     public void eraseAll(){

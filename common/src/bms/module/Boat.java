@@ -241,4 +241,18 @@ public class Boat implements BoatView, Serializable {
         return Objects.hash(serialNumber, name, numOfRowers, numOfPaddles, isPrivate, isWide, hasCoxswain, isMarine, isDisabled);
     }
 
+    @Override
+    public String toString() {
+        return "Boat{" +
+                "serialNumber=" + serialNumber +
+                ", name='" + name + '\'' +
+                ", numOfRowers=" + numOfRowers +
+                ", numOfPaddles=" + numOfPaddles +
+                ", isPrivate=" + isPrivate +
+                ", isWide=" + isWide +
+                ", hasCoxswain=" + hasCoxswain +
+                ", isMarine=" + isMarine +
+                ", isDisabled=" + isDisabled +
+                '}';
+    }
 }

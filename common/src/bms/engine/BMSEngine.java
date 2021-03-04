@@ -15,7 +15,7 @@ public interface BMSEngine {
 
 
     void addBoat(Boat newBoat) throws Boat.AlreadyExistsException, Boat.IllegalValueException;
-    void deleteBoat(int serialNumber) throws Boat.NotFoundException, Boat.AlreadyAllocatedException;
+    void deleteBoat(int serialNumber) throws Boat.NotFoundException, Boat.AlreadyAllocatedException, Boat.BelongsToMember;
     Collection<BoatView> getBoats();
     Collection<BoatView> getAllAvailableBoats();
     Collection<BoatView> getAllAvailableBoats(LocalDate date, Activity activity);
@@ -30,6 +30,7 @@ public interface BMSEngine {
     void eraseAndLoadBoatsFromXmlString(String fileContent) throws JAXBException, SAXException;
     String getXmlStringBoats() throws JAXBException, SAXException, General.ListIsEmptyException;
     boolean boatHaveFutureReservations(int boatSerialNumber);
+    boolean isPrivateBoatAllocatedToMember(int boatSerialNumber);
 
 
     void addMember(Member newMember) throws Member.AlreadyExistsException, Member.IllegalValueException;

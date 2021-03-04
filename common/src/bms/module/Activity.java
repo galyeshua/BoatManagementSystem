@@ -134,8 +134,10 @@ public class Activity implements ActivityView, Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Activity activity = (Activity) o;
+        boolean isNameEquals = name == null ? activity.name==null : name.equalsIgnoreCase(activity.name);
+
         return id == activity.id &&
-                name.equalsIgnoreCase(activity.name) &&
+                isNameEquals &&
                 Objects.equals(startTime, activity.startTime) &&
                 Objects.equals(finishTime, activity.finishTime) &&
                 boatType == activity.boatType;
@@ -144,5 +146,16 @@ public class Activity implements ActivityView, Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, startTime, finishTime, boatType);
+    }
+
+    @Override
+    public String toString() {
+        return "Activity{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", startTime=" + startTime +
+                ", finishTime=" + finishTime +
+                ", boatType=" + boatType +
+                '}';
     }
 }

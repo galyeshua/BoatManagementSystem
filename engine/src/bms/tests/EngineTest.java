@@ -2,9 +2,11 @@ package bms.tests;
 
 import bms.engine.BMSEngine;
 import bms.engine.Engine;
+import bms.engine.XmlHandler;
 import bms.module.*;
 import org.junit.Test;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +19,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assert.assertNull;
 
 public class EngineTest {
+
     private void deleteDatabase(){
         File db = new File("database.xml");
         if(db.exists())
@@ -241,6 +244,212 @@ public class EngineTest {
         deleteDatabase();
     }
 
+    @Test
+    public void addReservationForManagerAndUpdateReservationShouldBeFine() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyExistsException, Boat.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException, Activity.IllegalValueException, Member.AccessDeniedException, Reservation.ListCannotBeEmptyException {
+        Engine engine = new Engine();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+        engine.addMember(managerUser);
+
+        Member gal = new Member(1, "gal", "gal@gmail.com", "1234");
+        engine.addMember(gal);
+
+        Member maya = new Member(2, "maya", "maya@gmail.com", "1234");
+        engine.addMember(maya);
+
+        engine.setCurrentUser(gal.getSerialNumber());
+
+        Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                1);
+        galsReservation.addBoatType(BoatView.Rowers.FOUR);
+        galsReservation.addParticipant(1);
+        galsReservation.addParticipant(100);
+        engine.addReservation(galsReservation);
+
+        Reservation updatedReservation = new Reservation(galsReservation);
+        updatedReservation.addParticipant(2);
+
+        engine.setCurrentUser(managerUser.getSerialNumber());
+        engine.updateReservation(updatedReservation);
+
+        List<Integer> participents = new ArrayList<>();
+        participents.add(1);
+        participents.add(100);
+        participents.add(2);
+        assertEquals(participents, engine.getReservation(updatedReservation.getId()).getParticipants());
+
+        deleteDatabase();
+    }
+
+    @Test
+    public void addReservationForUserAndUpdateReservationShouldBeFine() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyExistsException, Boat.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException, Activity.IllegalValueException, Member.AccessDeniedException, Reservation.ListCannotBeEmptyException {
+        Engine engine = new Engine();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+        engine.addMember(managerUser);
+
+        Member gal = new Member(1, "gal", "gal@gmail.com", "1234");
+        engine.addMember(gal);
+
+        Member maya = new Member(2, "maya", "maya@gmail.com", "1234");
+        engine.addMember(maya);
+
+        engine.setCurrentUser(gal.getSerialNumber());
+
+        Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                1);
+        galsReservation.addBoatType(BoatView.Rowers.FOUR);
+        galsReservation.addParticipant(1);
+        galsReservation.addParticipant(2);
+        engine.addReservation(galsReservation);
+
+        Reservation updatedReservation = new Reservation(galsReservation);
+        updatedReservation.addParticipant(100);
+
+        engine.setCurrentUser(maya.getSerialNumber());
+        engine.updateReservation(updatedReservation);
+
+        List<Integer> participents = new ArrayList<>();
+        participents.add(1);
+        participents.add(2);
+        participents.add(100);
+        assertEquals(participents, engine.getReservation(updatedReservation.getId()).getParticipants());
+
+        deleteDatabase();
+    }
+
+    @Test
+    public void managerUpdateReservationOfOthersShouldBeFine() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyExistsException, Boat.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException, Activity.IllegalValueException, Member.AccessDeniedException, Reservation.ListCannotBeEmptyException {
+        Engine engine = new Engine();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+        engine.addMember(managerUser);
+
+        Member gal = new Member(1, "gal", "gal@gmail.com", "1234");
+        engine.addMember(gal);
+
+        Member maya = new Member(2, "maya", "maya@gmail.com", "1234");
+        engine.addMember(maya);
+
+        Member liron = new Member(3, "liron", "liron@gmail.com", "1234");
+        engine.addMember(liron);
+
+        engine.setCurrentUser(gal.getSerialNumber());
+
+        Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                1);
+        galsReservation.addBoatType(BoatView.Rowers.FOUR);
+        galsReservation.addParticipant(1);
+        galsReservation.addParticipant(2);
+        engine.addReservation(galsReservation);
+
+        Reservation updatedReservation = new Reservation(galsReservation);
+        updatedReservation.addParticipant(3);
+
+        engine.setCurrentUser(managerUser.getSerialNumber());
+        engine.updateReservation(updatedReservation);
+
+        List<Integer> participents = new ArrayList<>();
+        participents.add(1);
+        participents.add(2);
+        participents.add(3);
+        assertEquals(participents, engine.getReservation(updatedReservation.getId()).getParticipants());
+
+        deleteDatabase();
+    }
+
+    @Test
+    public void ownerUpdateReservationShouldBeFine() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyExistsException, Boat.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException, Activity.IllegalValueException, Member.AccessDeniedException, Reservation.ListCannotBeEmptyException {
+        Engine engine = new Engine();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+        engine.addMember(managerUser);
+
+        Member gal = new Member(1, "gal", "gal@gmail.com", "1234");
+        engine.addMember(gal);
+
+        Member maya = new Member(2, "maya", "maya@gmail.com", "1234");
+        engine.addMember(maya);
+
+        Member liron = new Member(3, "liron", "liron@gmail.com", "1234");
+        engine.addMember(liron);
+
+        engine.setCurrentUser(gal.getSerialNumber());
+        Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                1);
+        galsReservation.addBoatType(BoatView.Rowers.FOUR);
+        galsReservation.addParticipant(2);
+        galsReservation.addParticipant(3);
+        engine.addReservation(galsReservation);
+
+        Reservation updatedReservation = new Reservation(galsReservation);
+        updatedReservation.addParticipant(100);
+
+        engine.setCurrentUser(gal.getSerialNumber());
+        engine.updateReservation(updatedReservation);
+
+        List<Integer> participents = new ArrayList<>();
+        participents.add(2);
+        participents.add(3);
+        participents.add(100);
+        assertEquals(participents, engine.getReservation(updatedReservation.getId()).getParticipants());
+
+        deleteDatabase();
+    }
+
+    @Test(expected = Member.AccessDeniedException.class)
+    public void userUpdateReservationOfOthersShouldThrowException() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyExistsException, Boat.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException, Activity.IllegalValueException, Member.AccessDeniedException, Reservation.ListCannotBeEmptyException {
+        Engine engine = new Engine();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+        engine.addMember(managerUser);
+
+        Member gal = new Member(1, "gal", "gal@gmail.com", "1234");
+        engine.addMember(gal);
+
+        Member maya = new Member(2, "maya", "maya@gmail.com", "1234");
+        engine.addMember(maya);
+
+        Member liron = new Member(3, "liron", "liron@gmail.com", "1234");
+        engine.addMember(liron);
+
+        engine.setCurrentUser(gal.getSerialNumber());
+
+        Reservation galsReservation = new Reservation(new Activity(LocalTime.parse("10:00", timeFormatter), LocalTime.parse("11:00", timeFormatter)),
+                LocalDate.now().plusDays(2),
+                LocalDateTime.now(),
+                1);
+        galsReservation.addBoatType(BoatView.Rowers.FOUR);
+        galsReservation.addParticipant(1);
+        galsReservation.addParticipant(2);
+        engine.addReservation(galsReservation);
+
+        Reservation updatedReservation = new Reservation(galsReservation);
+        updatedReservation.addParticipant(100);
+
+        engine.setCurrentUser(liron.getSerialNumber());
+        engine.updateReservation(updatedReservation);
+
+        deleteDatabase();
+    }
 
     @Test
     public void addTwoReservationsThatOneWithPrivateBoatShouldApprovedOneAutomatically() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.AlreadyExistsException, Boat.IllegalValueException, Activity.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException {
@@ -283,6 +492,7 @@ public class EngineTest {
                 LocalDateTime.now(),
                 3);
         bennysReservation.addParticipant(3);
+        bennysReservation.addBoatType(BoatView.Rowers.EIGHT);
         engine.addReservation(bennysReservation);
 
 
@@ -292,6 +502,7 @@ public class EngineTest {
 
     deleteDatabase();
     }
+
 
     @Test
     public void addReservationWithAllBegginerMembersShouldSuggestWideBoat() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.IllegalValueException, Boat.AlreadyExistsException, Activity.IllegalValueException, Reservation.AlreadyApprovedException, Reservation.IllegalValueException, Reservation.NotFoundException, Reservation.AlreadyExistsException {
@@ -493,6 +704,77 @@ public class EngineTest {
 
         engine.approveReservation(galsReservation.getId(), publicBoat1.getSerialNumber());
         engine.approveReservation(bennysReservation.getId(), publicBoat1.getSerialNumber());
+
+        deleteDatabase();
+    }
+
+    @Test
+    public void checkIfPrivateBoatAllocatedToMemberShouldReturnTrue() throws Boat.AlreadyExistsException, Boat.IllegalValueException, Member.AlreadyExistsException, Member.IllegalValueException {
+        Engine engine = new Engine();
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+
+        Boat boat1 = new Boat(24, "wide boat", BoatView.BoatType.DOUBLE);
+        boat1.setPrivate(true);
+        engine.addBoat(boat1);
+
+        managerUser.setBoatSerialNumber(boat1.getSerialNumber());
+        engine.addMember(managerUser);
+
+        assertTrue(engine.isPrivateBoatAllocatedToMember(boat1.getSerialNumber()));
+        deleteDatabase();
+    }
+
+    @Test
+    public void checkIfNotPrivateBoatAllocatedToMemberShouldReturnFalse() throws Boat.AlreadyExistsException, Boat.IllegalValueException, Member.AlreadyExistsException, Member.IllegalValueException {
+        Engine engine = new Engine();
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+
+        Boat boat1 = new Boat(24, "wide boat", BoatView.BoatType.DOUBLE);
+        engine.addBoat(boat1);
+
+        engine.addMember(managerUser);
+
+        assertFalse(engine.isPrivateBoatAllocatedToMember(boat1.getSerialNumber()));
+        deleteDatabase();
+    }
+
+    @Test
+    public void checkIfPrivateBoatAllocatedToMemberShouldReturnFalse() throws Boat.AlreadyExistsException, Boat.IllegalValueException, Member.AlreadyExistsException, Member.IllegalValueException {
+        Engine engine = new Engine();
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+
+        Boat boat1 = new Boat(24, "wide boat", BoatView.BoatType.DOUBLE);
+        boat1.setPrivate(true);
+        engine.addBoat(boat1);
+
+        engine.addMember(managerUser);
+
+        assertFalse(engine.isPrivateBoatAllocatedToMember(boat1.getSerialNumber()));
+        deleteDatabase();
+    }
+
+
+    @Test(expected = Boat.BelongsToMember.class)
+    public void deletePrivateBoatThatAllocatedToMemberShouldThrowException() throws Member.IllegalValueException, Member.AlreadyExistsException, Boat.IllegalValueException, Boat.AlreadyExistsException, Boat.AlreadyAllocatedException, Boat.NotFoundException, Boat.BelongsToMember {
+        Engine engine = new Engine();
+
+        Member managerUser = new Member(100, "managerUser", "managerUser@gmail.com", "1234");
+        managerUser.setManager(true);
+
+        Boat boat1 = new Boat(24, "wide boat", BoatView.BoatType.DOUBLE);
+        boat1.setPrivate(true);
+        engine.addBoat(boat1);
+
+        managerUser.setBoatSerialNumber(boat1.getSerialNumber());
+        engine.addMember(managerUser);
+
+        engine.deleteBoat(boat1.getSerialNumber());
 
         deleteDatabase();
     }

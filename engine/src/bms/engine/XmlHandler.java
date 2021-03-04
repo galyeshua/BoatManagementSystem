@@ -62,30 +62,6 @@ public class XmlHandler {
         return objects;
     }
 
-//
-//
-//
-//
-//    static void createXmlFromObjects(String filePath, Class schemaClass, Object rootElement, String schemaFileName) throws JAXBException, SAXException {
-//        File xmlFile = new File(filePath);
-//        File schemaFile = new File(schemaFileName);
-//
-//        if (xmlFile.exists())
-//            throw new General.FileAlreadyExistException();
-//
-//        JAXBContext jaxbContext = JAXBContext.newInstance(schemaClass);
-//        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-//
-//        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-//
-//        //Load schema for validation
-//        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-//        Schema schema = schemaFactory.newSchema(schemaFile);
-//        jaxbMarshaller.setSchema(schema);
-//
-//        jaxbMarshaller.marshal(rootElement, xmlFile);
-//    }
-//
     private static Object ObjectsFromXml(String filePath, Class schemaClass, String schemaFileName) throws JAXBException, SAXException, FileNotFoundException, General.IllegalFileTypeException {
         File xmlFile = new File(filePath);
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="UTF-8">
+    <title>BMS</title>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">BoatHouse Management System</span>
+    </div>
+</nav>
+<div class="container">
+    <div class="pt-3 pb-3">
+        <div style="float: left">
+            <span id="menu_leftButtonsPlace"></span>
+        </div>
+        <div style="float: right">
+            logged in as <strong><span id="menu_usernamePlace">USER</span></strong> ( <span id="menu_rightButtonsPlace"></span> )
+        </div>
+        <div style="clear: both"></div>
+        <hr>
+    </div>
+
+    <div class="alert alert-secondary" id="globalNotifications"></div>
+    <ul style="list-style-type: none;" class="m-0 p-0" id="displayNotifications"></ul>
+    <div id="displayAlerts" style="display: none;"></div>
+    <div id="mainContent">CONTENT</div>
+</div>
+
+<script src="static/js/common.js"></script>
+<script src="static/js/domUtils.js"></script>
+<script src="static/js/userRequests.js"></script>
+<script src="static/js/manage/rowers.js"></script>
+<script src="static/js/manage/boats.js"></script>
+<script src="static/js/manage/activities.js"></script>
+<script src="static/js/userReservations.js"></script>
+<script src="static/js/manage/manageReservations.js"></script>
+<script src="static/js/manage/generalManage.js"></script>
+<script src="static/js/main.js"></script>
+
+</body>
+</html>
